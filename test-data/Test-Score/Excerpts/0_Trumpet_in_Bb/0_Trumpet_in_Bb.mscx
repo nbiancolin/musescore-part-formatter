@@ -111,6 +111,10 @@
       <Measure len="12/4">
         <multiMeasureRest>3</multiMeasureRest>
         <eid>hgdo65CFiIH_LFe19DgvRVE</eid>
+        <LayoutBreak>
+          <eid>g5Nh2m7HnBK_olw8zxZ/EQB</eid>
+          <subtype>line</subtype>
+          </LayoutBreak>
         <voice>
           <TimeSig>
             <eid>hn9PytyxK1I_9cA+LdWXpQ</eid>
@@ -142,6 +146,10 @@
         </Measure>
       <Measure>
         <eid>jQai5XuJcSK_Avplfb94guE</eid>
+        <LayoutBreak>
+          <eid>aR1pCqvz8TB_VFhGrqrAtpL</eid>
+          <subtype>line</subtype>
+          </LayoutBreak>
         <voice>
           <Rest>
             <eid>o0RWXc4DhTN_D+O0Jgd1sJ</eid>
