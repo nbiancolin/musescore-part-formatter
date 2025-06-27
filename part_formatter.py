@@ -1,6 +1,22 @@
 import ms_secrets
 
+from prompts import Prompts
+
+
+# def remove_confusing_measures(tree):
+#     ghost_measures = []
+#     for 
+
+
+
+# def add_back_confusing_measures()
+
+
+test = False
+
 if __name__ == "__main__":
+
+
     import sys
     import xml.etree.ElementTree as ET
     import requests
@@ -15,32 +31,88 @@ if __name__ == "__main__":
         # Load and parse the XML file
         tree = ET.parse(mscx_path)
         root = tree.getroot()
-        
+
+        #only pass Gemini the STAFF tag
+        staves = []
+        score = root.find("Score")
+        if score is not None:
+            for staff in score.findall("Staff"):
+                staves.append(staff)
         # Convert XML to string
-        xml_string = ET.tostring(root, encoding='unicode')
 
-        from google import genai
-        #genai.configure
-        
-        client = genai.Client(api_key=GEMINI_KEY)
-        payload = {
-            "prompt": "This is a Musescore mscx file. Please add layout (line) breaks such that no given line is longer than 8 measures, or shorter than 4 measures. To add a line break, add Add a double bar line before all rehearsal marks. Only return the new, formatted XML file",
-            "data": xml_string
-        }
+        data_prompts = []
+        for staff in staves:
+            data_prompts.append(str(ET.tostring(staff)))
 
-        import json
+        with open("temp_xml.xml", "w", encoding="utf-8") as file:
+            file.write(data_prompts[0])
 
-        response = client.models.generate_content(
-            contents=json.dumps(payload),
-            model="gemini-2.5-flash-lite-preview-06-17"
-        )
-        
-        # Handle the response
+        if test:
+            score = root.find("Score")
+            if score is not None:
+                for staff in score.findall("Staff"):
+                    for measure in staff.findall("Measure"):
+                        print(measure.attrib)
+            else:
+                print("here")
 
-        print("Response from Google Gemini:")
 
-        with open("out.mscx", "w", encoding="utf-8") as file:
-            file.write(response.text)
+
+
+        else:
+            from google import genai
+            #genai.configure
+
+            p = Prompts()
+            
+            client = genai.Client(api_key=ms_secrets.GEMINI_KEY)
+            payload = {
+                "prompt": p.alt_generate(),
+                "data": data_prompts[0]
+            }
+
+            import json
+
+            response = client.models.generate_content(
+                contents=json.dumps(payload),
+                model="gemini-2.5-flash-lite-preview-06-17"
+            )
+            
+            # Handle the response
+
+            print("Response from Google Gemini!")
+
+            #parse response back into xml
+            try:
+                response_xml = ET.fromstring(response.text)
+                # Find the staff in score that matches response_xml (by id or index)
+                if score is not None:
+                    # Assume Staff elements have an 'id' attribute to match
+                    response_staff_id = response_xml.attrib.get('id')
+                    replaced = False
+                    for i, staff in enumerate(score.findall("Staff")):
+                        if staff.attrib.get('id') == response_staff_id:
+                            score.remove(staff)
+                            score.insert(i, response_xml)
+                            replaced = True
+                            break
+                    if not replaced:
+                        # If not found, just append
+                        score.append(response_xml)
+                    
+                    with open("out.mscx", "w", encoding="utf-8") as file:
+                        tree.write(file, encoding="unicode", xml_declaration=True)
+
+                else:
+                    print("No <Score> element found in XML.")
+
+            except ET.ParseError:
+                print("GPT Sentback the wrong thing, writing to file")
+                with open("out.mscx", "w", encoding="utf-8") as file:
+                    file.write(response.text)
+
+
+
 
     except FileNotFoundError:
         print(f"Error: File '{mscx_path}' not found.")
