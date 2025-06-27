@@ -6,9 +6,10 @@ from prompts import Prompts
 stashed_measures = {}
 
 def remove_confusing_measures(score):
+    staves = []
+    stashed_per_staff = []
     for staff in score.findall("Staff"):
         staves.append(staff)
-
         measures = list(staff.findall("Measure"))
         i = 0
         while i < len(measures):
@@ -17,34 +18,32 @@ def remove_confusing_measures(score):
             if len_attr is not None:
                 num1, num2 = len_attr.split("/")
                 n = int(num1) // int(num2)
-                # Stash the next n measures (after the current one)
                 stashed = []
                 for j in range(1, n + 1):
                     if i + j < len(measures):
                         to_stash = measures[i + j]
                         stashed.append(to_stash)
-                        staff.remove(to_stash)
+                # Remove stashed measures from staff (iterate over a copy)
+                for m in stashed:
+                    staff.remove(m)
                 stashed_measures[i] = stashed
                 i += n  # Skip the stashed measures
             i += 1
-    return staves
-        
+        stashed_per_staff.append(stashed_measures)
+    return staves, stashed_per_staff
 
 
 
-def add_back_confusing_measures(staves):
-    for staff in staves:
-        measures = list(staff.findall("Measure"))
-        # Insert stashed measures at the correct position
-        # Track offset due to insertions
-        offset = 1
-        for idx in sorted(stashed_measures.keys()):
+def add_back_confusing_measures(staves, stashed_per_staff):
+    for staff, stashed_measures in zip(staves, stashed_per_staff):
+        # Insert stashed measures at the correct position, sorted ascending
+        for idx in stashed_measures.keys():
             stashed = stashed_measures[idx]
-            insert_pos = idx + 1 + offset
+            # Insert each measure in order, incrementing the index each time
+            insert_pos = idx +1
             for m in stashed:
                 staff.insert(insert_pos, m)
                 insert_pos += 1
-            offset += len(stashed)
     return staves
 
 
@@ -71,9 +70,9 @@ if __name__ == "__main__":
         #only pass Gemini the STAFF tag
         staves = []
         score = root.find("Score")
-        staves = remove_confusing_measures(score)
 
-        staves = add_back_confusing_measures(staves)
+        staves, stashed_per_staff = remove_confusing_measures(score)
+        staves = add_back_confusing_measures(staves, stashed_per_staff)
 
         data_prompts = []
         for staff in staves:
