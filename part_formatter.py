@@ -10,6 +10,8 @@ def remove_confusing_measures(score):
     stashed_per_staff = []
     for staff in score.findall("Staff"):
         staves.append(staff)
+
+
         measures = list(staff.findall("Measure"))
         i = 0
         while i < len(measures):
@@ -40,9 +42,9 @@ def add_back_confusing_measures(staves, stashed_per_staff):
         for idx in stashed_measures.keys():
             stashed = stashed_measures[idx]
             # Insert each measure in order, incrementing the index each time
-            insert_pos = idx +1
+            insert_pos = idx +2
             for m in stashed:
-                staff.insert(insert_pos, m)
+                staff.insert(insert_pos , m)
                 insert_pos += 1
     return staves
 
