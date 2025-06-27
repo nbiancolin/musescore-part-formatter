@@ -3,13 +3,49 @@ import ms_secrets
 from prompts import Prompts
 
 
-# def remove_confusing_measures(tree):
-#     ghost_measures = []
-#     for 
+stashed_measures = {}
+
+def remove_confusing_measures(score):
+    for staff in score.findall("Staff"):
+        staves.append(staff)
+
+        measures = list(staff.findall("Measure"))
+        i = 0
+        while i < len(measures):
+            measure = measures[i]
+            len_attr = measure.attrib.get("len")
+            if len_attr is not None:
+                num1, num2 = len_attr.split("/")
+                n = int(num1) // int(num2)
+                # Stash the next n measures (after the current one)
+                stashed = []
+                for j in range(1, n + 1):
+                    if i + j < len(measures):
+                        to_stash = measures[i + j]
+                        stashed.append(to_stash)
+                        staff.remove(to_stash)
+                stashed_measures[i] = stashed
+                i += n  # Skip the stashed measures
+            i += 1
+    return staves
+        
 
 
 
-# def add_back_confusing_measures()
+def add_back_confusing_measures(staves):
+    for staff in staves:
+        measures = list(staff.findall("Measure"))
+        # Insert stashed measures at the correct position
+        # Track offset due to insertions
+        offset = 1
+        for idx in sorted(stashed_measures.keys()):
+            stashed = stashed_measures[idx]
+            insert_pos = idx + 1 + offset
+            for m in stashed:
+                staff.insert(insert_pos, m)
+                insert_pos += 1
+            offset += len(stashed)
+    return staves
 
 
 test = False
@@ -35,81 +71,73 @@ if __name__ == "__main__":
         #only pass Gemini the STAFF tag
         staves = []
         score = root.find("Score")
-        if score is not None:
-            for staff in score.findall("Staff"):
-                staves.append(staff)
-        # Convert XML to string
+        staves = remove_confusing_measures(score)
+
+        staves = add_back_confusing_measures(staves)
 
         data_prompts = []
         for staff in staves:
-            data_prompts.append(str(ET.tostring(staff)))
+            data_prompts.append(ET.tostring(staff, encoding='utf8').decode('utf-8'))
 
+        import json
         with open("temp_xml.xml", "w", encoding="utf-8") as file:
             file.write(data_prompts[0])
+            #file.write(json.dumps(stashed_measures))
 
-        if test:
-            score = root.find("Score")
+        exit()
+
+
+
+        from google import genai
+        #genai.configure
+
+        p = Prompts()
+        
+        client = genai.Client(api_key=ms_secrets.GEMINI_KEY)
+        payload = {
+            "prompt": p.alt_generate(),
+            "data": data_prompts[0]
+        }
+
+        
+
+        response = client.models.generate_content(
+            contents=json.dumps(payload),
+            model="gemini-2.5-flash-lite-preview-06-17"
+        )
+        
+        # Handle the response
+
+        print("Response from Google Gemini!")
+
+        #parse response back into xml
+        try:
+            response_xml = ET.fromstring(response.text)
+            # Find the staff in score that matches response_xml (by id or index)
             if score is not None:
-                for staff in score.findall("Staff"):
-                    for measure in staff.findall("Measure"):
-                        print(measure.attrib)
-            else:
-                print("here")
-
-
-
-
-        else:
-            from google import genai
-            #genai.configure
-
-            p = Prompts()
-            
-            client = genai.Client(api_key=ms_secrets.GEMINI_KEY)
-            payload = {
-                "prompt": p.alt_generate(),
-                "data": data_prompts[0]
-            }
-
-            import json
-
-            response = client.models.generate_content(
-                contents=json.dumps(payload),
-                model="gemini-2.5-flash-lite-preview-06-17"
-            )
-            
-            # Handle the response
-
-            print("Response from Google Gemini!")
-
-            #parse response back into xml
-            try:
-                response_xml = ET.fromstring(response.text)
-                # Find the staff in score that matches response_xml (by id or index)
-                if score is not None:
-                    # Assume Staff elements have an 'id' attribute to match
-                    response_staff_id = response_xml.attrib.get('id')
-                    replaced = False
-                    for i, staff in enumerate(score.findall("Staff")):
-                        if staff.attrib.get('id') == response_staff_id:
-                            score.remove(staff)
-                            score.insert(i, response_xml)
-                            replaced = True
-                            break
-                    if not replaced:
-                        # If not found, just append
-                        score.append(response_xml)
-                    
-                    with open("out.mscx", "w", encoding="utf-8") as file:
-                        tree.write(file, encoding="unicode", xml_declaration=True)
-
-                else:
-                    print("No <Score> element found in XML.")
-
-            except ET.ParseError:
-                print("GPT Sentback the wrong thing, writing to file")
+                # Assume Staff elements have an 'id' attribute to match
+                response_staff_id = response_xml.attrib.get('id')
+                replaced = False
+                for i, staff in enumerate(score.findall("Staff")):
+                    if staff.attrib.get('id') == response_staff_id:
+                        score.remove(staff)
+                        score.insert(i, response_xml)
+                        replaced = True
+                        break
+                if not replaced:
+                    # If not found, just append
+                    score.append(response_xml)
+                
                 with open("out.mscx", "w", encoding="utf-8") as file:
-                    file.write(response.text)
+                    tree.write(file, encoding="unicode", xml_declaration=True)
+
+            else:
+                print("No <Score> element found in XML.")
+
+        except ET.ParseError:
+            print("GPT Sentback the wrong thing, writing to file")
+            with open("out.mscx", "w", encoding="utf-8") as file:
+                file.write(response.text)
 
 
 
