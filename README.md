@@ -15,3 +15,8 @@ DONE SO FAR:
 
 TODOS:
 - Refactor code bc its shit rn
+
+
+Line break steps:
+- First Pass: Rehearsal Marks
+  - Goal: Add a line break before every rehearsal mark

@@ -1,6 +1,6 @@
 import sys
 import json
-import xml.etree.ElementTree as ET
+from lxml import etree as ET
 from google import genai
 
 import ms_secrets
@@ -8,7 +8,7 @@ from prompts import Prompts
 
 
 def prepare_prompts(staves):
-    return [ET.tostring(staff, encoding="utf-8").decode("utf-8") for staff in staves]
+    return [ET.tostring(staff, encoding="unicode") for staff in staves]
 
 
 def generate_modified_staves(data_prompts, prompt_template):
@@ -24,14 +24,16 @@ def generate_modified_staves(data_prompts, prompt_template):
             contents=json.dumps(payload),
             model="gemini-2.5-flash-lite-preview-06-17"
         )
+
         try:
-            new_staff = ET.fromstring(response.text)
+            new_staff = ET.fromstring(response.text.encode("utf-8"))
             new_staves.append(new_staff)
-        except ET.ParseError:
+        except ET.XMLSyntaxError:
             print("Warning: Invalid XML received from Gemini. Saving raw output.")
             with open("out_invalid.xml", "w", encoding="utf-8") as f:
                 f.write(response.text)
             sys.exit(1)
+
     return new_staves
 
 
@@ -43,21 +45,22 @@ def replace_staves_in_score(score, new_staves):
     for i, new_staff in enumerate(new_staves):
         if i < len(original_staves):
             original = original_staves[i]
-            # Remove all children of original staff
-            for child in list(original):
-                original.remove(child)
-            # Append all children from the new staff
-            for child in list(new_staff):
+            # Clear original content
+            original.clear()
+            # Copy attributes
+            original.attrib.clear()
+            original.attrib.update(new_staff.attrib)
+            # Copy children
+            for child in new_staff:
                 original.append(child)
         else:
-            # Append any new <Staff> tags at the end (rare case)
             score.append(new_staff)
-
 
 
 def main(mscx_path):
     try:
-        tree = ET.parse(mscx_path)
+        parser = ET.XMLParser(remove_blank_text=False)
+        tree = ET.parse(mscx_path, parser)
         root = tree.getroot()
         score = root.find("Score")
         if score is None:
@@ -66,7 +69,7 @@ def main(mscx_path):
         staves = score.findall("Staff")
         data_prompts = prepare_prompts(staves)
 
-        # Optional: write first staff for debugging
+        # Optional debug: write the first extracted staff
         with open("temp_xml.xml", "w", encoding="utf-8") as f:
             f.write(data_prompts[0])
 
@@ -74,19 +77,19 @@ def main(mscx_path):
         new_staves = generate_modified_staves(data_prompts, prompts.alt_generate())
 
         with open("temp_xml.xml", "w", encoding="utf-8") as f:
-            f.write(ET.tostring(new_staves[0], encoding="utf-8").decode("utf-8"))
+            f.write(ET.tostring(new_staves[0], encoding="unicode", pretty_print=True))
 
         replace_staves_in_score(score, new_staves)
 
-        with open("out.mscx", "w", encoding="utf-8") as f:
-            tree.write(f, encoding="unicode", xml_declaration=True)
+        with open("out.mscx", "wb") as f:
+            tree.write(f, encoding="utf-8", xml_declaration=True, pretty_print=True)
         print("Output written to out.mscx")
 
     except FileNotFoundError:
         print(f"Error: File '{mscx_path}' not found.")
         sys.exit(1)
-    except ET.ParseError:
-        print(f"Error: Failed to parse XML from '{mscx_path}'.")
+    except ET.XMLSyntaxError as e:
+        print(f"Error: Failed to parse XML from '{mscx_path}': {e}")
         sys.exit(1)
     except Exception as e:
         print(f"Unhandled error: {e}")
