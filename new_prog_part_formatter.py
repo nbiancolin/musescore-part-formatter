@@ -54,14 +54,14 @@ def add_rehearsal_mark_line_breaks(staff):
     for i in range(len(staff)):
         elem = staff[i]
         if elem.tag != "Measure":
-            continue  # Skip non-measure elements
+            continue  # could be vbox or smth
 
         voice = elem.find("voice")
         if voice is None:
             continue  # Skip if no voice tag
 
         if voice.find("RehearsalMark") is not None:
-            if i > 0:  # Ensure we don't access out-of-range index
+            if i > 0:  
                 prev_elem = staff[i - 1]
                 _add_line_break_to_measure(prev_elem)
 
@@ -92,9 +92,6 @@ def main(mscx_path):
             add_rehearsal_mark_line_breaks(staff)
             cleanup_mm_rests(staff)
 
-
-        #copy everything in the folder "test_data" into a new folder "test_data_copy"
-        #Write the
 
         with open("test-data-copy/Test-Score/Excerpts/1_Trombone/1_Trombone.mscx", "wb") as f:
             ET.indent(tree, space="  ", level=0)
