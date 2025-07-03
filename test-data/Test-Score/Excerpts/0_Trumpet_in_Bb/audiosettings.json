@@ -25,14 +25,6 @@
             }
         },
         {
-            "instrumentId": "drum-kit-5",
-            "partId": "5",
-            "soloMuteState": {
-                "mute": true,
-                "solo": false
-            }
-        },
-        {
             "instrumentId": "chord_symbols",
             "partId": "3",
             "soloMuteState": {
@@ -43,6 +35,14 @@
         {
             "instrumentId": "chord_symbols",
             "partId": "4",
+            "soloMuteState": {
+                "mute": true,
+                "solo": false
+            }
+        },
+        {
+            "instrumentId": "drum-kit-5",
+            "partId": "5",
             "soloMuteState": {
                 "mute": true,
                 "solo": false
