@@ -92,11 +92,13 @@ def main(mscx_path):
             add_rehearsal_mark_line_breaks(staff)
             cleanup_mm_rests(staff)
 
+        
+        out_path = mscx_path.replace("test-data", "test-data-copy")
 
-        with open("test-data-copy/Test-Score/Excerpts/1_Trombone/1_Trombone.mscx", "wb") as f:
+        with open(out_path, "wb") as f:
             ET.indent(tree, space="  ", level=0)
             tree.write(f, encoding="utf-8", xml_declaration=True)
-        print("Output written to out.mscx")
+        print(f"Output written to {out_path}")
 
     except FileNotFoundError:
         print(f"Error: File '{mscx_path}' not found.")
