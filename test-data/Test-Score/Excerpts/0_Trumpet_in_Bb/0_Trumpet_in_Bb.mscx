@@ -11,6 +11,12 @@
       <pageWidth>8.5</pageWidth>
       <pageHeight>11</pageHeight>
       <pagePrintableWidth>7.3189</pagePrintableWidth>
+      <pageEvenLeftMargin>0.590551</pageEvenLeftMargin>
+      <pageOddLeftMargin>0.590551</pageOddLeftMargin>
+      <pageEvenTopMargin>0.590551</pageEvenTopMargin>
+      <pageEvenBottomMargin>0.590551</pageEvenBottomMargin>
+      <pageOddTopMargin>0.590551</pageOddTopMargin>
+      <pageOddBottomMargin>0.590551</pageOddBottomMargin>
       <createMultiMeasureRests>1</createMultiMeasureRests>
       <spatium>1.74978</spatium>
       </Style>
@@ -265,7 +271,7 @@
         <multiMeasureRest>4</multiMeasureRest>
         <eid>olowJyKn1XG_WD0+k1nUhDB</eid>
         <LayoutBreak>
-          <eid>W57kQdI2aXK_a2ioPp1ltBM</eid>
+          <eid>nHKkKkXlWTC_6BNH/V1Gj/L</eid>
           <subtype>line</subtype>
           </LayoutBreak>
         <voice>
@@ -304,7 +310,7 @@
       <Measure>
         <eid>mpOl6tEeQWJ_2RbcEPPZFjN</eid>
         <LayoutBreak>
-          <eid>5GLlohuH8YF_IHlHxDUvu9B</eid>
+          <eid>CVngeFfq5YB_yyHSdd0RqWE</eid>
           <subtype>line</subtype>
           </LayoutBreak>
         <voice>
