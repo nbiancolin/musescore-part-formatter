@@ -52,7 +52,10 @@ def add_rehearsal_mark_line_breaks(staff):
     If measure n-1 has a "_mm" attribute, go backwards until the first measure in the chain, and also add a line break.
 
     add a line break by calling `_add_line_break_to_measure()`
+
+    Additionally, set it up s.t. if there are 2 multimeasure rests together, only keep the second line break, remove the first one
     """
+    prev_added_line_break = None
     for i in range(len(staff)):
         elem = staff[i]
         if elem.tag != "Measure":
@@ -61,7 +64,7 @@ def add_rehearsal_mark_line_breaks(staff):
         voice = elem.find("voice")
         if voice is None:
             continue  # Skip if no voice tag
-
+        
         if voice.find("RehearsalMark") is not None:
             if i > 0:  
                 prev_elem = staff[i - 1]
@@ -69,12 +72,24 @@ def add_rehearsal_mark_line_breaks(staff):
 
             # If part of mm rest, add to start of mm rest as well
             if prev_elem.attrib.get("_mm") is not None:
-                print("Added to mm rest")
                 for j in range(i - 1, -1, -1):  # Start at i-1 and go backward
                     if staff[j].attrib.get("len") is not None:
                         print(f"Adding line break to measure at index {j}")
                         _add_line_break_to_measure(staff[j])
+                        temp_prev_added = (prev_elem, staff[j])
+
+                        #check if we can remove a previous one
+                        if prev_added_line_break:
+                            temp_prev_added = None
+                            for e in prev_added_line_break:
+                                e.remove(LINE_BREAK)
+
+                        prev_added_line_break = temp_prev_added
                         break
+
+        else:
+            if elem.attrib.get("_mm") is None:
+                prev_added_line_break = None
 
 
 def add_regular_line_breaks(staff):
