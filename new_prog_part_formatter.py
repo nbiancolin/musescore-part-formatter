@@ -6,6 +6,8 @@ LINE_BREAK = ET.Element("LayoutBreak")
 temp = ET.SubElement(LINE_BREAK, "subtype")
 temp.text = "line"
 
+NUM_MEASURES_PER_LINE = 4
+
 def _add_line_break_to_measure(measure):
     "adds line break to a given measure -- right before voice tag"
     index = 0
@@ -75,6 +77,34 @@ def add_rehearsal_mark_line_breaks(staff):
                         break
 
 
+def add_regular_line_breaks(staff):
+    """
+    We want to add a line break every `NUM_MEASURES_PER_LINE` measures. 
+    This does not include multi measure rests, these should be ignored. 
+    """
+    i = 0
+    for elem in staff:
+        if elem.tag != "Measure":
+            print("Non measure tag encountered")
+            continue
+    
+
+        if elem.find("voice") is not None and elem.find("voice").find("RehearsalMark") is not None:
+            i = 0
+
+        if elem.attrib.get("_mm") is not None:
+            if i > 0:
+                #TODO: add line break to bar before
+                print("Could have added a line break") #Manual testing indicates otherwise ...
+            i = 0
+        else:
+            if i == (NUM_MEASURES_PER_LINE -1) and elem.find("LayoutBreak") is None:
+                print("Adding Regular Line Break")
+                _add_line_break_to_measure(elem)
+                i = 0
+            else:
+                i += 1
+
 
 def main(mscx_path):
     try:
@@ -90,6 +120,7 @@ def main(mscx_path):
         for staff in staves:
             prep_mm_rests(staff)
             add_rehearsal_mark_line_breaks(staff)
+            add_regular_line_breaks(staff)
             cleanup_mm_rests(staff)
 
         

@@ -11,6 +11,7 @@ In progress
 - If a slur goes across a barline (and there is a multimeasure rest after it), add the linebreak to the measure itself instead of the one before
 - If there is the scenario: (MM Repeat) <Rehearsal Mark>[LineBreak] (MM Repeat)<Rehearsal Mark>[LineBreak] -- there should only be one line break
   - In words: If there is a lineBreak added to a MultiMeasureRest, and then another line break added to a multimeasure rest, remove the initial one, only keep the second one
+  - BUT: IF its is one mutimeasure rest and then notes, add the line break
 
 - For regular stuff, every 4 - 6 bars of music, add a line break. When a rehearsal mark / Line Break is encounterd, reset the count (ie, leave it on a new line) TODO: Not certain about this
 
