@@ -6,6 +6,7 @@ debating options -- whether its better to do this programmatically somehow? or j
 
 Currently Does:
 - Adds line breaks at rehearsal marks
+- For regular stuff, every 4 - 6 bars of music, add a line break. When a rehearsal mark / Line Break is encounterd, reset the count (ie, leave it on a new line) TODO: Not certain about this
 
 In progress
 - If a slur goes across a barline (and there is a multimeasure rest after it), add the linebreak to the measure itself instead of the one before
@@ -13,7 +14,7 @@ In progress
   - In words: If there is a lineBreak added to a MultiMeasureRest, and then another line break added to a multimeasure rest, remove the initial one, only keep the second one
   - BUT: IF its is one mutimeasure rest and then notes, add the line break
 
-- For regular stuff, every 4 - 6 bars of music, add a line break. When a rehearsal mark / Line Break is encounterd, reset the count (ie, leave it on a new line) TODO: Not certain about this
+
 
 
 ==OLD==

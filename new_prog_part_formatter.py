@@ -6,7 +6,7 @@ LINE_BREAK = ET.Element("LayoutBreak")
 temp = ET.SubElement(LINE_BREAK, "subtype")
 temp.text = "line"
 
-NUM_MEASURES_PER_LINE = 4
+NUM_MEASURES_PER_LINE = 6
 
 def _add_line_break_to_measure(measure):
     "adds line break to a given measure -- right before voice tag"
@@ -54,6 +54,7 @@ def add_rehearsal_mark_line_breaks(staff):
     add a line break by calling `_add_line_break_to_measure()`
 
     Additionally, set it up s.t. if there are 2 multimeasure rests together, only keep the second line break, remove the first one
+        TODO: This should onlt do this if the entire section before the next rehearsal mark is a multimeasure rest
     """
     prev_added_line_break = None
     for i in range(len(staff)):
@@ -120,6 +121,44 @@ def add_regular_line_breaks(staff):
             else:
                 i += 1
 
+#TODO I dont think this works
+def final_pass_through(staff):
+    """
+    Go through, and check how many measures are per line. If any line ever has 2 measures together, and the line before it has 4 or more:
+        if 4: Remove prev line break
+        if more than 4: remove prev line break and place it in the mid point (3 and 4 or 4 and 3)
+    """
+    measures_per_line = 0
+    prev_measures_per_line = 0
+    for i in range(len(list(staff))):
+        elem = staff[i]
+        if elem.tag != "Measure":
+            continue
+
+        if elem.attrib.get("_mm") is not None:
+            #want to increment measures_per_line only ONCE here, for all of these _mm measures
+            continue
+
+        if elem.find("LayoutBreak") is None and elem.attrib.get("_mm") is None:
+            measures_per_line += 1
+        else:
+            #at end of line
+            if measures_per_line <= 2 and prev_measures_per_line == 4:
+                #remove line break from 2 before
+                staff[i -2].remove(LINE_BREAK)
+            elif measures_per_line <= 2 and prev_measures_per_line >4:
+                new_line_position = i + int(((measures_per_line + prev_measures_per_line) /2))
+                
+                staff[i - measures_per_line -1].remove(LINE_BREAK)
+                _add_line_break_to_measure(staff[new_line_position])
+                measures_per_line = new_line_position - i
+
+
+
+            prev_measures_per_line = measures_per_line
+            measures_per_line = 0
+
+        
 
 def main(mscx_path):
     try:
@@ -137,6 +176,7 @@ def main(mscx_path):
             add_rehearsal_mark_line_breaks(staff)
             add_regular_line_breaks(staff)
             cleanup_mm_rests(staff)
+            final_pass_through(staff)
 
         
         out_path = mscx_path.replace("test-data", "test-data-copy")
