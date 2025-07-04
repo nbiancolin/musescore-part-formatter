@@ -8,16 +8,19 @@ temp.text = "line"
 
 NUM_MEASURES_PER_LINE = 6
 
+def _make_line_break():
+    lb = ET.Element("LayoutBreak")
+    subtype = ET.SubElement(lb, "subtype")
+    subtype.text = "line"
+    return lb
+
 def _add_line_break_to_measure(measure):
-    "adds line break to a given measure -- right before voice tag"
     index = 0
     for elem in measure:
         if elem.tag == "voice":
             break
         index += 1
-    
-    #insert line break at insert pos
-    measure.insert(index, LINE_BREAK)
+    measure.insert(index, _make_line_break())
 
 
 
@@ -121,42 +124,62 @@ def add_regular_line_breaks(staff):
             else:
                 i += 1
 
-#TODO I dont think this works
+
 def final_pass_through(staff):
     """
-    Go through, and check how many measures are per line. If any line ever has 2 measures together, and the line before it has 4 or more:
-        if 4: Remove prev line break
-        if more than 4: remove prev line break and place it in the mid point (3 and 4 or 4 and 3)
+    Adjusts poorly balanced lines. If a line has only 2 measures and the previous has 4+:
+    - If prev has 4: remove the break before it.
+    - If prev has >4: remove the break and move it to the midpoint.
     """
-    measures_per_line = 0
-    prev_measures_per_line = 0
-    for i in range(len(list(staff))):
-        elem = staff[i]
+    line_lengths = []
+    current_line = []
+    in_mm = False
+
+    for elem in staff:
         if elem.tag != "Measure":
             continue
 
         if elem.attrib.get("_mm") is not None:
-            #want to increment measures_per_line only ONCE here, for all of these _mm measures
-            continue
-
-        if elem.find("LayoutBreak") is None and elem.attrib.get("_mm") is None:
-            measures_per_line += 1
+            if in_mm:
+                continue  # skip repeated mm rest measures
+            in_mm = True
         else:
-            #at end of line
-            if measures_per_line <= 2 and prev_measures_per_line == 4:
-                #remove line break from 2 before
-                staff[i -2].remove(LINE_BREAK)
-            elif measures_per_line <= 2 and prev_measures_per_line >4:
-                new_line_position = i + int(((measures_per_line + prev_measures_per_line) /2))
-                
-                staff[i - measures_per_line -1].remove(LINE_BREAK)
-                _add_line_break_to_measure(staff[new_line_position])
-                measures_per_line = new_line_position - i
+            in_mm = False
 
+        current_line.append(elem)
 
+        if elem.find("LayoutBreak") is not None:
+            line_lengths.append(current_line)
+            current_line = []
 
-            prev_measures_per_line = measures_per_line
-            measures_per_line = 0
+    if current_line:
+        line_lengths.append(current_line)
+
+    i = 1
+    while i < len(line_lengths):
+        this_line = line_lengths[i]
+        prev_line = line_lengths[i - 1]
+
+        if len(this_line) <= 2:
+            if len(prev_line) == 4:
+                # remove break at end of previous line
+                for elem in reversed(prev_line):
+                    lb = elem.find("LayoutBreak")
+                    if lb is not None:
+                        elem.remove(lb)
+                        break
+            elif len(prev_line) > 4:
+                # remove existing line break
+                for elem in reversed(prev_line):
+                    lb = elem.find("LayoutBreak")
+                    if lb is not None:
+                        elem.remove(lb)
+                        break
+                # insert new one in midpoint
+                split_index = len(prev_line) // 2
+                _add_line_break_to_measure(prev_line[split_index])
+        i += 1
+
 
         
 
