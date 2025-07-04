@@ -18,6 +18,7 @@ def _make_double_bar():
     db = ET.Element("BarLine")
     subtype = ET.SubElement(db, "subtype")
     subtype.text = "double"
+    return db
 
 def _add_line_break_to_measure(measure):
     index = 0
@@ -234,7 +235,8 @@ def main(mscx_path):
 
         for staff in staves:
             prep_mm_rests(staff)
-            add_rehearsal_mark_line_breaks(staff)
+            add_rehearsal_mark_double_bars(staff)
+            add_double_bar_line_breaks(staff)
             add_regular_line_breaks(staff)
             cleanup_mm_rests(staff)
             final_pass_through(staff)
