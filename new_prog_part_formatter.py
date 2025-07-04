@@ -14,6 +14,11 @@ def _make_line_break():
     subtype.text = "line"
     return lb
 
+def _make_double_bar():
+    db = ET.Element("BarLine")
+    subtype = ET.SubElement(db, "subtype")
+    subtype.text = "double"
+
 def _add_line_break_to_measure(measure):
     index = 0
     for elem in measure:
@@ -22,6 +27,12 @@ def _add_line_break_to_measure(measure):
         index += 1
     measure.insert(index, _make_line_break())
 
+def _add_double_bar_to_measure(measure):
+    voice = measure.find("voice")
+    index = 0
+    for _ in voice:
+        index += 1
+    measure.insert(index, _make_double_bar())
 
 
 def prep_mm_rests(staff):
@@ -49,9 +60,36 @@ def cleanup_mm_rests(staff):
             del elem.attrib["_mm"]
     
 
-def add_rehearsal_mark_line_breaks(staff):
+def add_rehearsal_mark_double_bars(staff):
     """
     Go through each measure in the score. If there is a rehearsal mark in measure n, add a line break to measure n-1.
+    If measure n-1 has a "_mm" attribute, go backwards until the first measure in the chain, and also add a line break.
+    """
+    for i in range(len(staff)):
+        elem = staff[i]
+        if elem.tag != "Measure":
+            continue
+
+        voice = elem.find("voice")
+        if voice is None:
+            continue #sanity check
+
+        if voice.find("RehearsalMark") is not None:
+            if i > 0:
+                prev_elem = staff[i -1]
+                _add_double_bar_to_measure(prev_elem)
+
+                if prev_elem.attrib.get("_mm") is not None:
+                    for j in range(i -1, -1, -1):
+                        if staff[j].attrib.get("len") is not None:
+                            _add_double_bar_to_measure(staff[j])
+
+
+
+#TODO: Should be add line breaks to double bar
+def add_double_bar_line_breaks(staff):
+    """
+    Go through each measure in the score. If there is a double bar on measure n, add a line break to measure n-1.
     If measure n-1 has a "_mm" attribute, go backwards until the first measure in the chain, and also add a line break.
 
     add a line break by calling `_add_line_break_to_measure()`
@@ -69,7 +107,7 @@ def add_rehearsal_mark_line_breaks(staff):
         if voice is None:
             continue  # Skip if no voice tag
         
-        if voice.find("RehearsalMark") is not None:
+        if voice.find("BarLine") is not None:
             if i > 0:  
                 prev_elem = staff[i - 1]
                 _add_line_break_to_measure(prev_elem)
