@@ -83,6 +83,7 @@ def add_rehearsal_mark_double_bars(staff):
                 if prev_elem.attrib.get("_mm") is not None:
                     for j in range(i -1, -1, -1):
                         if staff[j].attrib.get("len") is not None:
+                            print(f"adding double bar to rehearsal mark at bar {j}")
                             _add_double_bar_to_measure(staff[j])
 
 
@@ -110,14 +111,14 @@ def add_double_bar_line_breaks(staff):
         
         if voice.find("BarLine") is not None:
             if i > 0:  
-                prev_elem = staff[i - 1]
+                prev_elem = staff[i]
                 _add_line_break_to_measure(prev_elem)
 
             # If part of mm rest, add to start of mm rest as well
             if prev_elem.attrib.get("_mm") is not None:
                 for j in range(i - 1, -1, -1):  # Start at i-1 and go backward
                     if staff[j].attrib.get("len") is not None:
-                        print(f"Adding line break to measure at index {j}")
+                        print(f"Adding (double bar) Line Break to measure at index {j}")
                         _add_line_break_to_measure(staff[j])
                         temp_prev_added = (prev_elem, staff[j])
 
