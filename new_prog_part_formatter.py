@@ -165,6 +165,37 @@ def add_regular_line_breaks(staff):
                 i += 1
 
 
+def add_page_breaks(staff):
+    """
+    Want to vertically space music to make it easier to read. Should be 7-9 lines per page (7-8 for the first one, 8-9 for the next one)
+    - When picking between closer or farther:
+        - if there is a multimeasure rest after a line break, make that one the page break
+        - if the page break would put a rehearsal mark on a new page, do that
+    """
+    num_line_breaks_per_page = 0
+    first_page = True
+    for i in range(len(staff)):
+        elem = staff[i]
+        prev_elem = staff[i -1]
+        if first_page:
+            cutoff = 7
+        else:
+            cutoff = 8
+
+        if elem.tag != "Measure":
+            continue #non-measure element found
+
+        if elem.find("Voice") is not None and elem.find("voice").find("LayoutBreak"):
+            num_line_breaks_per_page += 1
+        
+        if num_line_breaks_per_page == cutoff:
+            first_page = False
+
+            #add page break based on criteria
+
+        
+
+
 def final_pass_through(staff):
     """
     Adjusts poorly balanced lines. If a line has only 2 measures and the previous has 4+:
