@@ -209,7 +209,7 @@ def add_page_breaks(staff):
         if elem.tag != "Measure":
             continue #non-measure element found
 
-        if elem.find("Voice") is not None and elem.find("voice").find("LayoutBreak") and not elem.attrib.get("_mm"):
+        if elem.find("voice") is not None and elem.find("voice").find("LayoutBreak") and not elem.attrib.get("_mm"):
             num_line_breaks_per_page += 1
 
 
@@ -228,9 +228,9 @@ def add_page_breaks(staff):
             #first criteria
             next_elem = staff[second_index +1]
             first_next_elem = staff[first_index +1]
-            if next_elem.find("voice").find("RehearsalMark") is not None:
+            if next_elem.find("voice") is not None and next_elem.find("voice").find("RehearsalMark") is not None:
                 _add_page_break_to_measure(second_elem)
-            elif first_next_elem.find("voice").find("RehearsalMark") is not None:
+            elif first_next_elem.find("voice") is not None and first_next_elem.find("voice").find("RehearsalMark") is not None:
                 _add_page_break_to_measure(second_elem)
             else:
                 #second criteria
@@ -239,7 +239,8 @@ def add_page_breaks(staff):
                     _add_page_break_to_measure(first_elem)
                 else:
                     _add_page_break_to_measure(second_elem)
-                
+            
+            print("added page break")
             num_line_breaks_per_page = 0
             first_elem = None
             second_elem = None
@@ -320,6 +321,7 @@ def main(mscx_path):
             add_rehearsal_mark_double_bars(staff)
             add_double_bar_line_breaks(staff)
             add_regular_line_breaks(staff)
+            add_page_breaks(staff)
             cleanup_mm_rests(staff)
             final_pass_through(staff)
 
