@@ -36,13 +36,13 @@ def _add_line_break_to_measure(measure):
 
 def _add_page_break_to_measure(measure):
     #if line break already there, replace with a page break
-    if measure.find("LayoutBreak"):
+    if measure.find("LayoutBreak") is not None:
         measure.find("LayoutBreak").find("subtype").text = "page"
         return
     
     print("added a page break to a bar that did not have a line break!")
     index = 0
-    for elem in measue:
+    for elem in measure:
         if elem.tag == "voice":
             break
         index += 1
@@ -207,9 +207,10 @@ def add_page_breaks(staff):
             cutoff = 8
 
         if elem.tag != "Measure":
+            print("non-measure tag")
             continue #non-measure element found
 
-        if elem.find("voice") is not None and elem.find("voice").find("LayoutBreak") and not elem.attrib.get("_mm"):
+        if elem.find("LayoutBreak") is not None and elem.attrib.get("_mm") is None:
             num_line_breaks_per_page += 1
 
 
@@ -228,17 +229,20 @@ def add_page_breaks(staff):
             #first criteria
             next_elem = staff[second_index +1]
             first_next_elem = staff[first_index +1]
-            if next_elem.find("voice") is not None and next_elem.find("voice").find("RehearsalMark") is not None:
+            if next_elem.find("voice").find("RehearsalMark") is not None and next_elem.attrib.get("_mm") is not None:
+                print("1")
                 _add_page_break_to_measure(second_elem)
-            elif first_next_elem.find("voice") is not None and first_next_elem.find("voice").find("RehearsalMark") is not None:
+            elif first_next_elem.find("voice").find("RehearsalMark") is not None and first_next_elem.attrib.get("_mm") is not None:
+                print("2")
                 _add_page_break_to_measure(second_elem)
             else:
                 #second criteria
-                if elem.find("Barline") is not None:
-                    print("adding page break")
+                if first_elem.find("BarLine") is not None:
                     _add_page_break_to_measure(first_elem)
+                    print("3")
                 else:
                     _add_page_break_to_measure(second_elem)
+                    print("4")
             
             print("added page break")
             num_line_breaks_per_page = 0
