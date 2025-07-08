@@ -14,6 +14,12 @@ def _make_line_break():
     subtype.text = "line"
     return lb
 
+def _make_page_break():
+    pb = ET.Element("LayoutBreak")
+    subtype = ET.SubElement(pb, "subtype")
+    subtype.text = "page"
+    return pb
+
 def _make_double_bar():
     db = ET.Element("BarLine")
     subtype = ET.SubElement(db, "subtype")
@@ -27,6 +33,22 @@ def _add_line_break_to_measure(measure):
             break
         index += 1
     measure.insert(index, _make_line_break())
+
+def _add_page_break_to_measure(measure):
+    #if line break already there, replace with a page break
+    if measure.find("LayoutBreak"):
+        measure.find("LayoutBreak").find("subtype").text = "page"
+        return
+    
+    print("added a page break to a bar that did not have a line break!")
+    index = 0
+    for elem in measue:
+        if elem.tag == "voice":
+            break
+        index += 1
+
+    measure.insert(index, _make_page_break())
+
 
 def _add_double_bar_to_measure(measure):
     voice = measure.find("voice")
@@ -174,9 +196,11 @@ def add_page_breaks(staff):
     """
     num_line_breaks_per_page = 0
     first_page = True
+
+    first_elem, second_elem = None, None
+    first_index, second_index = -1, -1
     for i in range(len(staff)):
         elem = staff[i]
-        prev_elem = staff[i -1]
         if first_page:
             cutoff = 7
         else:
@@ -185,14 +209,40 @@ def add_page_breaks(staff):
         if elem.tag != "Measure":
             continue #non-measure element found
 
-        if elem.find("Voice") is not None and elem.find("voice").find("LayoutBreak"):
+        if elem.find("Voice") is not None and elem.find("voice").find("LayoutBreak") and not elem.attrib.get("_mm"):
             num_line_breaks_per_page += 1
-        
-        if num_line_breaks_per_page == cutoff:
+
+
+        if num_line_breaks_per_page == cutoff and first_elem is None:
+            first_elem = elem
+            first_index = i
+            num_line_breaks_per_page -= 1
+            continue
+
+        if num_line_breaks_per_page == cutoff and first_elem is not None:
+            second_elem = elem
+            second_index = i
             first_page = False
 
             #add page break based on criteria
-
+            #first criteria
+            next_elem = staff[second_index +1]
+            first_next_elem = staff[first_index +1]
+            if next_elem.find("voice").find("RehearsalMark") is not None:
+                _add_page_break_to_measure(second_elem)
+            elif first_next_elem.find("voice").find("RehearsalMark") is not None:
+                _add_page_break_to_measure(second_elem)
+            else:
+                #second criteria
+                if elem.find("Barline") is not None:
+                    print("adding page break")
+                    _add_page_break_to_measure(first_elem)
+                else:
+                    _add_page_break_to_measure(second_elem)
+                
+            num_line_breaks_per_page = 0
+            first_elem = None
+            second_elem = None
         
 
 
