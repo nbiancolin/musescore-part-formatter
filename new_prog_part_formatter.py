@@ -197,68 +197,80 @@ def add_regular_line_breaks(staff):
 
 def add_page_breaks(staff):
     """
-    Want to vertically space music to make it easier to read. Should be 7-9 lines per page (7-8 for the first one, 8-9 for the next one)
-    - When picking between closer or farther:
-        - if there is a multimeasure rest after a line break, make that one the page break
-        - if the page break would put a rehearsal mark on a new page, do that
+    Add page breaks to staff to improve vertical readability.
+    - Aim for 7–9 lines per page: 7–8 for first page, 8–9 for others.
+    - Favor breaks before multimeasure rests or rehearsal marks.
     """
+    def is_line_break(measure):
+        return measure.find("LayoutBreak") is not None and measure.attrib.get("_mm") is None
+
+    def has_rehearsal_mark(measure):
+        voice = measure.find("voice")
+        return voice is not None and voice.find("RehearsalMark") is not None and measure.attrib.get("_mm") is not None
+
+    def choose_best_break(first_elem, second_elem, first_index, second_index, lines_on_page):
+        print(f"Page had {lines_on_page} lines before break.")
+        next_first = staff[first_index + 1] if first_index + 1 < len(staff) else None
+        next_second = staff[second_index + 1] if second_index + 1 < len(staff) else None
+
+        # Prefer break before a rehearsal mark
+        if next_second is not None and has_rehearsal_mark(next_second):
+            _add_page_break_to_measure(second_elem)
+            print("1")
+            return 0
+        elif next_first is not None and has_rehearsal_mark(next_first):
+            _add_page_break_to_measure(second_elem)
+            print("2")
+            return 0
+        # Prefer multimeasure rest (BarLine is a proxy for that)
+        elif first_elem.find("BarLine") is not None:
+            _add_page_break_to_measure(first_elem)
+            print("3")
+            return 1
+        elif second_elem.find("BarLine") is not None:
+            _add_page_break_to_measure(second_elem)
+            print("4")
+            return 0
+        else:
+            _add_page_break_to_measure(first_elem)
+            print("3")
+            return 1
+
+        print("added page break")
+
+
+
     num_line_breaks_per_page = 0
     first_page = True
-
     first_elem, second_elem = None, None
     first_index, second_index = -1, -1
-    for i in range(len(staff)):
-        elem = staff[i]
-        if first_page:
-            cutoff = 7
-        else:
-            cutoff = 8
 
+    for i, elem in enumerate(staff):
         if elem.tag != "Measure":
             print("non-measure tag")
-            continue #non-measure element found
-
-        if elem.find("LayoutBreak") is not None and elem.attrib.get("_mm") is None:
-            num_line_breaks_per_page += 1
-
-
-        if num_line_breaks_per_page == cutoff and first_elem is None:
-            first_elem = elem
-            first_index = i
-            num_line_breaks_per_page -= 1
             continue
 
-        if num_line_breaks_per_page == cutoff and first_elem is not None:
-            second_elem = elem
-            second_index = i
-            first_page = False
+        cutoff = 7 if first_page else 8
 
-            #add page break based on criteria
-            #first criteria
-            next_elem = staff[second_index +1]
-            first_next_elem = staff[first_index +1]
-            if next_elem.find("voice").find("RehearsalMark") is not None and next_elem.attrib.get("_mm") is not None:
-                print("1")
-                _add_page_break_to_measure(second_elem)
-            elif first_next_elem.find("voice").find("RehearsalMark") is not None and first_next_elem.attrib.get("_mm") is not None:
-                print("2")
-                _add_page_break_to_measure(second_elem)
+        if is_line_break(elem):
+            num_line_breaks_per_page += 1
+
+        if num_line_breaks_per_page == cutoff:
+            if first_elem is None:
+                first_elem, first_index = elem, i
+                num_line_breaks_per_page -= 1  # Keep counting for second option
+                continue
             else:
-                #second criteria
-                if first_elem.find("BarLine") is not None:
-                    _add_page_break_to_measure(first_elem)
-                    print("3")
-                elif second_elem.find("BarLine") is not None:
-                    _add_page_break_to_measure(second_elem)
-                    print("4")
-                else:
-                    _add_page_break_to_measure(first_elem)
-                    print("3")  
-            
-            print("added page break")
-            num_line_breaks_per_page = 0
-            first_elem = None
-            second_elem = None
+                second_elem, second_index = elem, i
+                res = choose_best_break(first_elem, second_elem, first_index, second_index, num_line_breaks_per_page + 1)
+
+                    # Reset state
+                num_line_breaks_per_page = res
+                first_page = False
+                first_elem = second_elem = None
+                first_index = second_index = -1
+
+
         
 
 
