@@ -195,80 +195,6 @@ def add_regular_line_breaks(staff):
                 i += 1
 
 
-def final_pass_for_line_breaks(staff):
-    """
-    If there is a multimeasure rest and then notes, we want the total number of measures (num) on that line to be a multiple of 4
-    if num > 8:
-        add line break either 3, 2, 1, or 0 after (to make total # of measures a multiple of 4)
-    if num == 8:
-        add line break to mm rest (line has 8 measures per)
-    if num < 8:
-        add line break either 4, 3, 2, or 1 after (to make total # of measures a multiple of 4)
-    """
-    print("=== thing ===")
-    in_mm_rest = False
-    mm_rest_len = 0
-    bars_until_line_break = -1
-    for i in range(len(staff)):
-        elem = staff[i]
-        if elem.tag != "Measure":
-            continue #non-measure element found
-
-        if bars_until_line_break > 0:
-            print(f"bars until line break: {bars_until_line_break}")
-            bars_until_line_break -= 1
-            continue
-
-        if bars_until_line_break == 0:
-            print("adding line break!")
-            _add_line_break_to_measure_opt(elem)
-            #reset
-            bars_until_line_break = -1
-            in_mm_rest = False
-            mm_rest_len = 0
-            continue
-
-        
-        if in_mm_rest:
-            if elem.attrib.get("_mm") is not None:
-                print("still in mm rest")
-                mm_rest_len += 1
-                continue
-            else:
-                in_mm_rest = False
-
-                if elem.attrib.get("len") is not None:
-                    #multimeasure rest went into another multimeasure rest -- reset and continue
-                    print("mm rest went into another mm rest")
-                    in_mm_rest = True
-                    mm_rest_len = 1
-                    continue
-
-                bars_until_line_break = mm_rest_len % 4
-                print(f"bars until line break: {bars_until_line_break}")
-                if mm_rest_len == 8:
-                    #add linebreak right here
-                    _add_line_break_to_measure(elem)
-                    bars_until_line_break = -1
-                    mm_rest_len = 0
-                    continue
-                else:
-                    #TODO Something here?
-                    print("ELSE")
-                    continue
-                    
-
-
-        else:
-            if elem.attrib.get("len") is not None:
-                print("entered mm rest")
-                in_mm_rest = True
-                mm_rest_len = 1
-            else:
-                mm_rest_len = 0
-
-
-
 def add_page_breaks(staff):
     """
     Want to vertically space music to make it easier to read. Should be 7-9 lines per page (7-8 for the first one, 8-9 for the next one)
@@ -322,9 +248,12 @@ def add_page_breaks(staff):
                 if first_elem.find("BarLine") is not None:
                     _add_page_break_to_measure(first_elem)
                     print("3")
-                else:
+                elif second_elem.find("BarLine") is not None:
                     _add_page_break_to_measure(second_elem)
                     print("4")
+                else:
+                    _add_page_break_to_measure(first_elem)
+                    print("3")  
             
             print("added page break")
             num_line_breaks_per_page = 0
@@ -407,10 +336,10 @@ def main(mscx_path):
             add_rehearsal_mark_double_bars(staff)
             add_double_bar_line_breaks(staff)
             add_regular_line_breaks(staff)
-            add_page_breaks(staff)
-            final_pass_for_line_breaks(staff)
-            cleanup_mm_rests(staff)
+            # final_pass_for_line_breaks(staff)
             final_pass_through(staff)
+            add_page_breaks(staff)
+            cleanup_mm_rests(staff)
 
         
         out_path = mscx_path.replace("test-data", "test-data-copy")
