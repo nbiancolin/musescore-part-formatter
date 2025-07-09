@@ -9,14 +9,6 @@
             }
         },
         {
-            "instrumentId": "alto-saxophone",
-            "partId": "4",
-            "soloMuteState": {
-                "mute": true,
-                "solo": false
-            }
-        },
-        {
             "instrumentId": "horn",
             "partId": "6",
             "soloMuteState": {
@@ -25,8 +17,8 @@
             }
         },
         {
-            "instrumentId": "c-horn-bass",
-            "partId": "13",
+            "instrumentId": "alto-saxophone",
+            "partId": "4",
             "soloMuteState": {
                 "mute": true,
                 "solo": false
@@ -34,6 +26,14 @@
         },
         {
             "instrumentId": "harp",
+            "partId": "13",
+            "soloMuteState": {
+                "mute": true,
+                "solo": false
+            }
+        },
+        {
+            "instrumentId": "c-horn-bass",
             "partId": "13",
             "soloMuteState": {
                 "mute": true,
@@ -49,16 +49,16 @@
             }
         },
         {
-            "instrumentId": "brass",
-            "partId": "13",
+            "instrumentId": "chord_symbols",
+            "partId": "15",
             "soloMuteState": {
                 "mute": true,
                 "solo": false
             }
         },
         {
-            "instrumentId": "chord_symbols",
-            "partId": "15",
+            "instrumentId": "brass",
+            "partId": "13",
             "soloMuteState": {
                 "mute": true,
                 "solo": false

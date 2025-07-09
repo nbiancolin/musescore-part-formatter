@@ -343,15 +343,15 @@ def main(mscx_path):
 
         staves = score.findall("Staff")
 
-        for staff in staves:
-            prep_mm_rests(staff)
-            add_rehearsal_mark_double_bars(staff)
-            add_double_bar_line_breaks(staff)
-            add_regular_line_breaks(staff)
-            # final_pass_for_line_breaks(staff)
-            final_pass_through(staff)
-            add_page_breaks(staff)
-            cleanup_mm_rests(staff)
+        staff = staves[0]  #noqa  -- only add layout breaks to the first staff
+        prep_mm_rests(staff)
+        add_rehearsal_mark_double_bars(staff)
+        add_double_bar_line_breaks(staff)
+        add_regular_line_breaks(staff)
+        # final_pass_for_line_breaks(staff)
+        final_pass_through(staff)
+        add_page_breaks(staff)
+        cleanup_mm_rests(staff)
 
         
         out_path = mscx_path.replace("test-data", "test-data-copy")
