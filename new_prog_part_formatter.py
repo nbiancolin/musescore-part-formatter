@@ -6,7 +6,9 @@ LINE_BREAK = ET.Element("LayoutBreak")
 temp = ET.SubElement(LINE_BREAK, "subtype")
 temp.text = "line"
 
-NUM_MEASURES_PER_LINE = 6
+NUM_MEASURES_PER_LINE = 6 #TODO: Make this a function of the time signature somehow?
+
+# -- HELPER FUNCTIONS --
 
 def _make_line_break():
     lb = ET.Element("LayoutBreak")
@@ -34,6 +36,11 @@ def _add_line_break_to_measure(measure):
         index += 1
     measure.insert(index, _make_line_break())
 
+def _add_line_break_to_measure_opt(measure):
+    if measure.find("LayoutBreak") is not None:
+        return
+    _add_line_break_to_measure(measure)
+
 def _add_page_break_to_measure(measure):
     #if line break already there, replace with a page break
     if measure.find("LayoutBreak") is not None:
@@ -58,6 +65,7 @@ def _add_double_bar_to_measure(measure):
     measure.insert(index, _make_double_bar())
 
 
+# -- LayoutBreak formatting --
 def prep_mm_rests(staff):
     """
     Go through each measure in score. 
@@ -185,6 +193,80 @@ def add_regular_line_breaks(staff):
                 i = 0
             else:
                 i += 1
+
+
+def final_pass_for_line_breaks(staff):
+    """
+    If there is a multimeasure rest and then notes, we want the total number of measures (num) on that line to be a multiple of 4
+    if num > 8:
+        add line break either 3, 2, 1, or 0 after (to make total # of measures a multiple of 4)
+    if num == 8:
+        add line break to mm rest (line has 8 measures per)
+    if num < 8:
+        add line break either 4, 3, 2, or 1 after (to make total # of measures a multiple of 4)
+    """
+    print("=== thing ===")
+    in_mm_rest = False
+    mm_rest_len = 0
+    bars_until_line_break = -1
+    for i in range(len(staff)):
+        elem = staff[i]
+        if elem.tag != "Measure":
+            continue #non-measure element found
+
+        if bars_until_line_break > 0:
+            print(f"bars until line break: {bars_until_line_break}")
+            bars_until_line_break -= 1
+            continue
+
+        if bars_until_line_break == 0:
+            print("adding line break!")
+            _add_line_break_to_measure_opt(elem)
+            #reset
+            bars_until_line_break = -1
+            in_mm_rest = False
+            mm_rest_len = 0
+            continue
+
+        
+        if in_mm_rest:
+            if elem.attrib.get("_mm") is not None:
+                print("still in mm rest")
+                mm_rest_len += 1
+                continue
+            else:
+                in_mm_rest = False
+
+                if elem.attrib.get("len") is not None:
+                    #multimeasure rest went into another multimeasure rest -- reset and continue
+                    print("mm rest went into another mm rest")
+                    in_mm_rest = True
+                    mm_rest_len = 1
+                    continue
+
+                bars_until_line_break = mm_rest_len % 4
+                print(f"bars until line break: {bars_until_line_break}")
+                if mm_rest_len == 8:
+                    #add linebreak right here
+                    _add_line_break_to_measure(elem)
+                    bars_until_line_break = -1
+                    mm_rest_len = 0
+                    continue
+                else:
+                    #TODO Something here?
+                    print("ELSE")
+                    continue
+                    
+
+
+        else:
+            if elem.attrib.get("len") is not None:
+                print("entered mm rest")
+                in_mm_rest = True
+                mm_rest_len = 1
+            else:
+                mm_rest_len = 0
+
 
 
 def add_page_breaks(staff):
@@ -326,6 +408,7 @@ def main(mscx_path):
             add_double_bar_line_breaks(staff)
             add_regular_line_breaks(staff)
             add_page_breaks(staff)
+            final_pass_for_line_breaks(staff)
             cleanup_mm_rests(staff)
             final_pass_through(staff)
 
