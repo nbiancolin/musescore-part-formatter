@@ -261,10 +261,6 @@
       <Measure len="16/4">
         <multiMeasureRest>4</multiMeasureRest>
         <eid>Ql4O3mcxbYF_0rMFWu9mCvK</eid>
-        <LayoutBreak>
-          <eid>yQYFtHCOrFF_if+TvKw9mUO</eid>
-          <subtype>line</subtype>
-          </LayoutBreak>
         <voice>
           <Rest>
             <eid>Zmsd7wdvufE_VvndM1qXxtF</eid>
@@ -300,10 +296,6 @@
         </Measure>
       <Measure>
         <eid>KT/DuDAHfcI_G0pLPMjsJ2L</eid>
-        <LayoutBreak>
-          <eid>yaAclP6yqYD_ojMzhkxVTeB</eid>
-          <subtype>line</subtype>
-          </LayoutBreak>
         <voice>
           <Rest>
             <eid>B5q91t0lqvD_OZTWuTR7x3L</eid>
@@ -582,10 +574,6 @@
         </Measure>
       <Measure>
         <eid>cXPrIPiJaIK_PULngpRqyxE</eid>
-        <LayoutBreak>
-          <eid>UjhVQweJ0RE_JrXkTtLrfMJ</eid>
-          <subtype>line</subtype>
-          </LayoutBreak>
         <voice>
           <Chord>
             <eid>2ogCxisGAdE_1S3RmSLDqSK</eid>
@@ -719,10 +707,6 @@
       <Measure len="16/4">
         <multiMeasureRest>4</multiMeasureRest>
         <eid>VVoN79Tr6SF_ToJhpIPch2I</eid>
-        <LayoutBreak>
-          <eid>RHu66vyAdFK_7rBkrzyyJ6P</eid>
-          <subtype>line</subtype>
-          </LayoutBreak>
         <voice>
           <RehearsalMark>
             <eid>PzPp5s88JiC_tm1x3lp+opN</eid>
@@ -767,10 +751,6 @@
         </Measure>
       <Measure>
         <eid>H4GiwcU9NsL_V6BlHkvF92E</eid>
-        <LayoutBreak>
-          <eid>eKHYHTLjHDJ_aZAHvhZ4inG</eid>
-          <subtype>line</subtype>
-          </LayoutBreak>
         <voice>
           <Rest>
             <eid>xjxOdA9GTkL_nmZjeCpJ01C</eid>
