@@ -329,10 +329,15 @@ def final_pass_through(staff):
                 _add_line_break_to_measure(prev_line[split_index])
         i += 1
 
+def mscz_main(mscx_path):
 
-        
+    #flow of new stuff
+    # - Unzip mscz file into temp directory
+    # find each xml file and process them separately, write trem to a "done" directory
+    # re-zip everything, write back to a new file
 
-def main(mscx_path):
+
+
     try:
         parser = ET.XMLParser()
         tree = ET.parse(mscx_path, parser)
@@ -348,7 +353,47 @@ def main(mscx_path):
         add_rehearsal_mark_double_bars(staff)
         add_double_bar_line_breaks(staff)
         add_regular_line_breaks(staff)
-        # final_pass_for_line_breaks(staff)
+        final_pass_through(staff)
+        add_page_breaks(staff)
+        cleanup_mm_rests(staff)
+
+        
+        out_path = mscx_path.replace("test-data", "test-data-copy")
+
+        with open(out_path, "wb") as f:
+            ET.indent(tree, space="  ", level=0)
+            tree.write(f, encoding="utf-8", xml_declaration=True)
+        print(f"Output written to {out_path}")
+
+    except FileNotFoundError:
+        print(f"Error: File '{mscx_path}' not found.")
+        sys.exit(1)
+    # except ET.XMLSyntaxError as e:
+    #     print(f"Error: Failed to parse XML from '{mscx_path}': {e}")
+    #     sys.exit(1)
+    # except Exception as e:
+    #     print(f"Unhandled error: {e}")
+    #     sys.exit(1)
+
+
+        
+
+def mscx_main(mscx_path):
+    try:
+        parser = ET.XMLParser()
+        tree = ET.parse(mscx_path, parser)
+        root = tree.getroot()
+        score = root.find("Score")
+        if score is None:
+            raise ValueError("No <Score> tag found in the XML.")
+
+        staves = score.findall("Staff")
+
+        staff = staves[0]  #noqa  -- only add layout breaks to the first staff
+        prep_mm_rests(staff)
+        add_rehearsal_mark_double_bars(staff)
+        add_double_bar_line_breaks(staff)
+        add_regular_line_breaks(staff)
         final_pass_through(staff)
         add_page_breaks(staff)
         cleanup_mm_rests(staff)
@@ -375,7 +420,12 @@ def main(mscx_path):
 
 if __name__ == "__main__":
     if len(sys.argv) < 2:
-        print("Usage: python part_formatter.py <mscx file>")
+        print("Usage: python part_formatter.py <mscx|mscz file>")
         sys.exit(1)
 
-    main(sys.argv[1])
+    if sys.argv[1].endswith(".mscx"):
+        mscx_main(sys.argv[1])
+    elif sys.argv[1].endswith(".mscz"):
+        mscz_main(sys.argv[1])
+    else:
+        print("Make sure to use this on either a mscx or mscz file")
