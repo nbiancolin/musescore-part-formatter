@@ -1,5 +1,7 @@
 import sys
 import xml.etree.ElementTree as ET
+import zipfile
+import os
 
 #create a line break element
 LINE_BREAK = ET.Element("LayoutBreak")
@@ -329,15 +331,85 @@ def final_pass_through(staff):
                 _add_line_break_to_measure(prev_line[split_index])
         i += 1
 
-def mscz_main(mscx_path):
+def mscz_main(mscz_path):
 
     #flow of new stuff
     # - Unzip mscz file into temp directory
     # find each xml file and process them separately, write trem to a "done" directory
     # re-zip everything, write back to a new file
 
+    with zipfile.ZipFile(mscz_path, 'r') as zip_ref:
+        # Extract all files to "temp" and collect all .mscx files from the zip structure
+        temp_dir = "temp"
+        zip_ref.extractall(temp_dir)
+    
+    mscx_files = [os.path.join(temp_dir, f) for f in zip_ref.namelist() if f.endswith('.mscx')]
+    if not mscx_files:
+        print("No .mscx files found in the provided mscz file.")
+        sys.exit(1)
+
+    # Process each mscx file
+    for mscx_path in mscx_files:
+        print(f"Processing {mscx_path}...")
+        process_mscx(mscx_path)
+    
+    # Re-zip the processed files into a new mscz file
+    output_mscz_path = mscz_path.replace(".mscz", "_processed.mscz")
+    with zipfile.ZipFile(output_mscz_path, 'w') as zip_out:
+        for root, _, files in os.walk(temp_dir):
+            for file in files:
+                file_path = os.path.join(root, file)
+                # Write the file to the zip, maintaining the directory structure
+                zip_out.write(file_path, os.path.relpath(file_path, temp_dir))
+
+    #remove temp directory
+    # for root, dirs, files in os.walk(temp_dir, topdown=False):
+    #     for file in files:
+    #         os.remove(os.path.join(root, file))
+    #     for dir in dirs:
+    #         os.rmdir(os.path.join(root, dir))
+    # os.rmdir(temp_dir)
 
 
+    # try:
+    #     parser = ET.XMLParser()
+    #     tree = ET.parse(mscx_path, parser)
+    #     root = tree.getroot()
+    #     score = root.find("Score")
+    #     if score is None:
+    #         raise ValueError("No <Score> tag found in the XML.")
+
+    #     staves = score.findall("Staff")
+
+    #     staff = staves[0]  #noqa  -- only add layout breaks to the first staff
+    #     prep_mm_rests(staff)
+    #     add_rehearsal_mark_double_bars(staff)
+    #     add_double_bar_line_breaks(staff)
+    #     add_regular_line_breaks(staff)
+    #     final_pass_through(staff)
+    #     add_page_breaks(staff)
+    #     cleanup_mm_rests(staff)
+
+    #     if standalone:
+    #         out_path = mscx_path.replace("test-data", "test-data-copy")
+
+    #         with open(out_path, "wb") as f:
+    #             ET.indent(tree, space="  ", level=0)
+    #             tree.write(f, encoding="utf-8", xml_declaration=True)
+    #         print(f"Output written to {out_path}")
+    #     else:
+    #         #write file back to the temp directory
+    #         with open()
+
+
+    # except FileNotFoundError:
+    #     print(f"Error: File '{mscx_path}' not found.")
+    #     sys.exit(1)
+
+
+        
+
+def process_mscx(mscx_path, standalone=False):
     try:
         parser = ET.XMLParser()
         tree = ET.parse(mscx_path, parser)
@@ -357,64 +429,22 @@ def mscz_main(mscx_path):
         add_page_breaks(staff)
         cleanup_mm_rests(staff)
 
-        
-        out_path = mscx_path.replace("test-data", "test-data-copy")
+        if standalone:
+            out_path = mscx_path.replace("test-data", "test-data-copy")
 
-        with open(out_path, "wb") as f:
-            ET.indent(tree, space="  ", level=0)
-            tree.write(f, encoding="utf-8", xml_declaration=True)
-        print(f"Output written to {out_path}")
-
-    except FileNotFoundError:
-        print(f"Error: File '{mscx_path}' not found.")
-        sys.exit(1)
-    # except ET.XMLSyntaxError as e:
-    #     print(f"Error: Failed to parse XML from '{mscx_path}': {e}")
-    #     sys.exit(1)
-    # except Exception as e:
-    #     print(f"Unhandled error: {e}")
-    #     sys.exit(1)
-
-
-        
-
-def mscx_main(mscx_path):
-    try:
-        parser = ET.XMLParser()
-        tree = ET.parse(mscx_path, parser)
-        root = tree.getroot()
-        score = root.find("Score")
-        if score is None:
-            raise ValueError("No <Score> tag found in the XML.")
-
-        staves = score.findall("Staff")
-
-        staff = staves[0]  #noqa  -- only add layout breaks to the first staff
-        prep_mm_rests(staff)
-        add_rehearsal_mark_double_bars(staff)
-        add_double_bar_line_breaks(staff)
-        add_regular_line_breaks(staff)
-        final_pass_through(staff)
-        add_page_breaks(staff)
-        cleanup_mm_rests(staff)
-
-        
-        out_path = mscx_path.replace("test-data", "test-data-copy")
-
-        with open(out_path, "wb") as f:
-            ET.indent(tree, space="  ", level=0)
-            tree.write(f, encoding="utf-8", xml_declaration=True)
-        print(f"Output written to {out_path}")
+            with open(out_path, "wb") as f:
+                ET.indent(tree, space="  ", level=0)
+                tree.write(f, encoding="utf-8", xml_declaration=True)
+            print(f"Output written to {out_path}")
+        else:
+            with open(mscx_path, "wb") as f:
+                ET.indent(tree, space="  ", level=0)
+                tree.write(f, encoding="utf-8", xml_declaration=True)
+            print(f"Output written to {mscx_path}")
 
     except FileNotFoundError:
         print(f"Error: File '{mscx_path}' not found.")
         sys.exit(1)
-    # except ET.XMLSyntaxError as e:
-    #     print(f"Error: Failed to parse XML from '{mscx_path}': {e}")
-    #     sys.exit(1)
-    # except Exception as e:
-    #     print(f"Unhandled error: {e}")
-    #     sys.exit(1)
 
 
 
@@ -424,7 +454,7 @@ if __name__ == "__main__":
         sys.exit(1)
 
     if sys.argv[1].endswith(".mscx"):
-        mscx_main(sys.argv[1])
+        process_mscx(sys.argv[1], standalone=True)
     elif sys.argv[1].endswith(".mscz"):
         mscz_main(sys.argv[1])
     else:
