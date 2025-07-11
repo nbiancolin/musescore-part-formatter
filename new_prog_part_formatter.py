@@ -60,11 +60,8 @@ def _add_page_break_to_measure(measure):
 
 
 def _add_double_bar_to_measure(measure):
-    voice = measure.find("voice")
-    index = 0
-    for _ in voice:
-        index += 1
-    measure.insert(index, _make_double_bar())
+    # Add the double bar as the very last tag in the measure
+    measure.append(_make_double_bar())
 
 
 # -- LayoutBreak formatting --

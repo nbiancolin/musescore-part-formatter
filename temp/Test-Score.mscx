@@ -606,9 +606,6 @@
       </Measure>
       <Measure>
         <eid>rfjClZ4/HXD_BA41uZ7/dXB</eid>
-        <BarLine>
-          <subtype>double</subtype>
-        </BarLine>
         <voice>
           <Rest>
             <eid>aVy8bqlYuoL_ANxz84dxzbN</eid>
@@ -617,6 +614,9 @@
             <duration>4/4</duration>
           </Rest>
         </voice>
+        <BarLine>
+          <subtype>double</subtype>
+        </BarLine>
       </Measure>
       <Measure>
         <eid>hlqPUP/x+lG_wrUj7QIENzE</eid>

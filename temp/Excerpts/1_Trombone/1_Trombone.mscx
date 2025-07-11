@@ -122,9 +122,6 @@
       <Measure len="12/4">
         <multiMeasureRest>3</multiMeasureRest>
         <eid>+mC8oZcviTB_ZCXQW4lBKxE</eid>
-        <BarLine>
-          <subtype>double</subtype>
-        </BarLine>
         <voice>
           <TimeSig>
             <eid>SVr+1ZzPnLE_xyQmIFAlkoN</eid>
@@ -141,6 +138,9 @@
             <duration>12/4</duration>
           </Rest>
         </voice>
+        <BarLine>
+          <subtype>double</subtype>
+        </BarLine>
       </Measure>
       <Measure>
         <eid>e+ibelu91EK_cG7AIKTQRHK</eid>
@@ -257,9 +257,6 @@
       </Measure>
       <Measure len="16/4">
         <multiMeasureRest>4</multiMeasureRest>
-        <BarLine>
-          <subtype>double</subtype>
-        </BarLine>
         <eid>n8QNK5pa5aM_Xd6xiOer0g</eid>
         <voice>
           <Rest>
@@ -269,6 +266,9 @@
             <duration>16/4</duration>
           </Rest>
         </voice>
+        <BarLine>
+          <subtype>double</subtype>
+        </BarLine>
       </Measure>
       <Measure>
         <eid>94kZqKYJDJP_NmTblYdJV+I</eid>
@@ -299,9 +299,6 @@
       </Measure>
       <Measure>
         <eid>8XO3DWgqynO_kTeWSzxlOEJ</eid>
-        <BarLine>
-          <subtype>double</subtype>
-        </BarLine>
         <voice>
           <Rest>
             <eid>Mned1V5SW+I_gah0g/rPm6P</eid>
@@ -311,6 +308,9 @@
             <duration>4/4</duration>
           </Rest>
         </voice>
+        <BarLine>
+          <subtype>double</subtype>
+        </BarLine>
       </Measure>
       <Measure>
         <eid>yp70m63S07O_r7FHIvfjqfP</eid>
