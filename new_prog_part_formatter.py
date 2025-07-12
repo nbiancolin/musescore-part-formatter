@@ -6,7 +6,6 @@ import os
 NUM_MEASURES_PER_LINE = 6  # TODO: Make this a function of the time signature somehow?
 
 
-
 # -- HELPER FUNCTIONS --
 def _make_line_break() -> ET.Element:
     lb = ET.Element("LayoutBreak")
@@ -142,7 +141,7 @@ def add_rehearsal_mark_line_breaks(staff: ET.Element) -> ET.Element:
         if voice.find("RehearsalMark") is not None:
             assert i > 0
             prev_elem = staff[i - 1]
-            print(f"Adding Line Break to rehearsal mark at bar {i -1}")
+            print(f"Adding Line Break to rehearsal mark at bar {i - 1}")
             _add_line_break_to_measure_opt(prev_elem)
 
             if prev_elem.attrib.get("_mm") is not None:
@@ -182,18 +181,31 @@ def add_double_bar_line_breaks(staff: ET.Element) -> ET.Element:
             print(f"Adding Line Break to double Bar line at bar {i}")
             _add_line_break_to_measure_opt(prev_elem)
 
-            ##TODO: I don't think it's needed, but if all hell breaks loose, we know what to do
-            # if prev_elem.attrib.get("_mm") is not None:
-            #     for j in range(i - 1, -1, -1):
-            #         if staff[j].attrib.get("len") is not None:
-            #             print(
-            #                 f"Adding Line Break to start of multimeasure rest at bar {j}"
-            #             )
-            #             _add_line_break_to_measure_opt(staff[j])
-            #             break
+
+#TODO[SC-37]: make it acc work
+def balance_mm_rest_line_breaks(staff: ET.Element) -> ET.Element:
+    """
+    Scenario: We have:
+    (NewLine) RehearsalMark ->MM Rest: Rehearsal Mark: MM Rest
+
+    We don't need a line break in the middle one, we can allow 2 MM rests in a line.
+    Removes unnecessary line breaks between consecutive multi-measure rests.
+    """
+    prev_mm = False
+    for elem in staff:
+        if elem.tag != "Measure":
+            continue
+        is_mm = elem.attrib.get("_mm") is not None
+        has_lb = elem.find("LayoutBreak") is not None
+        if prev_mm and is_mm and has_lb:
+            # Remove the line break from this measure
+            lb = elem.find("LayoutBreak")
+            if lb is not None:
+                elem.remove(lb)
+        prev_mm = is_mm
 
 
-def add_regular_line_breaks(staff):
+def add_regular_line_breaks(staff: ET.Element) -> ET.Element:
     """
     We want to add a line break every `NUM_MEASURES_PER_LINE` measures.
     This does not include multi measure rests, these should be ignored.
@@ -226,7 +238,7 @@ def add_regular_line_breaks(staff):
                 i += 1
 
 
-def add_page_breaks(staff):
+def add_page_breaks(staff: ET.Element) -> ET.Element:
     """
     Add page breaks to staff to improve vertical readability.
     - Aim for 7–9 lines per page: 7–8 for first page, 8–9 for others.
@@ -316,7 +328,7 @@ def add_page_breaks(staff):
                 first_index = second_index = -1
 
 
-def final_pass_through(staff):
+def final_pass_through(staff: ET.Element) -> ET.Element:
     """
     Adjusts poorly balanced lines. If a line has only 2 measures and the previous has 4+:
     - If prev has 4: remove the break before it.
@@ -341,13 +353,17 @@ def final_pass_through(staff):
         if len(this_line) <= 2:
             if len(prev_line) == 4:
                 for elem in reversed(prev_line):
-                    lb = next((child for child in elem if child.tag == "LayoutBreak"), None)
+                    lb = next(
+                        (child for child in elem if child.tag == "LayoutBreak"), None
+                    )
                     if lb is not None:
                         elem.remove(lb)
                         break
             elif len(prev_line) > 4:
                 for elem in reversed(prev_line):
-                    lb = next((child for child in elem if child.tag == "LayoutBreak"), None)
+                    lb = next(
+                        (child for child in elem if child.tag == "LayoutBreak"), None
+                    )
                     if lb is not None:
                         elem.remove(lb)
                         break
@@ -373,61 +389,16 @@ def mscz_main(mscz_path):
         print("No .mscx files found in the provided mscz file.")
         sys.exit(1)
 
-    # Process each mscx file
     for mscx_path in mscx_files:
         print(f"Processing {mscx_path}...")
         process_mscx(mscx_path)
 
-    # Re-zip the processed files into a new mscz file
     output_mscz_path = mscz_path.replace(".mscz", "_processed.mscz")
     with zipfile.ZipFile(output_mscz_path, "w") as zip_out:
         for root, _, files in os.walk(temp_dir):
             for file in files:
                 file_path = os.path.join(root, file)
-                # Write the file to the zip, maintaining the directory structure
                 zip_out.write(file_path, os.path.relpath(file_path, temp_dir))
-
-    # remove temp directory
-    # for root, dirs, files in os.walk(temp_dir, topdown=False):
-    #     for file in files:
-    #         os.remove(os.path.join(root, file))
-    #     for dir in dirs:
-    #         os.rmdir(os.path.join(root, dir))
-    # os.rmdir(temp_dir)
-
-    # try:
-    #     parser = ET.XMLParser()
-    #     tree = ET.parse(mscx_path, parser)
-    #     root = tree.getroot()
-    #     score = root.find("Score")
-    #     if score is None:
-    #         raise ValueError("No <Score> tag found in the XML.")
-
-    #     staves = score.findall("Staff")
-
-    #     staff = staves[0]  #noqa  -- only add layout breaks to the first staff
-    #     prep_mm_rests(staff)
-    #     add_rehearsal_mark_double_bars(staff)
-    #     add_double_bar_line_breaks(staff)
-    #     add_regular_line_breaks(staff)
-    #     final_pass_through(staff)
-    #     add_page_breaks(staff)
-    #     cleanup_mm_rests(staff)
-
-    #     if standalone:
-    #         out_path = mscx_path.replace("test-data", "test-data-copy")
-
-    #         with open(out_path, "wb") as f:
-    #             ET.indent(tree, space="  ", level=0)
-    #             tree.write(f, encoding="utf-8", xml_declaration=True)
-    #         print(f"Output written to {out_path}")
-    #     else:
-    #         #write file back to the temp directory
-    #         with open()
-
-    # except FileNotFoundError:
-    #     print(f"Error: File '{mscx_path}' not found.")
-    #     sys.exit(1)
 
 
 def process_mscx(mscx_path, standalone=False):
@@ -446,6 +417,7 @@ def process_mscx(mscx_path, standalone=False):
         add_rehearsal_mark_line_breaks(staff)
         add_double_bar_line_breaks(staff)
         add_regular_line_breaks(staff)
+        # balance_mm_rest_line_breaks(staff)
         final_pass_through(staff)
         add_page_breaks(staff)
         cleanup_mm_rests(staff)
