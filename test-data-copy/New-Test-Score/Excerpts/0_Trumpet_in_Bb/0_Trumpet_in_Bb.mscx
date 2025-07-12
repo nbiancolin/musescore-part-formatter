@@ -113,11 +113,6 @@
             <duration>4/4</duration>
           </Rest>
         </voice>
-        <BarLine>
-          <subtype>double</subtype>
-          <Linked>
-</Linked>
-        </BarLine>
       </Measure>
       <Measure len="12/4">
         <multiMeasureRest>3</multiMeasureRest>
@@ -138,11 +133,6 @@
             <duration>12/4</duration>
           </Rest>
         </voice>
-        <BarLine>
-          <subtype>double</subtype>
-          <Linked>
-</Linked>
-        </BarLine>
       </Measure>
       <Measure>
         <eid>eJJM8dPolOH_791sEOpPJME</eid>
@@ -155,11 +145,6 @@
             <duration>4/4</duration>
           </Rest>
         </voice>
-        <BarLine>
-          <subtype>double</subtype>
-          <Linked>
-</Linked>
-        </BarLine>
       </Measure>
       <Measure>
         <eid>C4VgJOIn+PH_jsYFmmnO4IJ</eid>
@@ -172,11 +157,6 @@
             <duration>4/4</duration>
           </Rest>
         </voice>
-        <BarLine>
-          <subtype>double</subtype>
-          <Linked>
-</Linked>
-        </BarLine>
       </Measure>
       <Measure>
         <eid>y4pJbSfqnhI_I2OIcvND8GN</eid>
@@ -267,11 +247,6 @@
             </Note>
           </Chord>
         </voice>
-        <BarLine>
-          <subtype>double</subtype>
-          <Linked>
-</Linked>
-        </BarLine>
       </Measure>
       <Measure>
         <eid>aIk1ILVVObI_84oAC5mBP9</eid>
@@ -291,15 +266,13 @@
             <duration>4/4</duration>
           </Rest>
         </voice>
-        <BarLine>
-          <subtype>double</subtype>
-          <Linked>
-</Linked>
-        </BarLine>
       </Measure>
       <Measure len="16/4">
         <multiMeasureRest>4</multiMeasureRest>
         <eid>olowJyKn1XG_WD0+k1nUhDB</eid>
+        <LayoutBreak>
+          <subtype>line</subtype>
+        </LayoutBreak>
         <voice>
           <Rest>
             <eid>pWZC+IihjLF_lZ7c5bKDmAD</eid>
@@ -308,11 +281,6 @@
             <duration>16/4</duration>
           </Rest>
         </voice>
-        <BarLine>
-          <subtype>double</subtype>
-          <Linked>
-</Linked>
-        </BarLine>
       </Measure>
       <Measure>
         <eid>YZHRazQ2FoK_sJ2++tr252</eid>
@@ -325,11 +293,6 @@
             <duration>4/4</duration>
           </Rest>
         </voice>
-        <BarLine>
-          <subtype>double</subtype>
-          <Linked>
-</Linked>
-        </BarLine>
       </Measure>
       <Measure>
         <eid>n/l4mWHodID_luY4i3CPJaP</eid>
@@ -342,14 +305,12 @@
             <duration>4/4</duration>
           </Rest>
         </voice>
-        <BarLine>
-          <subtype>double</subtype>
-          <Linked>
-</Linked>
-        </BarLine>
       </Measure>
       <Measure>
         <eid>mpOl6tEeQWJ_2RbcEPPZFjN</eid>
+        <LayoutBreak>
+          <subtype>line</subtype>
+        </LayoutBreak>
         <voice>
           <Rest>
             <eid>wW1irF+JmmG_yR5M4zz6O7E</eid>
@@ -359,11 +320,6 @@
             <duration>4/4</duration>
           </Rest>
         </voice>
-        <BarLine>
-          <subtype>double</subtype>
-          <Linked>
-</Linked>
-        </BarLine>
       </Measure>
       <Measure>
         <eid>m3MNdzv8AwG_KYKn/qVPNbH</eid>
@@ -480,11 +436,6 @@
             </Note>
           </Chord>
         </voice>
-        <BarLine>
-          <subtype>double</subtype>
-          <Linked>
-</Linked>
-        </BarLine>
       </Measure>
       <Measure>
         <eid>KSBOyfe3mWM_0Vo9apWNkjC</eid>
@@ -571,14 +522,12 @@
             </Note>
           </Chord>
         </voice>
-        <BarLine>
-          <subtype>double</subtype>
-          <Linked>
-</Linked>
-        </BarLine>
       </Measure>
       <Measure>
         <eid>iYImqn23NuI_idbfMPbTRcG</eid>
+        <LayoutBreak>
+          <subtype>line</subtype>
+        </LayoutBreak>
         <voice>
           <Rest>
             <eid>msbmv6iG0kC_RxFKMy12tAL</eid>
@@ -588,11 +537,6 @@
             <duration>4/4</duration>
           </Rest>
         </voice>
-        <BarLine>
-          <subtype>double</subtype>
-          <Linked>
-</Linked>
-        </BarLine>
       </Measure>
       <Measure>
         <multiMeasureRest>1</multiMeasureRest>
@@ -605,11 +549,6 @@
             <duration>4/4</duration>
           </Rest>
         </voice>
-        <BarLine>
-          <subtype>double</subtype>
-          <Linked>
-</Linked>
-        </BarLine>
       </Measure>
       <Measure>
         <eid>du6GIBd58fP_ZvPvAH7j6bN</eid>
@@ -695,11 +634,6 @@
             </Note>
           </Chord>
         </voice>
-        <BarLine>
-          <subtype>double</subtype>
-          <Linked>
-</Linked>
-        </BarLine>
       </Measure>
       <Measure>
         <eid>rWiUNnRBE3K_6+A8hcBI6rO</eid>
@@ -712,15 +646,13 @@
             <duration>4/4</duration>
           </Rest>
         </voice>
-        <BarLine>
-          <subtype>double</subtype>
-          <Linked>
-</Linked>
-        </BarLine>
       </Measure>
       <Measure len="16/4">
         <multiMeasureRest>4</multiMeasureRest>
         <eid>yGgXIqXceGL_qIvRnCKhgYC</eid>
+        <LayoutBreak>
+          <subtype>line</subtype>
+        </LayoutBreak>
         <voice>
           <Rest>
             <eid>chl7atI9MmM_cjpEz5unpUD</eid>
@@ -729,11 +661,6 @@
             <duration>16/4</duration>
           </Rest>
         </voice>
-        <BarLine>
-          <subtype>double</subtype>
-          <Linked>
-</Linked>
-        </BarLine>
       </Measure>
       <Measure>
         <eid>XXvMdQMkLvN_WUQSFy77+qD</eid>
@@ -746,11 +673,6 @@
             <duration>4/4</duration>
           </Rest>
         </voice>
-        <BarLine>
-          <subtype>double</subtype>
-          <Linked>
-</Linked>
-        </BarLine>
       </Measure>
       <Measure>
         <eid>XFhVIoOrMvP_kHcaGyyNuYF</eid>
@@ -763,14 +685,12 @@
             <duration>4/4</duration>
           </Rest>
         </voice>
-        <BarLine>
-          <subtype>double</subtype>
-          <Linked>
-</Linked>
-        </BarLine>
       </Measure>
       <Measure>
         <eid>qz96Qk+g8BB_NSYJKxS/5hC</eid>
+        <LayoutBreak>
+          <subtype>line</subtype>
+        </LayoutBreak>
         <voice>
           <Rest>
             <eid>/NQVWYdHVfP_Fk3B1DbwZ3G</eid>
@@ -780,14 +700,12 @@
             <duration>4/4</duration>
           </Rest>
         </voice>
-        <BarLine>
-          <subtype>double</subtype>
-          <Linked>
-</Linked>
-        </BarLine>
       </Measure>
       <Measure>
         <eid>af6NkfvXiOD_jDy9+JybZIC</eid>
+        <LayoutBreak>
+          <subtype>line</subtype>
+        </LayoutBreak>
         <voice>
           <RehearsalMark>
             <eid>KK8FGJT4RCH_MTyDtemtSXO</eid>
@@ -803,15 +721,13 @@
             <duration>4/4</duration>
           </Rest>
         </voice>
-        <BarLine>
-          <subtype>double</subtype>
-          <Linked>
-</Linked>
-        </BarLine>
       </Measure>
       <Measure len="16/4">
         <multiMeasureRest>4</multiMeasureRest>
         <eid>cf3WNtKp/xI_0z0o2n0h6gK</eid>
+        <LayoutBreak>
+          <subtype>line</subtype>
+        </LayoutBreak>
         <voice>
           <RehearsalMark>
             <eid>YRuBUL9VguK_+g1idv4Zzq</eid>
@@ -827,11 +743,6 @@
             <duration>16/4</duration>
           </Rest>
         </voice>
-        <BarLine>
-          <subtype>double</subtype>
-          <Linked>
-</Linked>
-        </BarLine>
       </Measure>
       <Measure>
         <eid>S80nVopws5C_XEZLoBxLpEC</eid>
@@ -844,11 +755,6 @@
             <duration>4/4</duration>
           </Rest>
         </voice>
-        <BarLine>
-          <subtype>double</subtype>
-          <Linked>
-</Linked>
-        </BarLine>
       </Measure>
       <Measure>
         <eid>h+P6H1HfKgC_peemqMYUwdC</eid>
@@ -861,14 +767,12 @@
             <duration>4/4</duration>
           </Rest>
         </voice>
-        <BarLine>
-          <subtype>double</subtype>
-          <Linked>
-</Linked>
-        </BarLine>
       </Measure>
       <Measure>
         <eid>AbSQBWc22UD_5XUDIYtvZcF</eid>
+        <LayoutBreak>
+          <subtype>line</subtype>
+        </LayoutBreak>
         <voice>
           <Rest>
             <eid>jFlhI9VQrSF_0eB8sPnx4EL</eid>
@@ -878,14 +782,12 @@
             <duration>4/4</duration>
           </Rest>
         </voice>
-        <BarLine>
-          <subtype>double</subtype>
-          <Linked>
-</Linked>
-        </BarLine>
       </Measure>
       <Measure>
         <eid>DDAtv8dD5lN_dVQ6lcC/k0C</eid>
+        <LayoutBreak>
+          <subtype>line</subtype>
+        </LayoutBreak>
         <voice>
           <RehearsalMark>
             <eid>FPW8oEYaBE_iOtM/0iGMoI</eid>
@@ -901,11 +803,6 @@
             <duration>4/4</duration>
           </Rest>
         </voice>
-        <BarLine>
-          <subtype>double</subtype>
-          <Linked>
-</Linked>
-        </BarLine>
       </Measure>
       <Measure len="16/4">
         <multiMeasureRest>4</multiMeasureRest>
@@ -925,11 +822,6 @@
             <duration>16/4</duration>
           </Rest>
         </voice>
-        <BarLine>
-          <subtype>double</subtype>
-          <Linked>
-</Linked>
-        </BarLine>
       </Measure>
       <Measure>
         <eid>iu63iX1g6EG_wcGfnVB+b2M</eid>
@@ -942,11 +834,6 @@
             <duration>4/4</duration>
           </Rest>
         </voice>
-        <BarLine>
-          <subtype>double</subtype>
-          <Linked>
-</Linked>
-        </BarLine>
       </Measure>
       <Measure>
         <eid>sKxvZU2AsXD_0yUwg9M+UHL</eid>
@@ -959,11 +846,6 @@
             <duration>4/4</duration>
           </Rest>
         </voice>
-        <BarLine>
-          <subtype>double</subtype>
-          <Linked>
-</Linked>
-        </BarLine>
       </Measure>
       <Measure>
         <eid>YCZXxyxowWP_5D71d4j/Z1B</eid>
@@ -976,11 +858,6 @@
             <duration>4/4</duration>
           </Rest>
         </voice>
-        <BarLine>
-          <subtype>double</subtype>
-          <Linked>
-</Linked>
-        </BarLine>
       </Measure>
     </Staff>
   </Score>

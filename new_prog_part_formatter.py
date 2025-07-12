@@ -3,32 +3,41 @@ import xml.etree.ElementTree as ET
 import zipfile
 import os
 
-# create a line break element
-LINE_BREAK = ET.Element("LayoutBreak")
-temp = ET.SubElement(LINE_BREAK, "subtype")
-temp.text = "line"
-
 NUM_MEASURES_PER_LINE = 6  # TODO: Make this a function of the time signature somehow?
+
 
 # Classes
 class Staff(ET.Element):
+    """Staff Element in Musescore File (contains rests and VBoxes)"""
+
     pass
+
 
 class Measure(ET.Element):
+    """Measure Element in Musescore File (Contains notes, and rehearsal marks"""
+
     pass
+
 
 class LineBreak(ET.Element):
+    """Line Break element in Musescore file (added to Measure)"""
+
     pass
+
 
 class PageBreak(ET.Element):
+    """Page Break element in Musescore file (added to Measure)"""
+
     pass
+
 
 class DoubleBar(ET.Element):
+    """Double Bar element in Musescore file (added to Measure)"""
+
     pass
 
+
 # -- HELPER FUNCTIONS --
-
-
 def _make_line_break() -> LineBreak:
     lb = ET.Element("LayoutBreak")
     subtype = ET.SubElement(lb, "subtype")
@@ -105,7 +114,7 @@ def prep_mm_rests(staff: Staff) -> Staff:
                 measure_to_mark = int(elem.find("multiMeasureRest").text) - 1
 
 
-def cleanup_mm_rests(staff):
+def cleanup_mm_rests(staff: Staff) -> Staff:
     """
     Go through entire staff, remove any "_mm" attributes
     """
@@ -115,7 +124,7 @@ def cleanup_mm_rests(staff):
 
 
 # TODO: Deprecated -- remove
-@Warning("Deprecated!!")
+# @Warning("Deprecated!!")
 def add_rehearsal_mark_double_bars(staff):
     """
     Go through each measure in the score. If there is a rehearsal mark in measure n, add a line break to measure n-1.
@@ -162,14 +171,16 @@ def add_rehearsal_mark_line_breaks(staff: Staff) -> Staff:
 
         if voice.find("RehearsalMark") is not None:
             assert i > 0
-            prev_elem = staff[i -1]
-            print(f"Adding Line Break to rehearsal mark at bar {i}")
+            prev_elem = staff[i - 1]
+            print(f"Adding Line Break to rehearsal mark at bar {i -1}")
             _add_line_break_to_measure_opt(prev_elem)
 
             if prev_elem.attrib.get("_mm") is not None:
                 for j in range(i - 1, -1, -1):
                     if staff[j].attrib.get("len") is not None:
-                        print(f"Adding Line Break to start of multimeasure rest at bar {j}")
+                        print(
+                            f"Adding Line Break to start of multimeasure rest at bar {j}"
+                        )
                         _add_line_break_to_measure_opt(staff[j])
                         break
 
@@ -186,43 +197,30 @@ def add_double_bar_line_breaks(staff):
     Additionally, set it up s.t. if there are 2 multimeasure rests together, only keep the second line break, remove the first one
         TODO: This should onlt do this if the entire section before the next rehearsal mark is a multimeasure rest
     """
-    prev_added_line_break = None
     for i in range(len(staff)):
         elem = staff[i]
         if elem.tag != "Measure":
-            continue  # could be vbox or smth
+            continue
 
         voice = elem.find("voice")
         if voice is None:
-            continue  # Skip if no voice tag
+            continue
 
         if voice.find("BarLine") is not None:
-            if i > 0:
-                prev_elem = staff[i]
-                print(f"Adding (double bar) Line Break to measure at index {i}")
-                _add_line_break_to_measure(prev_elem)
+            assert i > 0
+            prev_elem = staff[i]
+            print(f"Adding Line Break to double Bar line at bar {i}")
+            _add_line_break_to_measure_opt(prev_elem)
 
-            # TODO: Rework this logic -- I don;t think its needed. Double bars in multmeasure rests should have the double bar every place the rehearsal mark should be
-            # If part of mm rest, add to start of mm rest as well
-            if prev_elem.attrib.get("_mm") is not None:
-                for j in range(i - 1, -1, -1):  # Start at i-1 and go backward
-                    if staff[j].attrib.get("len") is not None:
-                        print(f"Adding (double bar) Line Break to measure at index {j}")
-                        _add_line_break_to_measure(staff[j])
-                        temp_prev_added = (prev_elem, staff[j])
-
-                        # check if we can remove a previous one
-                        if prev_added_line_break:
-                            temp_prev_added = None
-                            for e in prev_added_line_break:
-                                e.remove(LINE_BREAK)
-
-                        prev_added_line_break = temp_prev_added
-                        break
-
-        else:
-            if elem.attrib.get("_mm") is None:
-                prev_added_line_break = None
+            ##TODO: I don't think it's needed, but if all hell breaks loose, we know what to do
+            # if prev_elem.attrib.get("_mm") is not None:
+            #     for j in range(i - 1, -1, -1):
+            #         if staff[j].attrib.get("len") is not None:
+            #             print(
+            #                 f"Adding Line Break to start of multimeasure rest at bar {j}"
+            #             )
+            #             _add_line_break_to_measure_opt(staff[j])
+            #             break
 
 
 def add_regular_line_breaks(staff):
@@ -491,16 +489,13 @@ def process_mscx(mscx_path, standalone=False):
         staves = score.findall("Staff")
 
         staff = staves[0]  # noqa  -- only add layout breaks to the first staff
-        for elem in staff:
-            if elem.tag == "Measure":
-                _add_double_bar_to_measure(elem)
-        # prep_mm_rests(staff)
-        # add_rehearsal_mark_double_bars(staff)
-        # add_double_bar_line_breaks(staff)
-        # add_regular_line_breaks(staff)
-        # final_pass_through(staff)
-        # add_page_breaks(staff)
-        # cleanup_mm_rests(staff)
+        prep_mm_rests(staff)
+        add_rehearsal_mark_line_breaks(staff)
+        add_double_bar_line_breaks(staff)
+        add_regular_line_breaks(staff)
+        final_pass_through(staff)
+        add_page_breaks(staff)
+        cleanup_mm_rests(staff)
 
         if standalone:
             out_path = mscx_path.replace("test-data", "test-data-copy")
