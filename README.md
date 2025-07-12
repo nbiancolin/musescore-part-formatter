@@ -1,7 +1,16 @@
 # musescore-part-formatter-poc
-POC for programmatically
+POC for programmatically formatting musescore parts
 
-debating options -- whether its better to do this programmatically somehow? or just send it to an LLM? no idea yet, will experiment
+Usage:
+Requires Python 3.11 (I think)
+```
+python new_prog_part_formatter.py <path to mscz file>
+```
+Also works on individual parts (WIP)
+```
+python new_prog_part_formatter.py <path to mscx file>
+```
+
 
 
 Currently Does:
