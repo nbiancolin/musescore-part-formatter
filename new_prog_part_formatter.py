@@ -114,6 +114,7 @@ def add_rehearsal_mark_double_bars(staff):
                         if staff[j].attrib.get("len") is not None:
                             print(f"adding double bar to rehearsal mark at bar {j}")
                             _add_double_bar_to_measure(staff[j])
+                            break
 
 
 

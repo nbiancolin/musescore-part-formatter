@@ -133,15 +133,6 @@
             <duration>12/4</duration>
           </Rest>
         </voice>
-        <BarLine>
-          <subtype>double</subtype>
-        </BarLine>
-        <BarLine>
-          <subtype>double</subtype>
-        </BarLine>
-        <BarLine>
-          <subtype>double</subtype>
-        </BarLine>
       </Measure>
       <Measure>
         <eid>eJJM8dPolOH_791sEOpPJME</eid>
@@ -283,6 +274,12 @@
           <eid>nHKkKkXlWTC_6BNH/V1Gj/L</eid>
           <subtype>line</subtype>
         </LayoutBreak>
+        <LayoutBreak>
+          <subtype>line</subtype>
+        </LayoutBreak>
+        <LayoutBreak>
+          <subtype>line</subtype>
+        </LayoutBreak>
         <voice>
           <Rest>
             <eid>pWZC+IihjLF_lZ7c5bKDmAD</eid>
@@ -290,13 +287,13 @@
             <durationType>measure</durationType>
             <duration>16/4</duration>
           </Rest>
+          <BarLine>
+            <subtype>double</subtype>
+            <eid>2dDv1H8NrBF_g7HqgJgeaM</eid>
+            <linked>
+              </linked>
+          </BarLine>
         </voice>
-        <BarLine>
-          <subtype>double</subtype>
-        </BarLine>
-        <BarLine>
-          <subtype>double</subtype>
-        </BarLine>
         <BarLine>
           <subtype>double</subtype>
         </BarLine>
@@ -331,6 +328,9 @@
           <eid>CVngeFfq5YB_yyHSdd0RqWE</eid>
           <subtype>line</subtype>
         </LayoutBreak>
+        <LayoutBreak>
+          <subtype>line</subtype>
+        </LayoutBreak>
         <voice>
           <Rest>
             <eid>wW1irF+JmmG_yR5M4zz6O7E</eid>
@@ -339,6 +339,12 @@
             <durationType>measure</durationType>
             <duration>4/4</duration>
           </Rest>
+          <BarLine>
+            <subtype>double</subtype>
+            <eid>U110OOyE71C_i/a5c2natkN</eid>
+            <linked>
+              </linked>
+          </BarLine>
         </voice>
         <BarLine>
           <subtype>double</subtype>
@@ -681,9 +687,6 @@
             <duration>16/4</duration>
           </Rest>
         </voice>
-        <BarLine>
-          <subtype>double</subtype>
-        </BarLine>
         <BarLine>
           <subtype>double</subtype>
         </BarLine>

@@ -1022,6 +1022,12 @@
               <fixedLine>4</fixedLine>
               </Note>
             </Chord>
+          <BarLine>
+            <subtype>double</subtype>
+            <eid>9ZRakUl9IbL_ML88YPggGEL</eid>
+            <linked>
+              </linked>
+            </BarLine>
           </voice>
         </Measure>
       <Measure>
@@ -1033,12 +1039,14 @@
               <location>
                 <staves>-5</staves>
                 </location>
+              <indexDiff>1</indexDiff>
               </linked>
             <text>A</text>
             </RehearsalMark>
           <Rest>
             <eid>ncemwUO5LX_3+kL76+g0MF</eid>
             <linked>
+              <indexDiff>1</indexDiff>
               </linked>
             <durationType>measure</durationType>
             <duration>4/4</duration>
@@ -1055,6 +1063,7 @@
               <location>
                 <staves>-5</staves>
                 </location>
+              <indexDiff>1</indexDiff>
               </linked>
             <text>A</text>
             </RehearsalMark>

@@ -965,6 +965,12 @@
               <tpc>19</tpc>
               </Note>
             </Chord>
+          <BarLine>
+            <subtype>double</subtype>
+            <eid>euS/+8dTNDB_+1AiKgr0YiL</eid>
+            <linked>
+              </linked>
+            </BarLine>
           </voice>
         </Measure>
       <Measure>
@@ -976,6 +982,7 @@
               <location>
                 <staves>-2</staves>
                 </location>
+              <indexDiff>1</indexDiff>
               </linked>
             <text>A</text>
             </RehearsalMark>
@@ -984,11 +991,13 @@
             <name>ma7</name>
             <eid>Ttpq4N3rCrI_HM+VsOuNQ5L</eid>
             <linked>
+              <indexDiff>1</indexDiff>
               </linked>
             </Harmony>
           <Chord>
             <eid>K54nlUe+MfN_6TnwXnrAAeB</eid>
             <linked>
+              <indexDiff>1</indexDiff>
               </linked>
             <durationType>quarter</durationType>
             <noStem>1</noStem>
@@ -996,6 +1005,7 @@
             <Note>
               <eid>bYzOF0yClWF_AHxf6r9iKFG</eid>
               <linked>
+                <indexDiff>1</indexDiff>
                 </linked>
               <pitch>71</pitch>
               <tpc>19</tpc>
@@ -1993,6 +2003,12 @@
             <durationType>measure</durationType>
             <duration>4/4</duration>
             </Rest>
+          <BarLine>
+            <subtype>double</subtype>
+            <eid>fEhqOjBk9SK_8bfVfi+adGP</eid>
+            <linked>
+              </linked>
+            </BarLine>
           </voice>
         </Measure>
       <Measure>

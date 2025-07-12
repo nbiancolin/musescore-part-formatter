@@ -610,6 +610,11 @@
             <durationType>measure</durationType>
             <duration>4/4</duration>
             </Rest>
+          <BarLine>
+            <subtype>double</subtype>
+            <eid>NcUimh5wBMD_rmF2KlBcMmO</eid>
+            <linkedMain/>
+            </BarLine>
           </voice>
         </Measure>
       <Measure>
@@ -1166,6 +1171,11 @@
             <durationType>measure</durationType>
             <duration>4/4</duration>
             </Rest>
+          <BarLine>
+            <subtype>double</subtype>
+            <eid>4drsJ6ToIi_wSWCR0We+6J</eid>
+            <linkedMain/>
+            </BarLine>
           </voice>
         </Measure>
       <Measure>
@@ -2294,6 +2304,11 @@
               <tpc>19</tpc>
               </Note>
             </Chord>
+          <BarLine>
+            <subtype>double</subtype>
+            <eid>5LTMkTNSFMB_Ny9Hz+uKm5M</eid>
+            <linkedMain/>
+            </BarLine>
           </voice>
         </Measure>
       <Measure>
@@ -3139,6 +3154,11 @@
             <durationType>measure</durationType>
             <duration>4/4</duration>
             </Rest>
+          <BarLine>
+            <subtype>double</subtype>
+            <eid>mcyvL2HZdBJ_y0LP6+cJt1</eid>
+            <linkedMain/>
+            </BarLine>
           </voice>
         </Measure>
       <Measure>
@@ -3700,6 +3720,11 @@
               <tpc>20</tpc>
               </Note>
             </Chord>
+          <BarLine>
+            <subtype>double</subtype>
+            <eid>T8aYQg/KG9C_h8XVvoMYmWH</eid>
+            <linkedMain/>
+            </BarLine>
           </voice>
         </Measure>
       <Measure>
@@ -5140,6 +5165,11 @@
               <fixedLine>4</fixedLine>
               </Note>
             </Chord>
+          <BarLine>
+            <subtype>double</subtype>
+            <eid>iRtDVOx5/4B_GXiWTM213DM</eid>
+            <linkedMain/>
+            </BarLine>
           </voice>
         </Measure>
       <Measure>

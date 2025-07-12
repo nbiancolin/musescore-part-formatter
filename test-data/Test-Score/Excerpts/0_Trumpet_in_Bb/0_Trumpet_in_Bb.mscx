@@ -281,6 +281,12 @@
             <durationType>measure</durationType>
             <duration>16/4</duration>
             </Rest>
+          <BarLine>
+            <subtype>double</subtype>
+            <eid>2dDv1H8NrBF_g7HqgJgeaM</eid>
+            <linked>
+              </linked>
+            </BarLine>
           </voice>
         </Measure>
       <Measure>
@@ -321,6 +327,12 @@
             <durationType>measure</durationType>
             <duration>4/4</duration>
             </Rest>
+          <BarLine>
+            <subtype>double</subtype>
+            <eid>U110OOyE71C_i/a5c2natkN</eid>
+            <linked>
+              </linked>
+            </BarLine>
           </voice>
         </Measure>
       <Measure>
