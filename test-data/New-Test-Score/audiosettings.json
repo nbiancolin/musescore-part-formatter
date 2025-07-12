@@ -100,12 +100,12 @@
                 "unitConfiguration": {
                 }
             },
-            "instrumentId": "trombone",
+            "instrumentId": "5-string-electric-bass",
             "out": {
                 "auxSends": [
                     {
                         "active": true,
-                        "signalAmount": 0.4000000059604645
+                        "signalAmount": 0.30000001192092896
                     },
                     {
                         "active": true,
@@ -117,7 +117,7 @@
                 },
                 "volumeDb": 0
             },
-            "partId": "2",
+            "partId": "4",
             "soloMuteState": {
                 "mute": false,
                 "solo": false
@@ -138,12 +138,12 @@
                 "unitConfiguration": {
                 }
             },
-            "instrumentId": "5-string-electric-bass",
+            "instrumentId": "trombone",
             "out": {
                 "auxSends": [
                     {
                         "active": true,
-                        "signalAmount": 0.30000001192092896
+                        "signalAmount": 0.4000000059604645
                     },
                     {
                         "active": true,
@@ -155,7 +155,7 @@
                 },
                 "volumeDb": 0
             },
-            "partId": "4",
+            "partId": "2",
             "soloMuteState": {
                 "mute": false,
                 "solo": false

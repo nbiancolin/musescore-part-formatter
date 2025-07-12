@@ -9,14 +9,6 @@
             }
         },
         {
-            "instrumentId": "5-string-electric-bass",
-            "partId": "4",
-            "soloMuteState": {
-                "mute": true,
-                "solo": false
-            }
-        },
-        {
             "instrumentId": "trombone",
             "partId": "2",
             "soloMuteState": {
@@ -25,16 +17,8 @@
             }
         },
         {
-            "instrumentId": "piano",
-            "partId": "3",
-            "soloMuteState": {
-                "mute": true,
-                "solo": false
-            }
-        },
-        {
-            "instrumentId": "chord_symbols",
-            "partId": "3",
+            "instrumentId": "5-string-electric-bass",
+            "partId": "4",
             "soloMuteState": {
                 "mute": true,
                 "solo": false
@@ -43,6 +27,14 @@
         {
             "instrumentId": "chord_symbols",
             "partId": "4",
+            "soloMuteState": {
+                "mute": true,
+                "solo": false
+            }
+        },
+        {
+            "instrumentId": "drum-kit-5",
+            "partId": "5",
             "soloMuteState": {
                 "mute": true,
                 "solo": false
