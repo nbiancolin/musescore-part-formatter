@@ -28,6 +28,8 @@ def _make_double_bar():
     db = ET.Element("BarLine")
     subtype = ET.SubElement(db, "subtype")
     subtype.text = "double"
+    linked = ET.SubElement(db, "Linked")
+    linked.text = "\n"
     return db
 
 def _add_line_break_to_measure(measure):
@@ -106,6 +108,7 @@ def add_rehearsal_mark_double_bars(staff):
 
         if voice.find("RehearsalMark") is not None:
             if i > 0:
+                #should have barline -- if it exists, continue
                 prev_elem = staff[i -1]
                 _add_double_bar_to_measure(prev_elem)
 
@@ -140,8 +143,10 @@ def add_double_bar_line_breaks(staff):
             continue  # Skip if no voice tag
         
         if voice.find("BarLine") is not None:
+            
             if i > 0:  
                 prev_elem = staff[i]
+                print(f"Adding (double bar) Line Break to measure at index {i}")
                 _add_line_break_to_measure(prev_elem)
 
             # If part of mm rest, add to start of mm rest as well
@@ -419,13 +424,16 @@ def process_mscx(mscx_path, standalone=False):
         staves = score.findall("Staff")
 
         staff = staves[0]  #noqa  -- only add layout breaks to the first staff
-        prep_mm_rests(staff)
-        add_rehearsal_mark_double_bars(staff)
-        add_double_bar_line_breaks(staff)
-        add_regular_line_breaks(staff)
-        final_pass_through(staff)
-        add_page_breaks(staff)
-        cleanup_mm_rests(staff)
+        for elem in staff:
+            if elem.tag == "Measure":
+                _add_double_bar_to_measure(elem)
+        # prep_mm_rests(staff)
+        # add_rehearsal_mark_double_bars(staff)
+        # add_double_bar_line_breaks(staff)
+        # add_regular_line_breaks(staff)
+        # final_pass_through(staff)
+        # add_page_breaks(staff)
+        # cleanup_mm_rests(staff)
 
         if standalone:
             out_path = mscx_path.replace("test-data", "test-data-copy")
