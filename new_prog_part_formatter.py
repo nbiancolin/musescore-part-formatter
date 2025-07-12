@@ -2,6 +2,7 @@ import sys
 import xml.etree.ElementTree as ET
 import zipfile
 import os
+import shutil
 
 NUM_MEASURES_PER_LINE = 6  # TODO: Make this a function of the time signature somehow?
 
@@ -399,6 +400,8 @@ def mscz_main(mscz_path):
             for file in files:
                 file_path = os.path.join(root, file)
                 zip_out.write(file_path, os.path.relpath(file_path, temp_dir))
+
+    shutil.rmtree(temp_dir)
 
 
 def process_mscx(mscx_path, standalone=False):
