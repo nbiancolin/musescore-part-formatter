@@ -6,53 +6,23 @@ import os
 NUM_MEASURES_PER_LINE = 6  # TODO: Make this a function of the time signature somehow?
 
 
-# Classes
-class Staff(ET.Element):
-    """Staff Element in Musescore File (contains rests and VBoxes)"""
-
-    pass
-
-
-class Measure(ET.Element):
-    """Measure Element in Musescore File (Contains notes, and rehearsal marks"""
-
-    pass
-
-
-class LineBreak(ET.Element):
-    """Line Break element in Musescore file (added to Measure)"""
-
-    pass
-
-
-class PageBreak(ET.Element):
-    """Page Break element in Musescore file (added to Measure)"""
-
-    pass
-
-
-class DoubleBar(ET.Element):
-    """Double Bar element in Musescore file (added to Measure)"""
-
-    pass
-
 
 # -- HELPER FUNCTIONS --
-def _make_line_break() -> LineBreak:
+def _make_line_break() -> ET.Element:
     lb = ET.Element("LayoutBreak")
     subtype = ET.SubElement(lb, "subtype")
     subtype.text = "line"
     return lb
 
 
-def _make_page_break() -> PageBreak:
+def _make_page_break() -> ET.Element:
     pb = ET.Element("LayoutBreak")
     subtype = ET.SubElement(pb, "subtype")
     subtype.text = "page"
     return pb
 
 
-def _make_double_bar() -> DoubleBar:
+def _make_double_bar() -> ET.Element:
     db = ET.Element("BarLine")
     subtype = ET.SubElement(db, "subtype")
     subtype.text = "double"
@@ -61,7 +31,7 @@ def _make_double_bar() -> DoubleBar:
     return db
 
 
-def _add_line_break_to_measure(measure: Measure) -> None:
+def _add_line_break_to_measure(measure: ET.Element) -> None:
     index = 0
     for elem in measure:
         if elem.tag == "voice":
@@ -70,13 +40,13 @@ def _add_line_break_to_measure(measure: Measure) -> None:
     measure.insert(index, _make_line_break())
 
 
-def _add_line_break_to_measure_opt(measure: Measure) -> None:
+def _add_line_break_to_measure_opt(measure: ET.Element) -> None:
     if measure.find("LayoutBreak") is not None:
         return
     _add_line_break_to_measure(measure)
 
 
-def _add_page_break_to_measure(measure: Measure) -> None:
+def _add_page_break_to_measure(measure: ET.Element) -> None:
     # if line break already there, replace with a page break
     if measure.find("LayoutBreak") is not None:
         measure.find("LayoutBreak").find("subtype").text = "page"
@@ -92,13 +62,13 @@ def _add_page_break_to_measure(measure: Measure) -> None:
     measure.insert(index, _make_page_break())
 
 
-def _add_double_bar_to_measure(measure: Measure) -> None:
+def _add_double_bar_to_measure(measure: ET.Element) -> None:
     # Add the double bar as the very last tag in the measure
     measure.append(_make_double_bar())
 
 
 # -- LayoutBreak formatting --
-def prep_mm_rests(staff: Staff) -> Staff:
+def prep_mm_rests(staff: ET.Element) -> ET.Element:
     """
     Go through each measure in score.
     if measure n has a "len" attribute: then mark that measure and the next m (m = measure->multiMeasureRest -1) measures with the "_mm" attribute
@@ -114,7 +84,7 @@ def prep_mm_rests(staff: Staff) -> Staff:
                 measure_to_mark = int(elem.find("multiMeasureRest").text) - 1
 
 
-def cleanup_mm_rests(staff: Staff) -> Staff:
+def cleanup_mm_rests(staff: ET.Element) -> ET.Element:
     """
     Go through entire staff, remove any "_mm" attributes
     """
@@ -153,7 +123,7 @@ def add_rehearsal_mark_double_bars(staff):
                             break
 
 
-def add_rehearsal_mark_line_breaks(staff: Staff) -> Staff:
+def add_rehearsal_mark_line_breaks(staff: ET.Element) -> ET.Element:
     """
     Go through each measure in the score. If there is a rehearsal mark at measure n, ad a line break to measure n-1
     if measure n-1 has a _mm attribute, go backwards until the first measure in the chain, and also add a line break
@@ -186,7 +156,7 @@ def add_rehearsal_mark_line_breaks(staff: Staff) -> Staff:
 
 
 # TODO: Should be add line breaks to double bar
-def add_double_bar_line_breaks(staff):
+def add_double_bar_line_breaks(staff: ET.Element) -> ET.Element:
     """
     Go through each measure in the score. If there is a double bar on measure n, add a line break to measure n.
     If measure n-1 has a "_mm" attribute, go backwards until the first measure in the chain, and also add a line break.
@@ -352,54 +322,37 @@ def final_pass_through(staff):
     - If prev has 4: remove the break before it.
     - If prev has >4: remove the break and move it to the midpoint.
     """
-    line_lengths = []
+    lines = []
     current_line = []
-    in_mm = False
 
     for elem in staff:
         if elem.tag != "Measure":
             continue
-
-        if elem.attrib.get("_mm") is not None:
-            if in_mm:
-                continue  # skip repeated mm rest measures
-            in_mm = True
-        else:
-            in_mm = False
-
         current_line.append(elem)
-
-        if elem.find("LayoutBreak") is not None:
-            line_lengths.append(current_line)
+        if any(child.tag == "LayoutBreak" for child in elem):
+            lines.append(current_line)
             current_line = []
-
     if current_line:
-        line_lengths.append(current_line)
+        lines.append(current_line)
 
-    i = 1
-    while i < len(line_lengths):
-        this_line = line_lengths[i]
-        prev_line = line_lengths[i - 1]
-
+    for idx in range(1, len(lines)):
+        this_line = lines[idx]
+        prev_line = lines[idx - 1]
         if len(this_line) <= 2:
             if len(prev_line) == 4:
-                # remove break at end of previous line
                 for elem in reversed(prev_line):
-                    lb = elem.find("LayoutBreak")
+                    lb = next((child for child in elem if child.tag == "LayoutBreak"), None)
                     if lb is not None:
                         elem.remove(lb)
                         break
             elif len(prev_line) > 4:
-                # remove existing line break
                 for elem in reversed(prev_line):
-                    lb = elem.find("LayoutBreak")
+                    lb = next((child for child in elem if child.tag == "LayoutBreak"), None)
                     if lb is not None:
                         elem.remove(lb)
                         break
-                # insert new one in midpoint
                 split_index = len(prev_line) // 2
                 _add_line_break_to_measure(prev_line[split_index])
-        i += 1
 
 
 def mscz_main(mscz_path):
