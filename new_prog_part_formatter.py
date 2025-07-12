@@ -3,10 +3,15 @@ import xml.etree.ElementTree as ET
 import zipfile
 import os
 import shutil
+from enum import Enum
 
 NUM_MEASURES_PER_LINE = 6  # TODO: Make this a function of the time signature somehow?
 
 STYLES_DIR = "_styles/"
+
+class Style(Enum):
+    BROADWAY = 1
+    JAZZ = 2
 
 
 # -- HELPER FUNCTIONS --
@@ -372,6 +377,12 @@ def final_pass_through(staff: ET.Element) -> ET.Element:
                         break
                 split_index = len(prev_line) // 2
                 _add_line_break_to_measure(prev_line[split_index])
+
+
+def add_styles_to_score_and_parts() -> None:
+    """
+    Depending on what style
+    """
 
 
 def mscz_main(mscz_path):
