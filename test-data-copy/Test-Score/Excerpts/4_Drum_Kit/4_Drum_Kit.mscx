@@ -1064,6 +1064,12 @@
             <durationType>measure</durationType>
             <duration>32/4</duration>
             </Rest>
+          <BarLine>
+            <subtype>double</subtype>
+            <eid>CWRNqSsFMAG_dmOHeqg9c1D</eid>
+            <linked>
+              </linked>
+            </BarLine>
           </voice>
         </Measure>
       <Measure>
@@ -1148,6 +1154,12 @@
             <durationType>measure</durationType>
             <duration>4/4</duration>
             </Rest>
+          <BarLine>
+            <subtype>double</subtype>
+            <eid>k+7lkwte3eB_VJKOi/AMgjM</eid>
+            <linked>
+              </linked>
+            </BarLine>
           </voice>
         </Measure>
       <Measure>
@@ -1159,12 +1171,14 @@
               <location>
                 <staves>-5</staves>
                 </location>
+              <indexDiff>1</indexDiff>
               </linked>
             <text>B</text>
             </RehearsalMark>
           <Rest>
             <eid>gycT+GRLX1M_5uow5JQi2AD</eid>
             <linked>
+              <indexDiff>1</indexDiff>
               </linked>
             <durationType>measure</durationType>
             <duration>4/4</duration>
@@ -1181,6 +1195,7 @@
               <location>
                 <staves>-5</staves>
                 </location>
+              <indexDiff>1</indexDiff>
               </linked>
             <text>B</text>
             </RehearsalMark>

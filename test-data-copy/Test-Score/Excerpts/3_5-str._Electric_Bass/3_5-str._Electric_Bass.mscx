@@ -1359,6 +1359,12 @@
               <fixedLine>4</fixedLine>
               </Note>
             </Chord>
+          <BarLine>
+            <subtype>double</subtype>
+            <eid>SD6+uIcg4BE_zv4vpszWIpG</eid>
+            <linked>
+              </linked>
+            </BarLine>
           </voice>
         </Measure>
       <Measure>
@@ -1370,12 +1376,14 @@
               <location>
                 <staves>-4</staves>
                 </location>
+              <indexDiff>1</indexDiff>
               </linked>
             <text>B</text>
             </RehearsalMark>
           <Rest>
             <eid>UYmZui7f62N_LU7FICqHwSC</eid>
             <linked>
+              <indexDiff>1</indexDiff>
               </linked>
             <durationType>measure</durationType>
             <duration>4/4</duration>
@@ -1392,6 +1400,7 @@
               <location>
                 <staves>-4</staves>
                 </location>
+              <indexDiff>1</indexDiff>
               </linked>
             <text>B</text>
             </RehearsalMark>

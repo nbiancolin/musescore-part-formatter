@@ -1734,6 +1734,12 @@
               <fixedLine>4</fixedLine>
               </Note>
             </Chord>
+          <BarLine>
+            <subtype>double</subtype>
+            <eid>o3LN+M2UJzH_iNj9ICg+geM</eid>
+            <linked>
+              </linked>
+            </BarLine>
           </voice>
         </Measure>
       <Measure>
@@ -1745,12 +1751,14 @@
               <location>
                 <staves>-2</staves>
                 </location>
+              <indexDiff>1</indexDiff>
               </linked>
             <text>B</text>
             </RehearsalMark>
           <Rest>
             <eid>L4tK9s8lNfB_T4KTRurmDYF</eid>
             <linked>
+              <indexDiff>1</indexDiff>
               </linked>
             <durationType>measure</durationType>
             <duration>4/4</duration>
@@ -1767,6 +1775,7 @@
               <location>
                 <staves>-2</staves>
                 </location>
+              <indexDiff>1</indexDiff>
               </linked>
             <text>B</text>
             </RehearsalMark>
@@ -2081,6 +2090,12 @@
             <durationType>measure</durationType>
             <duration>4/4</duration>
             </Rest>
+          <BarLine>
+            <subtype>double</subtype>
+            <eid>mDc7m/0ocLC_LWqycRyVt3F</eid>
+            <linked>
+              </linked>
+            </BarLine>
           </voice>
         </Measure>
       <Measure>
