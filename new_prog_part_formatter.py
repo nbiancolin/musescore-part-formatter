@@ -3,28 +3,47 @@ import xml.etree.ElementTree as ET
 import zipfile
 import os
 
-#create a line break element
+# create a line break element
 LINE_BREAK = ET.Element("LayoutBreak")
 temp = ET.SubElement(LINE_BREAK, "subtype")
 temp.text = "line"
 
-NUM_MEASURES_PER_LINE = 6 #TODO: Make this a function of the time signature somehow?
+NUM_MEASURES_PER_LINE = 6  # TODO: Make this a function of the time signature somehow?
+
+# Classes
+class Staff(ET.Element):
+    pass
+
+class Measure(ET.Element):
+    pass
+
+class LineBreak(ET.Element):
+    pass
+
+class PageBreak(ET.Element):
+    pass
+
+class DoubleBar(ET.Element):
+    pass
 
 # -- HELPER FUNCTIONS --
 
-def _make_line_break():
+
+def _make_line_break() -> LineBreak:
     lb = ET.Element("LayoutBreak")
     subtype = ET.SubElement(lb, "subtype")
     subtype.text = "line"
     return lb
 
-def _make_page_break():
+
+def _make_page_break() -> PageBreak:
     pb = ET.Element("LayoutBreak")
     subtype = ET.SubElement(pb, "subtype")
     subtype.text = "page"
     return pb
 
-def _make_double_bar():
+
+def _make_double_bar() -> DoubleBar:
     db = ET.Element("BarLine")
     subtype = ET.SubElement(db, "subtype")
     subtype.text = "double"
@@ -32,7 +51,8 @@ def _make_double_bar():
     linked.text = "\n"
     return db
 
-def _add_line_break_to_measure(measure):
+
+def _add_line_break_to_measure(measure: Measure) -> None:
     index = 0
     for elem in measure:
         if elem.tag == "voice":
@@ -40,17 +60,19 @@ def _add_line_break_to_measure(measure):
         index += 1
     measure.insert(index, _make_line_break())
 
-def _add_line_break_to_measure_opt(measure):
+
+def _add_line_break_to_measure_opt(measure: Measure) -> None:
     if measure.find("LayoutBreak") is not None:
         return
     _add_line_break_to_measure(measure)
 
-def _add_page_break_to_measure(measure):
-    #if line break already there, replace with a page break
+
+def _add_page_break_to_measure(measure: Measure) -> None:
+    # if line break already there, replace with a page break
     if measure.find("LayoutBreak") is not None:
         measure.find("LayoutBreak").find("subtype").text = "page"
         return
-    
+
     print("added a page break to a bar that did not have a line break!")
     index = 0
     for elem in measure:
@@ -61,26 +83,26 @@ def _add_page_break_to_measure(measure):
     measure.insert(index, _make_page_break())
 
 
-def _add_double_bar_to_measure(measure):
+def _add_double_bar_to_measure(measure: Measure) -> None:
     # Add the double bar as the very last tag in the measure
     measure.append(_make_double_bar())
 
 
 # -- LayoutBreak formatting --
-def prep_mm_rests(staff):
+def prep_mm_rests(staff: Staff) -> Staff:
     """
-    Go through each measure in score. 
+    Go through each measure in score.
     if measure n has a "len" attribute: then mark that measure and the next m (m = measure->multiMeasureRest -1) measures with the "_mm" attribute
     """
     measure_to_mark = 0
     for elem in staff:
         if elem.tag == "Measure":
             if measure_to_mark > 0:
-                #mark measure
-                elem.attrib["_mm"] = str(measure_to_mark) #value is dummy, never used
+                # mark measure
+                elem.attrib["_mm"] = str(measure_to_mark)  # value is dummy, never used
                 measure_to_mark -= 1
             if elem.attrib.get("len"):
-                measure_to_mark = int(elem.find("multiMeasureRest").text) -1
+                measure_to_mark = int(elem.find("multiMeasureRest").text) - 1
 
 
 def cleanup_mm_rests(staff):
@@ -90,8 +112,10 @@ def cleanup_mm_rests(staff):
     for elem in staff:
         if elem.attrib.get("_mm") is not None:
             del elem.attrib["_mm"]
-    
 
+
+# TODO: Deprecated -- remove
+@Warning("Deprecated!!")
 def add_rehearsal_mark_double_bars(staff):
     """
     Go through each measure in the score. If there is a rehearsal mark in measure n, add a line break to measure n-1.
@@ -104,31 +128,61 @@ def add_rehearsal_mark_double_bars(staff):
 
         voice = elem.find("voice")
         if voice is None:
-            continue #sanity check
+            continue  # sanity check
 
         if voice.find("RehearsalMark") is not None:
             if i > 0:
-                #should have barline -- if it exists, continue
-                prev_elem = staff[i -1]
+                # should have barline -- if it exists, continue
+                prev_elem = staff[i - 1]
                 _add_double_bar_to_measure(prev_elem)
 
                 if prev_elem.attrib.get("_mm") is not None:
-                    for j in range(i -1, -1, -1):
+                    for j in range(i - 1, -1, -1):
                         if staff[j].attrib.get("len") is not None:
                             print(f"adding double bar to rehearsal mark at bar {j}")
                             _add_double_bar_to_measure(staff[j])
                             break
 
 
+def add_rehearsal_mark_line_breaks(staff: Staff) -> Staff:
+    """
+    Go through each measure in the score. If there is a rehearsal mark at measure n, ad a line break to measure n-1
+    if measure n-1 has a _mm attribute, go backwards until the first measure in the chain, and also add a line break
 
-#TODO: Should be add line breaks to double bar
+    add a line break by calling `_add_line_break_to_measure()`
+    """
+    for i in range(len(staff)):
+        elem = staff[i]
+        if elem.tag != "Measure":
+            continue
+
+        voice = elem.find("voice")
+        if voice is None:
+            continue
+
+        if voice.find("RehearsalMark") is not None:
+            assert i > 0
+            prev_elem = staff[i -1]
+            print(f"Adding Line Break to rehearsal mark at bar {i}")
+            _add_line_break_to_measure_opt(prev_elem)
+
+            if prev_elem.attrib.get("_mm") is not None:
+                for j in range(i - 1, -1, -1):
+                    if staff[j].attrib.get("len") is not None:
+                        print(f"Adding Line Break to start of multimeasure rest at bar {j}")
+                        _add_line_break_to_measure_opt(staff[j])
+                        break
+
+
+# TODO: Should be add line breaks to double bar
 def add_double_bar_line_breaks(staff):
     """
-    Go through each measure in the score. If there is a double bar on measure n, add a line break to measure n-1.
+    Go through each measure in the score. If there is a double bar on measure n, add a line break to measure n.
     If measure n-1 has a "_mm" attribute, go backwards until the first measure in the chain, and also add a line break.
 
     add a line break by calling `_add_line_break_to_measure()`
 
+    TODO: Move this to a balancing function -- NOT here
     Additionally, set it up s.t. if there are 2 multimeasure rests together, only keep the second line break, remove the first one
         TODO: This should onlt do this if the entire section before the next rehearsal mark is a multimeasure rest
     """
@@ -141,14 +195,14 @@ def add_double_bar_line_breaks(staff):
         voice = elem.find("voice")
         if voice is None:
             continue  # Skip if no voice tag
-        
+
         if voice.find("BarLine") is not None:
-            
-            if i > 0:  
+            if i > 0:
                 prev_elem = staff[i]
                 print(f"Adding (double bar) Line Break to measure at index {i}")
                 _add_line_break_to_measure(prev_elem)
 
+            # TODO: Rework this logic -- I don;t think its needed. Double bars in multmeasure rests should have the double bar every place the rehearsal mark should be
             # If part of mm rest, add to start of mm rest as well
             if prev_elem.attrib.get("_mm") is not None:
                 for j in range(i - 1, -1, -1):  # Start at i-1 and go backward
@@ -157,7 +211,7 @@ def add_double_bar_line_breaks(staff):
                         _add_line_break_to_measure(staff[j])
                         temp_prev_added = (prev_elem, staff[j])
 
-                        #check if we can remove a previous one
+                        # check if we can remove a previous one
                         if prev_added_line_break:
                             temp_prev_added = None
                             for e in prev_added_line_break:
@@ -173,26 +227,30 @@ def add_double_bar_line_breaks(staff):
 
 def add_regular_line_breaks(staff):
     """
-    We want to add a line break every `NUM_MEASURES_PER_LINE` measures. 
-    This does not include multi measure rests, these should be ignored. 
+    We want to add a line break every `NUM_MEASURES_PER_LINE` measures.
+    This does not include multi measure rests, these should be ignored.
     """
     i = 0
     for elem in staff:
         if elem.tag != "Measure":
             print("Non measure tag encountered")
             continue
-    
 
-        if elem.find("voice") is not None and elem.find("voice").find("RehearsalMark") is not None:
+        if (
+            elem.find("voice") is not None
+            and elem.find("voice").find("RehearsalMark") is not None
+        ):
             i = 0
 
         if elem.attrib.get("_mm") is not None:
             if i > 0:
-                #TODO: add line break to bar before
-                print("Could have added a line break") #Manual testing indicates otherwise ...
+                # TODO: add line break to bar before
+                print(
+                    "Could have added a line break"
+                )  # Manual testing indicates otherwise ...
             i = 0
         else:
-            if i == (NUM_MEASURES_PER_LINE -1) and elem.find("LayoutBreak") is None:
+            if i == (NUM_MEASURES_PER_LINE - 1) and elem.find("LayoutBreak") is None:
                 print("Adding Regular Line Break")
                 _add_line_break_to_measure(elem)
                 i = 0
@@ -206,14 +264,24 @@ def add_page_breaks(staff):
     - Aim for 7–9 lines per page: 7–8 for first page, 8–9 for others.
     - Favor breaks before multimeasure rests or rehearsal marks.
     """
+
     def is_line_break(measure):
-        return measure.find("LayoutBreak") is not None and measure.attrib.get("_mm") is None
+        return (
+            measure.find("LayoutBreak") is not None
+            and measure.attrib.get("_mm") is None
+        )
 
     def has_rehearsal_mark(measure):
         voice = measure.find("voice")
-        return voice is not None and voice.find("RehearsalMark") is not None and measure.attrib.get("_mm") is not None
+        return (
+            voice is not None
+            and voice.find("RehearsalMark") is not None
+            and measure.attrib.get("_mm") is not None
+        )
 
-    def choose_best_break(first_elem, second_elem, first_index, second_index, lines_on_page):
+    def choose_best_break(
+        first_elem, second_elem, first_index, second_index, lines_on_page
+    ):
         print(f"Page had {lines_on_page} lines before break.")
         next_first = staff[first_index + 1] if first_index + 1 < len(staff) else None
         next_second = staff[second_index + 1] if second_index + 1 < len(staff) else None
@@ -243,8 +311,6 @@ def add_page_breaks(staff):
 
         print("added page break")
 
-
-
     num_line_breaks_per_page = 0
     first_page = True
     first_elem, second_elem = None, None
@@ -267,16 +333,19 @@ def add_page_breaks(staff):
                 continue
             else:
                 second_elem, second_index = elem, i
-                res = choose_best_break(first_elem, second_elem, first_index, second_index, num_line_breaks_per_page + 1)
+                res = choose_best_break(
+                    first_elem,
+                    second_elem,
+                    first_index,
+                    second_index,
+                    num_line_breaks_per_page + 1,
+                )
 
-                    # Reset state
+                # Reset state
                 num_line_breaks_per_page = res
                 first_page = False
                 first_elem = second_elem = None
                 first_index = second_index = -1
-
-
-        
 
 
 def final_pass_through(staff):
@@ -334,19 +403,21 @@ def final_pass_through(staff):
                 _add_line_break_to_measure(prev_line[split_index])
         i += 1
 
-def mscz_main(mscz_path):
 
-    #flow of new stuff
+def mscz_main(mscz_path):
+    # flow of new stuff
     # - Unzip mscz file into temp directory
     # find each xml file and process them separately, write trem to a "done" directory
     # re-zip everything, write back to a new file
 
-    with zipfile.ZipFile(mscz_path, 'r') as zip_ref:
+    with zipfile.ZipFile(mscz_path, "r") as zip_ref:
         # Extract all files to "temp" and collect all .mscx files from the zip structure
         temp_dir = "temp"
         zip_ref.extractall(temp_dir)
-    
-    mscx_files = [os.path.join(temp_dir, f) for f in zip_ref.namelist() if f.endswith('.mscx')]
+
+    mscx_files = [
+        os.path.join(temp_dir, f) for f in zip_ref.namelist() if f.endswith(".mscx")
+    ]
     if not mscx_files:
         print("No .mscx files found in the provided mscz file.")
         sys.exit(1)
@@ -355,24 +426,23 @@ def mscz_main(mscz_path):
     for mscx_path in mscx_files:
         print(f"Processing {mscx_path}...")
         process_mscx(mscx_path)
-    
+
     # Re-zip the processed files into a new mscz file
     output_mscz_path = mscz_path.replace(".mscz", "_processed.mscz")
-    with zipfile.ZipFile(output_mscz_path, 'w') as zip_out:
+    with zipfile.ZipFile(output_mscz_path, "w") as zip_out:
         for root, _, files in os.walk(temp_dir):
             for file in files:
                 file_path = os.path.join(root, file)
                 # Write the file to the zip, maintaining the directory structure
                 zip_out.write(file_path, os.path.relpath(file_path, temp_dir))
 
-    #remove temp directory
+    # remove temp directory
     # for root, dirs, files in os.walk(temp_dir, topdown=False):
     #     for file in files:
     #         os.remove(os.path.join(root, file))
     #     for dir in dirs:
     #         os.rmdir(os.path.join(root, dir))
     # os.rmdir(temp_dir)
-
 
     # try:
     #     parser = ET.XMLParser()
@@ -404,13 +474,10 @@ def mscz_main(mscz_path):
     #         #write file back to the temp directory
     #         with open()
 
-
     # except FileNotFoundError:
     #     print(f"Error: File '{mscx_path}' not found.")
     #     sys.exit(1)
 
-
-        
 
 def process_mscx(mscx_path, standalone=False):
     try:
@@ -423,7 +490,7 @@ def process_mscx(mscx_path, standalone=False):
 
         staves = score.findall("Staff")
 
-        staff = staves[0]  #noqa  -- only add layout breaks to the first staff
+        staff = staves[0]  # noqa  -- only add layout breaks to the first staff
         for elem in staff:
             if elem.tag == "Measure":
                 _add_double_bar_to_measure(elem)
@@ -451,7 +518,6 @@ def process_mscx(mscx_path, standalone=False):
     except FileNotFoundError:
         print(f"Error: File '{mscx_path}' not found.")
         sys.exit(1)
-
 
 
 if __name__ == "__main__":
