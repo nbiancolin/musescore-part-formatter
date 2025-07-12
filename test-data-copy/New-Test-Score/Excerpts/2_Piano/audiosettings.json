@@ -9,16 +9,16 @@
             }
         },
         {
-            "instrumentId": "trombone",
-            "partId": "2",
+            "instrumentId": "5-string-electric-bass",
+            "partId": "4",
             "soloMuteState": {
                 "mute": true,
                 "solo": false
             }
         },
         {
-            "instrumentId": "5-string-electric-bass",
-            "partId": "4",
+            "instrumentId": "trombone",
+            "partId": "2",
             "soloMuteState": {
                 "mute": true,
                 "solo": false

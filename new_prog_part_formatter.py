@@ -6,6 +6,8 @@ import shutil
 
 NUM_MEASURES_PER_LINE = 6  # TODO: Make this a function of the time signature somehow?
 
+STYLES_DIR = "_styles/"
+
 
 # -- HELPER FUNCTIONS --
 def _make_line_break() -> ET.Element:
