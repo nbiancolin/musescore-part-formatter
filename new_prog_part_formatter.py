@@ -394,7 +394,7 @@ def mscz_main(mscz_path):
         # Extract all files to "temp" and collect all .mscx files from the zip structure
         zip_ref.extractall(TEMP_DIR)
 
-    add_styles_to_score_and_parts(Style.JAZZ)
+    add_styles_to_score_and_parts(Style.BROADWAY)
 
     mscx_files = [
         os.path.join(TEMP_DIR, f) for f in zip_ref.namelist() if f.endswith(".mscx")
