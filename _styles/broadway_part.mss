@@ -1335,7 +1335,7 @@ v$:versionNum:</oddFooterR>
     <user2Offset x="-3" y="1.33"/>
     <user2OffsetType>1</user2OffsetType>
     <user2FrameType>1</user2FrameType>
-    <user2FramePadding>5</user2FramePadding>
+    <user2FramePadding>3.5</user2FramePadding>
     <user2FrameWidth>0.1</user2FrameWidth>
     <user2FrameRound>0</user2FrameRound>
     <user2FrameFgColor r="0" g="0" b="0" a="255"/>
