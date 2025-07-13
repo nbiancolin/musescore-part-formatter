@@ -42,6 +42,15 @@ def _make_show_title_text(show_title: str) -> ET.Element:
     return txt
 
 
+def _make_part_name_text(part_name: str) -> ET.Element:
+    txt = ET.Element("Text")
+    style = ET.SubElement(txt, "style")
+    style.text = "instrument_excerpt"
+    text = ET.SubElement(txt, "text")
+    text.text = part_name
+    return txt
+
+
 def _make_line_break() -> ET.Element:
     lb = ET.Element("LayoutBreak")
     subtype = ET.SubElement(lb, "subtype")
@@ -103,14 +112,24 @@ def _add_double_bar_to_measure(measure: ET.Element) -> None:
 
 
 # -- Broadway specific formatting
-def add_broadway_header(
-    staff: ET.Element, show_number: str, show_title: str
-) -> ET.Element:
+def add_broadway_header(staff: ET.Element, show_number: str, show_title: str) -> None:
     for elem in staff:
         # find first VBox
         if elem.tag == "VBox":
             elem.append(_make_show_number_text(show_number))
             elem.append(_make_show_title_text(show_title))
+            return
+
+
+def add_part_name(staff: ET.Element, part_name: str = "CONDUCTOR SCORE") -> None:
+    for elem in staff:
+        if elem.tag == "VBox":
+            for child in elem.findall("Text"):
+                style = child.find("style")
+                if style is not None and style.text == "instrument_excerpt":
+                    return
+            elem.append(_make_part_name_text(part_name))
+            return
 
 
 # -- LayoutBreak formatting --
@@ -473,6 +492,7 @@ def process_mscx(mscx_path, standalone=False):
         cleanup_mm_rests(staff)
         if SELECTED_STYLE == Style.BROADWAY:
             add_broadway_header(staff, SHOW_NUMBER, SHOW_TITLE)
+        add_part_name(staff)
 
         if standalone:
             out_path = mscx_path.replace("test-data", "test-data-copy")
