@@ -11,6 +11,8 @@ Also works on individual parts (WIP)
 python new_prog_part_formatter.py <path to mscx file>
 ```
 
+> NOTE: I am gonna refactor this eventually. Putting it into the Divisi Website, once its refactored and fixed there, I'll update this repo
+
 
 
 Currently Does:
