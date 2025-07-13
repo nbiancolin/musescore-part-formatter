@@ -202,7 +202,7 @@
     <articulationStemHAlign>2</articulationStemHAlign>
     <articulationKeepTogether>1</articulationKeepTogether>
     <trillAlwaysShowCueNote>0</trillAlwaysShowCueNote>
-    <lastSystemFillLimit>0.3</lastSystemFillLimit>
+    <lastSystemFillLimit>0.1</lastSystemFillLimit>
     <hairpinPlacement>1</hairpinPlacement>
     <hairpinPosAbove x="0" y="-2"/>
     <hairpinPosBelow x="0" y="2"/>

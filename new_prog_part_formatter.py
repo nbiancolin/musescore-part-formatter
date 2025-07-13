@@ -5,10 +5,13 @@ import os
 import shutil
 from enum import Enum
 
-NUM_MEASURES_PER_LINE = 6  # TODO: Make this a function of the time signature somehow?
+NUM_MEASURES_PER_LINE = (
+    6  # TODO[SC-42]: Make this a function of the time signature somehow?
+)
 
 STYLES_DIR = "_styles"
 TEMP_DIR = "temp"
+
 
 class Style(Enum):
     BROADWAY = 1
@@ -101,36 +104,6 @@ def cleanup_mm_rests(staff: ET.Element) -> ET.Element:
             del elem.attrib["_mm"]
 
 
-# TODO: Deprecated -- remove
-# @Warning("Deprecated!!")
-def add_rehearsal_mark_double_bars(staff):
-    """
-    Go through each measure in the score. If there is a rehearsal mark in measure n, add a line break to measure n-1.
-    If measure n-1 has a "_mm" attribute, go backwards until the first measure in the chain, and also add a line break.
-    """
-    for i in range(len(staff)):
-        elem = staff[i]
-        if elem.tag != "Measure":
-            continue
-
-        voice = elem.find("voice")
-        if voice is None:
-            continue  # sanity check
-
-        if voice.find("RehearsalMark") is not None:
-            if i > 0:
-                # should have barline -- if it exists, continue
-                prev_elem = staff[i - 1]
-                _add_double_bar_to_measure(prev_elem)
-
-                if prev_elem.attrib.get("_mm") is not None:
-                    for j in range(i - 1, -1, -1):
-                        if staff[j].attrib.get("len") is not None:
-                            print(f"adding double bar to rehearsal mark at bar {j}")
-                            _add_double_bar_to_measure(staff[j])
-                            break
-
-
 def add_rehearsal_mark_line_breaks(staff: ET.Element) -> ET.Element:
     """
     Go through each measure in the score. If there is a rehearsal mark at measure n, ad a line break to measure n-1
@@ -191,7 +164,7 @@ def add_double_bar_line_breaks(staff: ET.Element) -> ET.Element:
             _add_line_break_to_measure_opt(prev_elem)
 
 
-#TODO[SC-37]: make it acc work
+# TODO[SC-37]: make it acc work
 def balance_mm_rest_line_breaks(staff: ET.Element) -> ET.Element:
     """
     Scenario: We have:
@@ -380,21 +353,48 @@ def final_pass_through(staff: ET.Element) -> ET.Element:
                 _add_line_break_to_measure(prev_line[split_index])
 
 
+# TODO[SC-43]: Modify it so that the score style is selected based on the # of instruments
 def add_styles_to_score_and_parts(style: Style) -> None:
     """
-    Depending on what style enum is selected, load either the jazz or broadway style file (or setup custom)
+    Depending on what style enum is selected, load either the jazz or broadway style file.
+
+    Go through temp directory, replace any "style" .mss parts with the selected style file.
+    This includes both the main score and individual part style files.
     """
+
+    # Determine style files
+    if style == Style.BROADWAY:
+        score_style_path = os.path.join(STYLES_DIR, "broadway_score.mss")
+        part_style_path = os.path.join(STYLES_DIR, "broadway_part.mss")
+    elif style == Style.JAZZ:
+        score_style_path = os.path.join(STYLES_DIR, "jazz_score.mss")
+        part_style_path = os.path.join(STYLES_DIR, "jazz_part.mss")
+    else:
+        raise ValueError(f"Unsupported style: {style}")
+
+    # Walk through files in temp directory
+    for root, _, files in os.walk(TEMP_DIR):
+        for filename in files:
+            if not filename.lower().endswith(".mss"):
+                continue
+
+            full_path = os.path.join(root, filename)
+            # Get relative path from TEMP_DIR to check if it's inside "excerpts/"
+            rel_path = os.path.relpath(full_path, TEMP_DIR)
+            is_excerpt = "Excerpts" in rel_path
+
+            source_style = part_style_path if is_excerpt else score_style_path
+            shutil.copyfile(source_style, full_path)
+
+            print(f"Replaced {'part' if is_excerpt else 'score'} style: {full_path}")
 
 
 def mscz_main(mscz_path):
-    # flow of new stuff
-    # - Unzip mscz file into temp directory
-    # find each xml file and process them separately, write trem to a "done" directory
-    # re-zip everything, write back to a new file
-
     with zipfile.ZipFile(mscz_path, "r") as zip_ref:
         # Extract all files to "temp" and collect all .mscx files from the zip structure
         zip_ref.extractall(TEMP_DIR)
+
+    add_styles_to_score_and_parts(Style.JAZZ)
 
     mscx_files = [
         os.path.join(TEMP_DIR, f) for f in zip_ref.namelist() if f.endswith(".mscx")
