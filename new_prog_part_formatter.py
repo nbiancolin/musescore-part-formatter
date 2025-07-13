@@ -414,7 +414,7 @@ def mscz_main(mscz_path):
                 file_path = os.path.join(root, file)
                 zip_out.write(file_path, os.path.relpath(file_path, TEMP_DIR))
 
-    shutil.rmtree(TEMP_DIR)
+    # shutil.rmtree(TEMP_DIR)
 
 
 def process_mscx(mscx_path, standalone=False):
