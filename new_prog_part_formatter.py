@@ -7,7 +7,8 @@ from enum import Enum
 
 NUM_MEASURES_PER_LINE = 6  # TODO: Make this a function of the time signature somehow?
 
-STYLES_DIR = "_styles/"
+STYLES_DIR = "_styles"
+TEMP_DIR = "temp"
 
 class Style(Enum):
     BROADWAY = 1
@@ -379,9 +380,9 @@ def final_pass_through(staff: ET.Element) -> ET.Element:
                 _add_line_break_to_measure(prev_line[split_index])
 
 
-def add_styles_to_score_and_parts() -> None:
+def add_styles_to_score_and_parts(style: Style) -> None:
     """
-    Depending on what style
+    Depending on what style enum is selected, load either the jazz or broadway style file (or setup custom)
     """
 
 
@@ -393,11 +394,10 @@ def mscz_main(mscz_path):
 
     with zipfile.ZipFile(mscz_path, "r") as zip_ref:
         # Extract all files to "temp" and collect all .mscx files from the zip structure
-        temp_dir = "temp"
-        zip_ref.extractall(temp_dir)
+        zip_ref.extractall(TEMP_DIR)
 
     mscx_files = [
-        os.path.join(temp_dir, f) for f in zip_ref.namelist() if f.endswith(".mscx")
+        os.path.join(TEMP_DIR, f) for f in zip_ref.namelist() if f.endswith(".mscx")
     ]
     if not mscx_files:
         print("No .mscx files found in the provided mscz file.")
@@ -409,12 +409,12 @@ def mscz_main(mscz_path):
 
     output_mscz_path = mscz_path.replace(".mscz", "_processed.mscz")
     with zipfile.ZipFile(output_mscz_path, "w") as zip_out:
-        for root, _, files in os.walk(temp_dir):
+        for root, _, files in os.walk(TEMP_DIR):
             for file in files:
                 file_path = os.path.join(root, file)
-                zip_out.write(file_path, os.path.relpath(file_path, temp_dir))
+                zip_out.write(file_path, os.path.relpath(file_path, TEMP_DIR))
 
-    shutil.rmtree(temp_dir)
+    shutil.rmtree(TEMP_DIR)
 
 
 def process_mscx(mscx_path, standalone=False):
