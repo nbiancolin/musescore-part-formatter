@@ -18,7 +18,30 @@ class Style(Enum):
     JAZZ = 2
 
 
+SELECTED_STYLE = Style.BROADWAY
+SHOW_TITLE = "MyShow"
+SHOW_NUMBER = "1-1"
+
+
 # -- HELPER FUNCTIONS --
+def _make_show_number_text(show_number: str) -> ET.Element:
+    txt = ET.Element("Text")
+    style = ET.SubElement(txt, "style")
+    style.text = "user_2"
+    text = ET.SubElement(txt, "text")
+    text.text = show_number
+    return txt
+
+
+def _make_show_title_text(show_title: str) -> ET.Element:
+    txt = ET.Element("Text")
+    style = ET.SubElement(txt, "style")
+    style.text = "user_3"
+    text = ET.SubElement(txt, "text")
+    text.text = show_title
+    return txt
+
+
 def _make_line_break() -> ET.Element:
     lb = ET.Element("LayoutBreak")
     subtype = ET.SubElement(lb, "subtype")
@@ -73,9 +96,21 @@ def _add_page_break_to_measure(measure: ET.Element) -> None:
     measure.insert(index, _make_page_break())
 
 
+# TODO: Cleanup and remove
 def _add_double_bar_to_measure(measure: ET.Element) -> None:
     # Add the double bar as the very last tag in the measure
     measure.append(_make_double_bar())
+
+
+# -- Broadway specific formatting
+def add_broadway_header(
+    staff: ET.Element, show_number: str, show_title: str
+) -> ET.Element:
+    for elem in staff:
+        # find first VBox
+        if elem.tag == "VBox":
+            elem.append(_make_show_number_text(show_number))
+            elem.append(_make_show_title_text(show_title))
 
 
 # -- LayoutBreak formatting --
@@ -394,7 +429,7 @@ def mscz_main(mscz_path):
         # Extract all files to "temp" and collect all .mscx files from the zip structure
         zip_ref.extractall(TEMP_DIR)
 
-    add_styles_to_score_and_parts(Style.BROADWAY)
+    add_styles_to_score_and_parts(SELECTED_STYLE)
 
     mscx_files = [
         os.path.join(TEMP_DIR, f) for f in zip_ref.namelist() if f.endswith(".mscx")
@@ -433,10 +468,11 @@ def process_mscx(mscx_path, standalone=False):
         add_rehearsal_mark_line_breaks(staff)
         add_double_bar_line_breaks(staff)
         add_regular_line_breaks(staff)
-        # balance_mm_rest_line_breaks(staff)
         final_pass_through(staff)
         add_page_breaks(staff)
         cleanup_mm_rests(staff)
+        if SELECTED_STYLE == Style.BROADWAY:
+            add_broadway_header(staff, SHOW_NUMBER, SHOW_TITLE)
 
         if standalone:
             out_path = mscx_path.replace("test-data", "test-data-copy")

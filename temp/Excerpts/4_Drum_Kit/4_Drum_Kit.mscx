@@ -321,6 +321,16 @@ v$:versionNum:</oddFooterR>
           <style>instrument_excerpt</style>
           <text>Drum Kit</text>
           </Text>
+        <Text>
+          <eid>PWYIaS6w6HP_SJ4YOESK1XP</eid>
+          <style>user_2</style>
+          <text>1-1</text>
+          </Text>
+        <Text>
+          <eid>eAmOpKsFfg_JzW9fHSfA2G</eid>
+          <style>user_3</style>
+          <text>MyShow</text>
+          </Text>
         </VBox>
       <Measure>
         <eid>yUE2m5bemAO_hOOt5xNjY6L</eid>
@@ -582,7 +592,7 @@ v$:versionNum:</oddFooterR>
       <Measure>
         <eid>rK79YA5xcGC_73l02rZ3EWC</eid>
         <LayoutBreak>
-          <eid>ataA92wLE1M_B8BVA4YjF4</eid>
+          <eid>rzqcrVklXIJ_C+/YegSJQAG</eid>
           <subtype>line</subtype>
           </LayoutBreak>
         <voice>
@@ -1017,7 +1027,7 @@ v$:versionNum:</oddFooterR>
       <Measure>
         <eid>96oBqCqV/IH_yvc/8VebuPL</eid>
         <LayoutBreak>
-          <eid>T8dqCfJUptI_OWo2TOeAFDL</eid>
+          <eid>bhCij3KUcIN_wzusojcalGK</eid>
           <subtype>line</subtype>
           </LayoutBreak>
         <voice>
@@ -1108,7 +1118,7 @@ v$:versionNum:</oddFooterR>
       <Measure>
         <eid>C+WYjTtIOmO_wcQDv2PVInO</eid>
         <LayoutBreak>
-          <eid>JZHKYAh3nPF_KkfASY4dB8E</eid>
+          <eid>ecU9waJBad_8BckgD5b/wI</eid>
           <subtype>line</subtype>
           </LayoutBreak>
         <voice>
@@ -1193,7 +1203,7 @@ v$:versionNum:</oddFooterR>
       <Measure>
         <eid>ukvbZT5eBVF_otlrbL60yxG</eid>
         <LayoutBreak>
-          <eid>jigSMS7AOXK_onVvkmGCGcH</eid>
+          <eid>Vwt/4rlj61L_UiItMZWtX8</eid>
           <subtype>line</subtype>
           </LayoutBreak>
         <voice>
@@ -1245,7 +1255,7 @@ v$:versionNum:</oddFooterR>
       <Measure>
         <eid>g347LxG1cEJ_sDVmLVZmpi</eid>
         <LayoutBreak>
-          <eid>i4VcL9655EF_lXnnPUOWE0M</eid>
+          <eid>yW7KF5Z4McM_Hq8tYLqU5sM</eid>
           <subtype>line</subtype>
           </LayoutBreak>
         <voice>
@@ -1271,7 +1281,7 @@ v$:versionNum:</oddFooterR>
         <multiMeasureRest>4</multiMeasureRest>
         <eid>/doWUjvQ8YL_w8KKC7k8VcF</eid>
         <LayoutBreak>
-          <eid>8tDC0p2ftNP_v/s3rti78zC</eid>
+          <eid>HXtj2rxaj1D_wczua4VTsRD</eid>
           <subtype>line</subtype>
           </LayoutBreak>
         <voice>
@@ -1319,7 +1329,7 @@ v$:versionNum:</oddFooterR>
       <Measure>
         <eid>Ezh10OKKAaM_MlKadhl7fEN</eid>
         <LayoutBreak>
-          <eid>i+kv3xL/cOF_wbGIy3oG3DN</eid>
+          <eid>AiEcbfw/4SD_bp8bEGkPULJ</eid>
           <subtype>line</subtype>
           </LayoutBreak>
         <voice>
@@ -1335,7 +1345,7 @@ v$:versionNum:</oddFooterR>
       <Measure>
         <eid>DsCBRkPVYxB_C8qkdnqgAXF</eid>
         <LayoutBreak>
-          <eid>Y5UZrfvONwN_9vVO6dxLm3C</eid>
+          <eid>B1JQzzZO74J_0Og7aZaDpME</eid>
           <subtype>line</subtype>
           </LayoutBreak>
         <voice>
