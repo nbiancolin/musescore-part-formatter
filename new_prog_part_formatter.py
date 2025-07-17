@@ -9,16 +9,19 @@ NUM_MEASURES_PER_LINE = (
     6  # TODO[SC-42]: Make this a function of the time signature somehow?
 )
 
-STYLES_DIR = "_styles"
-TEMP_DIR = "temp"
+STYLES_DIR = "blob/_styles"
+TEMP_DIR = "blob/temp"  # TODO[SC-52]: move to settings.py
 
 
 class Style(Enum):
-    BROADWAY = 1
-    JAZZ = 2
+    BROADWAY = "broadway"
+    JAZZ = "jazz"
 
 
-SELECTED_STYLE = Style.BROADWAY
+SHOW_TITLE = "MyShow"
+SHOW_NUMBER = "1-1"
+
+
 SHOW_TITLE = "MyShow"
 SHOW_NUMBER = "1-1"
 
@@ -105,7 +108,6 @@ def _add_page_break_to_measure(measure: ET.Element) -> None:
     measure.insert(index, _make_page_break())
 
 
-# TODO: Cleanup and remove
 def _add_double_bar_to_measure(measure: ET.Element) -> None:
     # Add the double bar as the very last tag in the measure
     measure.append(_make_double_bar())
@@ -147,6 +149,7 @@ def prep_mm_rests(staff: ET.Element) -> ET.Element:
                 measure_to_mark -= 1
             if elem.attrib.get("len"):
                 measure_to_mark = int(elem.find("multiMeasureRest").text) - 1
+    return staff
 
 
 def cleanup_mm_rests(staff: ET.Element) -> ET.Element:
@@ -156,6 +159,7 @@ def cleanup_mm_rests(staff: ET.Element) -> ET.Element:
     for elem in staff:
         if elem.attrib.get("_mm") is not None:
             del elem.attrib["_mm"]
+    return staff
 
 
 def add_rehearsal_mark_line_breaks(staff: ET.Element) -> ET.Element:
@@ -188,9 +192,9 @@ def add_rehearsal_mark_line_breaks(staff: ET.Element) -> ET.Element:
                         )
                         _add_line_break_to_measure_opt(staff[j])
                         break
+    return staff
 
 
-# TODO: Should be add line breaks to double bar
 def add_double_bar_line_breaks(staff: ET.Element) -> ET.Element:
     """
     Go through each measure in the score. If there is a double bar on measure n, add a line break to measure n.
@@ -217,6 +221,8 @@ def add_double_bar_line_breaks(staff: ET.Element) -> ET.Element:
             print(f"Adding Line Break to double Bar line at bar {i}")
             _add_line_break_to_measure_opt(prev_elem)
 
+    return staff
+
 
 # TODO[SC-37]: make it acc work
 def balance_mm_rest_line_breaks(staff: ET.Element) -> ET.Element:
@@ -240,10 +246,12 @@ def balance_mm_rest_line_breaks(staff: ET.Element) -> ET.Element:
                 elem.remove(lb)
         prev_mm = is_mm
 
+    return staff
 
-def add_regular_line_breaks(staff: ET.Element) -> ET.Element:
+
+def add_regular_line_breaks(staff: ET.Element, measures_per_line: int) -> ET.Element:
     """
-    We want to add a line break every `NUM_MEASURES_PER_LINE` measures.
+    We want to add a line break every `measures_per_line` measures.
     This does not include multi measure rests, these should be ignored.
     """
     i = 0
@@ -266,12 +274,14 @@ def add_regular_line_breaks(staff: ET.Element) -> ET.Element:
                 )  # Manual testing indicates otherwise ...
             i = 0
         else:
-            if i == (NUM_MEASURES_PER_LINE - 1) and elem.find("LayoutBreak") is None:
+            if i == (measures_per_line - 1) and elem.find("LayoutBreak") is None:
                 print("Adding Regular Line Break")
                 _add_line_break_to_measure(elem)
                 i = 0
             else:
                 i += 1
+
+    return staff
 
 
 def add_page_breaks(staff: ET.Element) -> ET.Element:
@@ -362,6 +372,7 @@ def add_page_breaks(staff: ET.Element) -> ET.Element:
                 first_page = False
                 first_elem = second_elem = None
                 first_index = second_index = -1
+    return staff
 
 
 def final_pass_through(staff: ET.Element) -> ET.Element:
@@ -405,10 +416,11 @@ def final_pass_through(staff: ET.Element) -> ET.Element:
                         break
                 split_index = len(prev_line) // 2
                 _add_line_break_to_measure(prev_line[split_index])
+    return staff
 
 
 # TODO[SC-43]: Modify it so that the score style is selected based on the # of instruments
-def add_styles_to_score_and_parts(style: Style) -> None:
+def add_styles_to_score_and_parts(style: Style, work_dir: str) -> None:
     """
     Depending on what style enum is selected, load either the jazz or broadway style file.
 
@@ -427,14 +439,14 @@ def add_styles_to_score_and_parts(style: Style) -> None:
         raise ValueError(f"Unsupported style: {style}")
 
     # Walk through files in temp directory
-    for root, _, files in os.walk(TEMP_DIR):
+    for root, _, files in os.walk(work_dir):
         for filename in files:
             if not filename.lower().endswith(".mss"):
                 continue
 
             full_path = os.path.join(root, filename)
-            # Get relative path from TEMP_DIR to check if it's inside "excerpts/"
-            rel_path = os.path.relpath(full_path, TEMP_DIR)
+            # Get relative path from work_dir to check if it's inside "excerpts/"
+            rel_path = os.path.relpath(full_path, work_dir)
             is_excerpt = "Excerpts" in rel_path
 
             source_style = part_style_path if is_excerpt else score_style_path
@@ -443,35 +455,60 @@ def add_styles_to_score_and_parts(style: Style) -> None:
             print(f"Replaced {'part' if is_excerpt else 'score'} style: {full_path}")
 
 
-def mscz_main(mscz_path):
-    with zipfile.ZipFile(mscz_path, "r") as zip_ref:
-        # Extract all files to "temp" and collect all .mscx files from the zip structure
-        zip_ref.extractall(TEMP_DIR)
+def mscz_main(
+    input_path,
+    output_path,
+    style_name,
+    show_title=SHOW_TITLE,
+    show_number=SHOW_NUMBER,
+    num_measure_per_line=NUM_MEASURES_PER_LINE,
+):
+    work_dir = TEMP_DIR + input_path.split("/")[-1]
 
-    add_styles_to_score_and_parts(SELECTED_STYLE)
+    with zipfile.ZipFile(input_path, "r") as zip_ref:
+        # Extract all files to "temp" and collect all .mscx files from the zip structure
+        zip_ref.extractall(work_dir)
+
+    selected_style = Style(style_name)
+
+    add_styles_to_score_and_parts(selected_style, work_dir)
 
     mscx_files = [
-        os.path.join(TEMP_DIR, f) for f in zip_ref.namelist() if f.endswith(".mscx")
+        os.path.join(work_dir, f) for f in zip_ref.namelist() if f.endswith(".mscx")
     ]
     if not mscx_files:
         print("No .mscx files found in the provided mscz file.")
-        sys.exit(1)
+        shutil.rmtree(work_dir)
+        return
 
     for mscx_path in mscx_files:
         print(f"Processing {mscx_path}...")
-        process_mscx(mscx_path)
+        process_mscx(
+            mscx_path,
+            selected_style,
+            show_title=show_title,
+            show_number=show_number,
+            measures_per_line=num_measure_per_line,
+        )
 
-    output_mscz_path = mscz_path.replace(".mscz", "_processed.mscz")
-    with zipfile.ZipFile(output_mscz_path, "w") as zip_out:
-        for root, _, files in os.walk(TEMP_DIR):
+    with zipfile.ZipFile(output_path, "w") as zip_out:
+        for root, _, files in os.walk(work_dir):
             for file in files:
                 file_path = os.path.join(root, file)
-                zip_out.write(file_path, os.path.relpath(file_path, TEMP_DIR))
+                zip_out.write(file_path, os.path.relpath(file_path, work_dir))
 
-    shutil.rmtree(TEMP_DIR)
+    shutil.rmtree(work_dir)
 
 
-def process_mscx(mscx_path, standalone=False):
+def process_mscx(
+    mscx_path,
+    selected_style,
+    show_title,
+    show_number,
+    measures_per_line,
+    standalone=False,
+    output_path="test-data-copy/"
+):
     try:
         parser = ET.XMLParser()
         tree = ET.parse(mscx_path, parser)
@@ -479,6 +516,17 @@ def process_mscx(mscx_path, standalone=False):
         score = root.find("Score")
         if score is None:
             raise ValueError("No <Score> tag found in the XML.")
+        
+        score_properties = {
+            "albumTitle": show_title,
+            "trackNum": show_number
+        }
+        
+        #set score properties
+        for metaTag in score.findall("metaTag"):
+            for k in score_properties.keys():
+                if metaTag.attrib.get(k):
+                    metaTag.attrib[k] = score_properties[k]
 
         staves = score.findall("Staff")
 
@@ -486,12 +534,12 @@ def process_mscx(mscx_path, standalone=False):
         prep_mm_rests(staff)
         add_rehearsal_mark_line_breaks(staff)
         add_double_bar_line_breaks(staff)
-        add_regular_line_breaks(staff)
+        add_regular_line_breaks(staff, measures_per_line)
         final_pass_through(staff)
         add_page_breaks(staff)
         cleanup_mm_rests(staff)
-        if SELECTED_STYLE == Style.BROADWAY:
-            add_broadway_header(staff, SHOW_NUMBER, SHOW_TITLE)
+        if selected_style == Style.BROADWAY:
+            add_broadway_header(staff, show_number, show_title)
         add_part_name(staff)
 
         if standalone:
@@ -518,8 +566,8 @@ if __name__ == "__main__":
         sys.exit(1)
 
     if sys.argv[1].endswith(".mscx"):
-        process_mscx(sys.argv[1], standalone=True)
+        process_mscx(sys.argv[1], Style.BROADWAY, SHOW_TITLE, SHOW_NUMBER, NUM_MEASURES_PER_LINE, standalone=True, output_path=sys.argv[2])
     elif sys.argv[1].endswith(".mscz"):
-        mscz_main(sys.argv[1])
+        mscz_main(sys.argv[1], sys.argv[2], style_name="broadway") #Change this line if you want to set the style!
     else:
         print("Make sure to use this on either a mscx or mscz file")
