@@ -5,6 +5,7 @@ import zipfile
 import os
 
 from utils import Style
+from formatting import add_styles_to_score_and_parts
 
 class FormattingParams(TypedDict):
     show_title: str|None
@@ -22,7 +23,7 @@ def format_mscx(input_path: str, params: FormattingParams) -> bool:
     - False if an error occurred
 
     TODO: Remove when complete:
-    May also raise exceptions while we are in this development phase 
+    May also raise exceptions while we are in this development phase
     """
 
     return False
@@ -39,8 +40,11 @@ def format_mscz(input_path: str, output_path: str, params: FormattingParams) -> 
     - False if an error occurred
 
     TODO: Remove when complete:
-    May also raise exceptions while we are in this development phase 
+    May also raise exceptions while we are in this development phase
     """
+
+    #unpack params
+
     with tempfile.TemporaryDirectory() as work_dir:
 
         with zipfile.ZipFile(input_path, "r") as zip_ref:

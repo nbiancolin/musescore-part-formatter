@@ -21,7 +21,6 @@ class Style(Enum):
 SHOW_TITLE = "MyShow"
 SHOW_NUMBER = "1-1"
 
-
 SHOW_TITLE = "MyShow"
 SHOW_NUMBER = "1-1"
 
@@ -261,8 +260,8 @@ def add_regular_line_breaks(staff: ET.Element, measures_per_line: int) -> ET.Ele
             continue
 
         if (
-            elem.find("voice") is not None
-            and elem.find("voice").find("RehearsalMark") is not None
+                elem.find("voice") is not None
+                and elem.find("voice").find("RehearsalMark") is not None
         ):
             i = 0
 
@@ -293,20 +292,20 @@ def add_page_breaks(staff: ET.Element) -> ET.Element:
 
     def is_line_break(measure):
         return (
-            measure.find("LayoutBreak") is not None
-            and measure.attrib.get("_mm") is None
+                measure.find("LayoutBreak") is not None
+                and measure.attrib.get("_mm") is None
         )
 
     def has_rehearsal_mark(measure):
         voice = measure.find("voice")
         return (
-            voice is not None
-            and voice.find("RehearsalMark") is not None
-            and measure.attrib.get("_mm") is not None
+                voice is not None
+                and voice.find("RehearsalMark") is not None
+                and measure.attrib.get("_mm") is not None
         )
 
     def choose_best_break(
-        first_elem, second_elem, first_index, second_index, lines_on_page
+            first_elem, second_elem, first_index, second_index, lines_on_page
     ):
         print(f"Page had {lines_on_page} lines before break.")
         next_first = staff[first_index + 1] if first_index + 1 < len(staff) else None
@@ -456,12 +455,12 @@ def add_styles_to_score_and_parts(style: Style, work_dir: str) -> None:
 
 
 def mscz_main(
-    input_path,
-    output_path,
-    style_name,
-    show_title=SHOW_TITLE,
-    show_number=SHOW_NUMBER,
-    num_measure_per_line=NUM_MEASURES_PER_LINE,
+        input_path,
+        output_path,
+        style_name,
+        show_title=SHOW_TITLE,
+        show_number=SHOW_NUMBER,
+        num_measure_per_line=NUM_MEASURES_PER_LINE,
 ):
     work_dir = TEMP_DIR + input_path.split("/")[-1]
 
@@ -501,13 +500,13 @@ def mscz_main(
 
 
 def process_mscx(
-    mscx_path,
-    selected_style,
-    show_title,
-    show_number,
-    measures_per_line,
-    standalone=False,
-    output_path="test-data-copy/"
+        mscx_path,
+        selected_style,
+        show_title,
+        show_number,
+        measures_per_line,
+        standalone=False,
+        output_path="test-data-copy/"
 ):
     try:
         parser = ET.XMLParser()
@@ -516,13 +515,13 @@ def process_mscx(
         score = root.find("Score")
         if score is None:
             raise ValueError("No <Score> tag found in the XML.")
-        
+
         score_properties = {
             "albumTitle": show_title,
             "trackNum": show_number
         }
-        
-        #set score properties
+
+        # set score properties
         for metaTag in score.findall("metaTag"):
             for k in score_properties.keys():
                 if metaTag.attrib.get(k):
@@ -566,8 +565,9 @@ if __name__ == "__main__":
         sys.exit(1)
 
     if sys.argv[1].endswith(".mscx"):
-        process_mscx(sys.argv[1], Style.BROADWAY, SHOW_TITLE, SHOW_NUMBER, NUM_MEASURES_PER_LINE, standalone=True, output_path=sys.argv[2])
+        process_mscx(sys.argv[1], Style.BROADWAY, SHOW_TITLE, SHOW_NUMBER, NUM_MEASURES_PER_LINE, standalone=True,
+                     output_path=sys.argv[2])
     elif sys.argv[1].endswith(".mscz"):
-        mscz_main(sys.argv[1], sys.argv[2], style_name="broadway") #Change this line if you want to set the style!
+        mscz_main(sys.argv[1], sys.argv[2], style_name="broadway")  # Change this line if you want to set the style!
     else:
         print("Make sure to use this on either a mscx or mscz file")
