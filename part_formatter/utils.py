@@ -83,11 +83,13 @@ def _add_line_break_to_measure(measure: ET.Element) -> None:
         index += 1
     measure.insert(index, _make_line_break())
 
+def _measure_has_line_break(measure: ET.Element) -> bool:
+    return measure.find("LayoutBreak") is not None
+
 
 def _add_line_break_to_measure_opt(measure: ET.Element) -> None:
-    if measure.find("LayoutBreak") is not None:
-        return
-    _add_line_break_to_measure(measure)
+    if not _measure_has_line_break(measure):
+        _add_line_break_to_measure(measure)
 
 
 def _add_page_break_to_measure(measure: ET.Element) -> None:
