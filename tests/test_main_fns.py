@@ -33,9 +33,9 @@ def test_params_incorrect():
 
 @pytest.mark.parametrize("barlines, nmpl", [
     (True, 4),
-    # (True, 6),
-    # (False, 4),
-    # (False, 6),
+    (True, 6),
+    (False, 4),
+    (False, 6),
 ])
 def test_regular_line_breaks(barlines, nmpl):
     #eg, 32 bar file with notes, barline at bar 16.
@@ -56,6 +56,14 @@ def test_regular_line_breaks(barlines, nmpl):
         original_mscx_path = f"tests/test-data/sample-mscx/{filename}"
     else:
         original_mscx_path = f"tests/test-data/sample-mscx/{filename}"
+
+    if nmpl == 4:
+        bars_with_line_breaks = [4,8,12,16,20,14,28]
+    elif nmpl == 6:
+        bars_with_line_breaks = [6,12,16,22,28]
+
+    else:
+        bars_with_line_breaks = [-1]
 
     with tempfile.TemporaryDirectory() as workdir:
 
@@ -81,8 +89,8 @@ def test_regular_line_breaks(barlines, nmpl):
             assert len(measures) == 32, "Something is wrong ith sample score"
             measures_with_line_breaks = [(i +1) for i in range(len(measures)) if _measure_has_line_break(measures[i])]
 
-            for i in range((nmpl -1), 31, nmpl):
-                assert _measure_has_line_break(measures[i]), f"Measure {i +1} should have had a line break, but it did not :(\n Measures with line breaks: {measures_with_line_breaks}"
+            for i in bars_with_line_breaks:
+                assert _measure_has_line_break(measures[i -1]), f"Measure {i} should have had a line break, but it did not :(\n Measures with line breaks: {measures_with_line_breaks}"
 
             #tests for 6 fail, thats the balancing thing happening, need to figure out hwo to test for that behaviour
 

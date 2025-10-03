@@ -1,12 +1,26 @@
 import xml.etree.ElementTree as ET
 import os, shutil
 
-from .utils import _make_part_name_text, _make_show_number_text, _make_show_title_text, _add_line_break_to_measure_opt, _add_page_break_to_measure
+from .utils import (
+    _make_part_name_text,
+    _make_show_number_text,
+    _make_show_title_text,
+    _add_line_break_to_measure_opt,
+    _add_page_break_to_measure,
+    _measure_has_line_break,
+)
 
-from .utils import CONDUCTOR_SCORE_PART_NAME, BROADWAY_PART_STYLE_PATH, BROADWAY_SCORE_STYLE_PATH, JAZZ_PART_STYLE_PATH, JAZZ_SCORE_STYLE_PATH
+from .utils import (
+    CONDUCTOR_SCORE_PART_NAME,
+    BROADWAY_PART_STYLE_PATH,
+    BROADWAY_SCORE_STYLE_PATH,
+    JAZZ_PART_STYLE_PATH,
+    JAZZ_SCORE_STYLE_PATH,
+)
 from .utils import Style
 
-#UTIL FNS -- Broadway Specific Formatting
+
+# UTIL FNS -- Broadway Specific Formatting
 def add_broadway_header(staff: ET.Element, show_number: str, show_title: str) -> None:
     for elem in staff:
         # find first VBox
@@ -16,7 +30,9 @@ def add_broadway_header(staff: ET.Element, show_number: str, show_title: str) ->
             return
 
 
-def add_part_name(staff: ET.Element, part_name: str = CONDUCTOR_SCORE_PART_NAME) -> None:
+def add_part_name(
+    staff: ET.Element, part_name: str = CONDUCTOR_SCORE_PART_NAME
+) -> None:
     for elem in staff:
         if elem.tag == "VBox":
             for child in elem.findall("Text"):
@@ -144,40 +160,38 @@ def balance_mm_rest_line_breaks(staff: ET.Element) -> ET.Element:
 
 def add_regular_line_breaks(staff: ET.Element, measures_per_line: int) -> ET.Element:
     """
-    We want to add a line break every `measures_per_line` measures.
-    This does not include multi measure rests, these should be ignored.
+    Go through entire score and add a line break every `measures_per_line` measures.
+    Count starts at first measure and continues until an existing line break is hit, or until we reach `measures_per_line` measures, 
+        at which point a line break is added and the count is reset
+    if a MM rest is encountered, treat the whole MM rest as a single measure
+
     """
-    i = 0
-    for elem in staff:
-        if elem.tag != "Measure":
-            print("Non measure tag encountered")
+
+    mpl_count = 0
+
+    for measure in staff.findall("Measure"):
+        mpl_count += 1
+
+        if _measure_has_line_break(measure):
+            mpl_count = 0
+            continue
+        
+        if mpl_count == measures_per_line:
+            mpl_count = 0
+            _add_line_break_to_measure_opt(measure)
             continue
 
-        if (
-                elem.find("voice") is not None
-                and elem.find("voice").find("RehearsalMark") is not None
-        ):
-            i = 0
-
-        if elem.attrib.get("_mm") is not None:
-            if i > 0:
-                # TODO: add line break to bar before
-                print(
-                    "Could have added a line break"
-                )  # Manual testing indicates otherwise ...
-            i = 0
-        else:
-            if i == (measures_per_line - 1) and elem.find("LayoutBreak") is None:
-                print("Adding Regular Line Break")
-                _add_line_break_to_measure_opt(elem)
-                i = 0
-            else:
-                i += 1
+        if measure.attrib.get("_mm", False):
+            mpl_count -= 1
+            continue
 
     return staff
 
 
+
 def add_page_breaks(staff: ET.Element) -> ET.Element:
+    #TODO: Re-write this code since it doesnt seem to be working
+
     """
     Add page breaks to staff to improve vertical readability.
     - Aim for 7–9 lines per page: 7–8 for first page, 8–9 for others.
@@ -186,20 +200,20 @@ def add_page_breaks(staff: ET.Element) -> ET.Element:
 
     def is_line_break(measure):
         return (
-                measure.find("LayoutBreak") is not None
-                and measure.attrib.get("_mm") is None
+            measure.find("LayoutBreak") is not None
+            and measure.attrib.get("_mm") is None
         )
 
     def has_rehearsal_mark(measure):
         voice = measure.find("voice")
         return (
-                voice is not None
-                and voice.find("RehearsalMark") is not None
-                and measure.attrib.get("_mm") is not None
+            voice is not None
+            and voice.find("RehearsalMark") is not None
+            and measure.attrib.get("_mm") is not None
         )
 
     def choose_best_break(
-            first_elem, second_elem, first_index, second_index, lines_on_page
+        first_elem, second_elem, first_index, second_index, lines_on_page
     ):
         print(f"Page had {lines_on_page} lines before break.")
         next_first = staff[first_index + 1] if first_index + 1 < len(staff) else None
@@ -310,6 +324,7 @@ def final_pass_through(staff: ET.Element) -> ET.Element:
                 split_index = len(prev_line) // 2
                 _add_line_break_to_measure_opt(prev_line[split_index])
     return staff
+
 
 # TODO[SC-43]: Modify it so that the score style is selected based on the # of instruments
 def add_styles_to_score_and_parts(style: Style, work_dir: str) -> None:

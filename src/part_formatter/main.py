@@ -8,7 +8,17 @@ import xml.etree.ElementTree as ET
 
 from .utils import Style
 from .formatting import add_styles_to_score_and_parts
-from .formatting import prep_mm_rests, add_rehearsal_mark_line_breaks, add_double_bar_line_breaks, add_regular_line_breaks, final_pass_through, add_page_breaks, cleanup_mm_rests, add_broadway_header, add_part_name
+from .formatting import (
+    prep_mm_rests,
+    add_rehearsal_mark_line_breaks,
+    add_double_bar_line_breaks,
+    add_regular_line_breaks,
+    final_pass_through,
+    add_page_breaks,
+    cleanup_mm_rests,
+    add_broadway_header,
+    add_part_name,
+)
 
 
 class FormattingParams(TypedDict):
@@ -56,14 +66,17 @@ def format_mscx(mscx_path: str, params: FormattingParams) -> bool:
         prep_mm_rests(staff)
         add_rehearsal_mark_line_breaks(staff)
         add_double_bar_line_breaks(staff)
-        add_regular_line_breaks(staff, params.get("num_measures_per_line_score")) #TODO: Adjust this to work properly
+        add_regular_line_breaks(
+            staff, params.get("num_measures_per_line_score")
+        ) 
         final_pass_through(staff)
-        add_page_breaks(staff)
+        # add_page_breaks(staff)
         cleanup_mm_rests(staff)
         if params.get("selected_style") == Style.BROADWAY:
-            add_broadway_header(staff, params.get("show_number"), params.get("show_title"))
+            add_broadway_header(
+                staff, params.get("show_number"), params.get("show_title")
+            )
         add_part_name(staff)
-
 
         with open(mscx_path, "wb") as f:
             ET.indent(tree, space="  ", level=0)
@@ -73,8 +86,6 @@ def format_mscx(mscx_path: str, params: FormattingParams) -> bool:
     except FileNotFoundError:
         print(f"Error: File '{mscx_path}' not found.")
         return False
-
-
 
 
 def format_mscz(input_path: str, output_path: str, params: FormattingParams) -> bool:
@@ -92,11 +103,12 @@ def format_mscz(input_path: str, output_path: str, params: FormattingParams) -> 
     May also raise exceptions while we are in this development phase
     """
 
-    #unpack params
-    style_name = params['selected_style'] if params.get('selected_style') else "broadway"
+    # unpack params
+    style_name = (
+        params["selected_style"] if params.get("selected_style") else "broadway"
+    )
 
     with tempfile.TemporaryDirectory() as work_dir:
-
         with zipfile.ZipFile(input_path, "r") as zip_ref:
             # Extract all files to "temp" and collect all .mscx files from the zip structure
             zip_ref.extractall(work_dir)
@@ -115,10 +127,7 @@ def format_mscz(input_path: str, output_path: str, params: FormattingParams) -> 
 
         for mscx_path in mscx_files:
             print(f"Processing {mscx_path}...")
-            format_mscx(
-                mscx_path,
-                params
-            )
+            format_mscx(mscx_path, params)
 
         with zipfile.ZipFile(output_path, "w") as zip_out:
             for root, _, files in os.walk(work_dir):
