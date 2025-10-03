@@ -12,11 +12,11 @@ NUM_MEASURES_PER_LINE = (
 
 CONDUCTOR_SCORE_PART_NAME = "CONDUCTOR SCORE"
 
-BROADWAY_SCORE_STYLE_PATH = "part_formatter/resources/broadway_score.mss"
-BROADWAY_PART_STYLE_PATH = "part_formatter/resources/broadway_part.mss"
+BROADWAY_SCORE_STYLE_PATH = "src/part_formatter/resources/broadway_score.mss"
+BROADWAY_PART_STYLE_PATH = "src/part_formatter/resources/broadway_part.mss"
 
-JAZZ_SCORE_STYLE_PATH = "part_formatter/resources/jazz_score.mss"
-JAZZ_PART_STYLE_PATH = "part_formatter/resources/jazz_part.mss"
+JAZZ_SCORE_STYLE_PATH = "src/part_formatter/resources/jazz_score.mss"
+JAZZ_PART_STYLE_PATH = "src/part_formatter/resources/jazz_part.mss"
 
 class Style(Enum):
     BROADWAY = "broadway"

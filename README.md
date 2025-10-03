@@ -1,6 +1,17 @@
 # musescore-part-formatter-poc
 POC for programmatically formatting musescore parts
 
+To run tests, need to manually build your code for the tests to be able to find it
+> TODO: Is this something I did wrong? or is this just how it works?
+
+```
+pip install -e .
+```
+
+
+
+=== OLD OLD =====
+
 Usage:
 Requires Python 3.11 (I think)
 ```

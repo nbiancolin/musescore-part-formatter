@@ -1,2 +1,2 @@
-from .part_formatter import format_mscz, format_mscx
-from .part_formatter import FormattingParams
+from .main import format_mscz, format_mscx
+from .main import FormattingParams
