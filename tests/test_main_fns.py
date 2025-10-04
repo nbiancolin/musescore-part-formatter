@@ -19,7 +19,7 @@ def test_mscz_formatter_works(style):
         "show_number": "1",
         "show_title": "My Show",
         "num_measures_per_line_part": 6,
-        "num_measures_per_line_score": 4
+        "num_measures_per_line_score": 4,
     }
 
     res = format_mscz(input_path, output_path, params)
@@ -29,16 +29,22 @@ def test_mscz_formatter_works(style):
 
 def test_params_incorrect():
     pass
-#TODO: Quickly test what jappens if you pass in bogus params and ensure that its caught
 
-@pytest.mark.parametrize("barlines, nmpl", [
-    (True, 4),
-    (True, 6),
-    (False, 4),
-    (False, 6),
-])
+
+# TODO: Quickly test what jappens if you pass in bogus params and ensure that its caught
+
+
+@pytest.mark.parametrize(
+    "barlines, nmpl",
+    [
+        (True, 4),
+        (True, 6),
+        (False, 4),
+        (False, 6),
+    ],
+)
 def test_regular_line_breaks(barlines, nmpl):
-    #eg, 32 bar file with notes, barline at bar 16.
+    # eg, 32 bar file with notes, barline at bar 16.
     # set num measures per line to be 4
     # assert that the XML is formatted correctly
     # use format mscx
@@ -58,21 +64,20 @@ def test_regular_line_breaks(barlines, nmpl):
         original_mscx_path = f"tests/test-data/sample-mscx/{filename}"
 
     if nmpl == 4:
-        bars_with_line_breaks = [4,8,12,16,20,14,28]
+        bars_with_line_breaks = [4, 8, 12, 16, 20, 24, 28]
     elif nmpl == 6:
-        bars_with_line_breaks = [6,12,16,22,28]
+        bars_with_line_breaks = [6, 12, 16, 22, 28]
 
     else:
         bars_with_line_breaks = [-1]
 
     with tempfile.TemporaryDirectory() as workdir:
-
-        #process mscx
+        # process mscx
         shutil.copy(original_mscx_path, workdir)
         temp_mscx = os.path.join(workdir, filename)
         format_mscx(temp_mscx, params)
 
-        #check that output matches what we expect
+        # check that output matches what we expect
 
         try:
             parser = ET.XMLParser()
@@ -82,17 +87,22 @@ def test_regular_line_breaks(barlines, nmpl):
             if score is None:
                 raise ValueError("No <Score> tag found in the XML.")
 
-
             staff = score.find("Staff")
             assert staff is not None, "I made a mistake in this test ... :/"
             measures = staff.findall("Measure")
             assert len(measures) == 32, "Something is wrong ith sample score"
-            measures_with_line_breaks = [(i +1) for i in range(len(measures)) if _measure_has_line_break(measures[i])]
+            measures_with_line_breaks = [
+                (i + 1)
+                for i in range(len(measures))
+                if _measure_has_line_break(measures[i])
+            ]
 
             for i in bars_with_line_breaks:
-                assert _measure_has_line_break(measures[i -1]), f"Measure {i} should have had a line break, but it did not :(\n Measures with line breaks: {measures_with_line_breaks}"
+                assert _measure_has_line_break(measures[i - 1]), (
+                    f"Measure {i} should have had a line break, but it did not :(\n Measures with line breaks: {measures_with_line_breaks}"
+                )
 
-            #tests for 6 fail, thats the balancing thing happening, need to figure out hwo to test for that behaviour
+            # tests for 6 fail, thats the balancing thing happening, need to figure out hwo to test for that behaviour
 
         except FileNotFoundError:
             print(f"Error: File '{filename}' not found.")
