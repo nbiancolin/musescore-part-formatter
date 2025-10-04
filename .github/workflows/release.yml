@@ -15,31 +15,51 @@ jobs:
       contents: write
 
     steps:
-      - name: Checkout repository
+      - name: Checkout repository (full history & tags)
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0   # <<-- important: ensures tags & history are present
 
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
           python-version: "3.11"
 
-      - name: Fetch all tags
-        run: git fetch --tags
-
-      - name: Get latest tag
+      - name: Ensure tags are available & get latest tag
         id: get_tag
         run: |
-          latest_tag=$(git describe --tags --abbrev=0 2>/dev/null || echo "v0.0.0")
+          set -eux
+
+          # if this is a shallow checkout, try to unshallow (safe to ignore failure)
+          git fetch --prune --unshallow || true
+
+          # fetch tags from remote
+          git fetch --tags --force
+
+          # show tags (debug)
+          echo "Top tags (by version sort):"
+          git tag --list --sort=-v:refname | sed -n '1,20p' || true
+
+          # pick the latest tag by version sort; fallback to create a default
+          latest_tag=$(git tag --list --sort=-v:refname | head -n1 || true)
+          if [ -z "$latest_tag" ]; then
+            latest_tag="v0.0.0"
+          fi
+
+          echo "latest_tag=$latest_tag"
           echo "latest_tag=$latest_tag" >> $GITHUB_ENV
 
-      - name: Bump version
-        id: bump
+      - name: Bump version, create & push tag
+        id: bump_and_tag
         run: |
+          set -eux
           old="${{ env.latest_tag }}"
-          echo "Old version: $old"
-          major=$(echo $old | cut -d. -f1 | tr -d 'v')
-          minor=$(echo $old | cut -d. -f2)
-          patch=$(echo $old | cut -d. -f3)
+          echo "Old tag: $old"
+
+          # extract numeric version portion (handles v1.2.3 or prefix-1.2.3)
+          ver=$(echo "$old" | grep -oE '[0-9]+(\.[0-9]+){0,2}' || echo "0.0.0")
+          IFS='.' read -r major minor patch <<< "$ver"
+          major=${major:-0}; minor=${minor:-0}; patch=${patch:-0}
 
           case "${{ github.event.inputs.release_type }}" in
             major)
@@ -48,18 +68,21 @@ jobs:
               minor=$((minor + 1)); patch=0;;
             patch)
               patch=$((patch + 1));;
+            *)
+              echo "Unknown release_type, defaulting to patch"; patch=$((patch + 1));;
           esac
 
           new="v${major}.${minor}.${patch}"
-          echo "new_tag=$new" >> $GITHUB_ENV
-          echo "New version: $new"
+          echo "New tag: $new"
 
-      - name: Create Git tag
-        run: |
+          # export so following steps can read it
+          echo "new_tag=$new" >> $GITHUB_ENV
+
+          # create and push the tag
           git config user.name "github-actions"
           git config user.email "github-actions@github.com"
-          git tag ${{ env.new_tag }}
-          git push origin ${{ env.new_tag }}
+          git tag "$new"
+          git push origin "$new"
 
       - name: Install build dependencies
         run: |
@@ -67,13 +90,4 @@ jobs:
           pip install build
 
       - name: Build package
-        run: python -m build
-
-      - name: Upload build to release
-        uses: softprops/action-gh-release@v2
-        with:
-          tag_name: ${{ env.new_tag }}
-          name: "Release ${{ env.new_tag }}"
-          generate_release_notes: true
-          files: |
-            dist/*
+        run: p
