@@ -1,0 +1,71 @@
+name: Create Release
+
+on:
+  workflow_dispatch:
+    inputs:
+      release_type:
+        description: "Type of release (major, minor, patch)"
+        required: true
+        default: "patch"
+
+jobs:
+  create-release:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      id-token: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Fetch all tags
+        run: git fetch --tags
+
+      - name: Get latest tag
+        id: get_tag
+        run: |
+          latest_tag=$(git describe --tags --abbrev=0 2>/dev/null || echo "v0.0.0")
+          echo "latest_tag=$latest_tag" >> $GITHUB_ENV
+
+      - name: Bump version
+        id: bump
+        run: |
+          old="${{ env.latest_tag }}"
+          echo "Old version: $old"
+          major=$(echo $old | cut -d. -f1 | tr -d 'v')
+          minor=$(echo $old | cut -d. -f2)
+          patch=$(echo $old | cut -d. -f3)
+
+          case "${{ github.event.inputs.release_type }}" in
+            major)
+              major=$((major + 1))
+              minor=0
+              patch=0
+              ;;
+            minor)
+              minor=$((minor + 1))
+              patch=0
+              ;;
+            patch)
+              patch=$((patch + 1))
+              ;;
+          esac
+
+          new="v${major}.${minor}.${patch}"
+          echo "new_tag=$new" >> $GITHUB_ENV
+          echo "New version: $new"
+
+      - name: Create Git tag
+        run: |
+          git config user.name "github-actions"
+          git config user.email "github-actions@github.com"
+          git tag ${{ env.new_tag }}
+          git push origin ${{ env.new_tag }}
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ env.new_tag }}
+          name: "Release ${{ env.new_tag }}"
+          generate_release_notes: true
