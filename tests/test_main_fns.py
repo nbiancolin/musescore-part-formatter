@@ -8,6 +8,13 @@ import os
 from part_formatter import format_mscz, format_mscx, FormattingParams
 from part_formatter.utils import _measure_has_line_break
 
+@pytest.fixture(scope="module", autouse=True)
+def cleanup_processed_scores():
+    yield
+
+    #TODO[]: Clean up everything generated that does *not* need manual inspection
+    # ie. clean up temp-processed directory
+
 
 @pytest.mark.parametrize("style", ("jazz", "broadway"))
 def test_mscz_formatter_works(style):
@@ -17,7 +24,7 @@ def test_mscz_formatter_works(style):
     params: FormattingParams = {
         "selected_style": style,
         "show_number": "1",
-        "show_title": "My Show",
+        "show_title": "TEST Show",
         "num_measures_per_line_part": 6,
         "num_measures_per_line_score": 4,
     }
@@ -54,7 +61,7 @@ def test_regular_line_breaks(barlines, nmpl):
         "num_measures_per_line_part": nmpl,
         "num_measures_per_line_score": nmpl,
         "selected_style": "broadway",
-        "show_title": "My Show",
+        "show_title": "TEST Show",
         "show_number": "1",
     }
 
@@ -76,8 +83,6 @@ def test_regular_line_breaks(barlines, nmpl):
         shutil.copy(original_mscx_path, workdir)
         temp_mscx = os.path.join(workdir, filename)
         format_mscx(temp_mscx, params)
-
-        # check that output matches what we expect
 
         try:
             parser = ET.XMLParser()
@@ -102,8 +107,72 @@ def test_regular_line_breaks(barlines, nmpl):
                     f"Measure {i} should have had a line break, but it did not :(\n Measures with line breaks: {measures_with_line_breaks}"
                 )
 
-            # tests for 6 fail, thats the balancing thing happening, need to figure out hwo to test for that behaviour
-
         except FileNotFoundError:
             print(f"Error: File '{filename}' not found.")
             assert False
+
+
+def test_part_and_score_line_breaks():
+    #process mscz
+    FILE_NAME = "tests/test-data/Test-Parts-NMPL.mscz"
+    #TODO[]: Have all processed files be put into a "processed" directory
+    PROCESSED_FILE_NAME = "tests/test-data/Test-Parts-NMPL-processed.mscz"
+    params: FormattingParams = {
+        "num_measures_per_line_part": 6,
+        "num_measures_per_line_score": 4,
+        "selected_style": "broadway",
+        "show_title": "TEST Show",
+        "show_number": "1",
+    }
+
+    format_mscz(FILE_NAME, PROCESSED_FILE_NAME, params)
+
+    import zipfile
+
+    #in temp directory, unpack it and inspect the individual parts
+    with tempfile.TemporaryDirectory() as work_dir:
+        with zipfile.ZipFile(PROCESSED_FILE_NAME, "r") as zip_ref:
+            # Extract all files to "temp" and collect all .mscx files from the zip structure
+            zip_ref.extractall(work_dir)
+
+
+        mscx_files = [
+            os.path.join(work_dir, f) for f in zip_ref.namelist() if f.endswith(".mscx")
+        ]
+        assert mscx_files, "Something really weird happened"
+
+        for mscx_path in mscx_files:
+            #CHECK if part or score MSCX file
+            if "Excerpts" in mscx_path:
+                #part score, nmpl = 6
+                bars_with_line_breaks = [6, 12, 16, 22, 28]
+            else:
+                #score score
+                bars_with_line_breaks = [4, 8, 12, 16, 20, 24, 28]
+            #CHECK that part/score has respective amount of measures per line
+            try:
+                parser = ET.XMLParser()
+                tree = ET.parse(mscx_path, parser)
+                root = tree.getroot()
+                score = root.find("Score")
+                if score is None:
+                    raise ValueError("No <Score> tag found in the XML.")
+
+                staff = score.find("Staff")
+                assert staff is not None, "I made a mistake in this test ... :/"
+                measures = staff.findall("Measure")
+                assert len(measures) == 32, "Something is wrong ith sample score"
+                measures_with_line_breaks = [
+                    (i + 1)
+                    for i in range(len(measures))
+                    if _measure_has_line_break(measures[i])
+                ]
+
+                for i in bars_with_line_breaks:
+                    assert _measure_has_line_break(measures[i - 1]), (
+                        f"Measure {i} should have had a line break, but it did not :(\n Measures with line breaks: {measures_with_line_breaks}"
+                    )
+
+            except FileNotFoundError:
+                print(f"Error: File '{mscx_path}' not found.")
+                assert False, "File Somehow not found ..."

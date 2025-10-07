@@ -29,7 +29,7 @@ class FormattingParams(TypedDict):
     num_measures_per_line_part: int | None
 
 
-def format_mscx(mscx_path: str, params: FormattingParams) -> bool:
+def format_mscx(mscx_path: str, params: FormattingParams, is_part:bool = False) -> bool:
     """
     Takes in an (uncompressed) musescore file, processes it, and outputs it in place
     This is usually only used internally by `format_mscz()`, but if the user wants to format a mscx file, why not let them?
@@ -66,9 +66,14 @@ def format_mscx(mscx_path: str, params: FormattingParams) -> bool:
         prep_mm_rests(staff)
         add_rehearsal_mark_line_breaks(staff)
         add_double_bar_line_breaks(staff)
-        add_regular_line_breaks(
-            staff, params.get("num_measures_per_line_score")
-        ) 
+        if is_part:
+            add_regular_line_breaks(
+                staff, params.get("num_measures_per_line_part", 6)
+            ) 
+        else:
+            add_regular_line_breaks(
+                staff, params.get("num_measures_per_line_score", 4)
+            ) 
         final_pass_through(staff)
         # add_page_breaks(staff)
         cleanup_mm_rests(staff)
@@ -126,8 +131,12 @@ def format_mscz(input_path: str, output_path: str, params: FormattingParams) -> 
             return False
 
         for mscx_path in mscx_files:
+            #TODO[]: Convert all prints to Logs
             print(f"Processing {mscx_path}...")
-            format_mscx(mscx_path, params)
+            if "Excerpts" in mscx_path:
+                format_mscx(mscx_path, params, is_part=True)
+            else:
+                format_mscx(mscx_path, params, is_part=False)
 
         with zipfile.ZipFile(output_path, "w") as zip_out:
             for root, _, files in os.walk(work_dir):
