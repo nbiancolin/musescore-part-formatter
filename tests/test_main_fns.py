@@ -2,6 +2,7 @@ import pytest
 import warnings
 import tempfile
 import shutil
+import zipfile
 import xml.etree.ElementTree as ET
 import os
 
@@ -15,16 +16,13 @@ from part_formatter.utils import _measure_has_line_break
 OUTPUT_DIRECTORY = "tests/processing"
 
 
-
-
 @pytest.fixture(scope="module", autouse=True)
 def cleanup_processed_scores():
-
     os.makedirs(OUTPUT_DIRECTORY, exist_ok=True)
 
     yield
 
-    #TODO[]: Clean up everything generated that does *not* need manual inspection
+    # TODO[]: Clean up everything generated that does *not* need manual inspection
     # ie. clean up temp-processed directory
     shutil.rmtree(OUTPUT_DIRECTORY)
 
@@ -126,9 +124,9 @@ def test_regular_line_breaks(barlines, nmpl):
 
 
 def test_part_and_score_line_breaks():
-    #process mscz
+    # process mscz
     FILE_NAME = "tests/test-data/Test-Parts-NMPL.mscz"
-    #TODO[]: Have all processed files be put into a "processed" directory
+    # TODO[]: Have all processed files be put into a "processed" directory
     PROCESSED_FILE_NAME = f"{OUTPUT_DIRECTORY}/Test-Parts-NMPL-processed.mscz"
     params: FormattingParams = {
         "num_measures_per_line_part": 6,
@@ -140,14 +138,11 @@ def test_part_and_score_line_breaks():
 
     format_mscz(FILE_NAME, PROCESSED_FILE_NAME, params)
 
-    import zipfile
-
-    #in temp directory, unpack it and inspect the individual parts
+    # in temp directory, unpack it and inspect the individual parts
     with tempfile.TemporaryDirectory() as work_dir:
         with zipfile.ZipFile(PROCESSED_FILE_NAME, "r") as zip_ref:
             # Extract all files to "temp" and collect all .mscx files from the zip structure
             zip_ref.extractall(work_dir)
-
 
         mscx_files = [
             os.path.join(work_dir, f) for f in zip_ref.namelist() if f.endswith(".mscx")
@@ -155,14 +150,14 @@ def test_part_and_score_line_breaks():
         assert mscx_files, "Something really weird happened"
 
         for mscx_path in mscx_files:
-            #CHECK if part or score MSCX file
+            # CHECK if part or score MSCX file
             if "Excerpts" in mscx_path:
-                #part score, nmpl = 6
+                # part score, nmpl = 6
                 bars_with_line_breaks = [6, 12, 16, 22, 28]
             else:
-                #score score
+                # score score
                 bars_with_line_breaks = [4, 8, 12, 16, 20, 24, 28]
-            #CHECK that part/score has respective amount of measures per line
+            # CHECK that part/score has respective amount of measures per line
             try:
                 parser = ET.XMLParser()
                 tree = ET.parse(mscx_path, parser)
