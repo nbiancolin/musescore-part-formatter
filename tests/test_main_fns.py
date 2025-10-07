@@ -8,12 +8,25 @@ import os
 from part_formatter import format_mscz, format_mscx, FormattingParams
 from part_formatter.utils import _measure_has_line_break
 
+# =======================
+# Test Constants
+# =======================
+
+OUTPUT_DIRECTORY = "tests/processing"
+
+
+
+
 @pytest.fixture(scope="module", autouse=True)
 def cleanup_processed_scores():
+
+    os.makedirs(OUTPUT_DIRECTORY, exist_ok=True)
+
     yield
 
     #TODO[]: Clean up everything generated that does *not* need manual inspection
     # ie. clean up temp-processed directory
+    shutil.rmtree(OUTPUT_DIRECTORY)
 
 
 @pytest.mark.parametrize("style", ("jazz", "broadway"))
@@ -116,7 +129,7 @@ def test_part_and_score_line_breaks():
     #process mscz
     FILE_NAME = "tests/test-data/Test-Parts-NMPL.mscz"
     #TODO[]: Have all processed files be put into a "processed" directory
-    PROCESSED_FILE_NAME = "tests/test-data/Test-Parts-NMPL-processed.mscz"
+    PROCESSED_FILE_NAME = f"{OUTPUT_DIRECTORY}/Test-Parts-NMPL-processed.mscz"
     params: FormattingParams = {
         "num_measures_per_line_part": 6,
         "num_measures_per_line_score": 4,
