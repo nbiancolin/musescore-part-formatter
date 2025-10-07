@@ -4,6 +4,8 @@
 from enum import Enum
 import xml.etree.ElementTree as ET
 
+from logging import getLogger
+
 # ENUMS and CONSTANTS
 
 NUM_MEASURES_PER_LINE = (
@@ -18,12 +20,16 @@ BROADWAY_PART_STYLE_PATH = "src/part_formatter/resources/broadway_part.mss"
 JAZZ_SCORE_STYLE_PATH = "src/part_formatter/resources/jazz_score.mss"
 JAZZ_PART_STYLE_PATH = "src/part_formatter/resources/jazz_part.mss"
 
+
 class Style(Enum):
     BROADWAY = "broadway"
     JAZZ = "jazz"
 
 
+LOGGER = getLogger("PartFormatter")
+
 # HELPER FNS
+
 
 def _make_show_number_text(show_number: str) -> ET.Element:
     txt = ET.Element("Text")
@@ -83,6 +89,7 @@ def _add_line_break_to_measure(measure: ET.Element) -> None:
         index += 1
     measure.insert(index, _make_line_break())
 
+
 def _measure_has_line_break(measure: ET.Element) -> bool:
     return measure.find("LayoutBreak") is not None
 
@@ -98,7 +105,7 @@ def _add_page_break_to_measure(measure: ET.Element) -> None:
         measure.find("LayoutBreak").find("subtype").text = "page"
         return
 
-    print("added a page break to a bar that did not have a line break!")
+    LOGGER.warning("added a page break to a bar that did not have a line break!")
     index = 0
     for elem in measure:
         if elem.tag == "voice":

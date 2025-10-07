@@ -20,6 +20,10 @@ from .formatting import (
     add_part_name,
 )
 
+from logging import getLogger
+
+LOGGER = getLogger("PartFormatter")
+
 
 class FormattingParams(TypedDict):
     selected_style: str | None
@@ -29,7 +33,9 @@ class FormattingParams(TypedDict):
     num_measures_per_line_part: int | None
 
 
-def format_mscx(mscx_path: str, params: FormattingParams, is_part:bool = False) -> bool:
+def format_mscx(
+    mscx_path: str, params: FormattingParams, is_part: bool = False
+) -> bool:
     """
     Takes in an (uncompressed) musescore file, processes it, and outputs it in place
     This is usually only used internally by `format_mscz()`, but if the user wants to format a mscx file, why not let them?
@@ -67,13 +73,9 @@ def format_mscx(mscx_path: str, params: FormattingParams, is_part:bool = False) 
         add_rehearsal_mark_line_breaks(staff)
         add_double_bar_line_breaks(staff)
         if is_part:
-            add_regular_line_breaks(
-                staff, params.get("num_measures_per_line_part", 6)
-            ) 
+            add_regular_line_breaks(staff, params.get("num_measures_per_line_part", 6))
         else:
-            add_regular_line_breaks(
-                staff, params.get("num_measures_per_line_score", 4)
-            ) 
+            add_regular_line_breaks(staff, params.get("num_measures_per_line_score", 4))
         final_pass_through(staff)
         # add_page_breaks(staff)
         cleanup_mm_rests(staff)
@@ -86,10 +88,10 @@ def format_mscx(mscx_path: str, params: FormattingParams, is_part:bool = False) 
         with open(mscx_path, "wb") as f:
             ET.indent(tree, space="  ", level=0)
             tree.write(f, encoding="utf-8", xml_declaration=True)
-        print(f"Output written to {mscx_path}")
+        LOGGER.info(f"Output written to {mscx_path}")
 
     except FileNotFoundError:
-        print(f"Error: File '{mscx_path}' not found.")
+        LOGGER.warning(f"Error: File '{mscx_path}' not found.")
         return False
 
 
@@ -126,13 +128,12 @@ def format_mscz(input_path: str, output_path: str, params: FormattingParams) -> 
             os.path.join(work_dir, f) for f in zip_ref.namelist() if f.endswith(".mscx")
         ]
         if not mscx_files:
-            print("No .mscx files found in the provided mscz file.")
+            LOGGER.warning("No .mscx files found in the provided mscz file.")
             shutil.rmtree(work_dir)
             return False
 
         for mscx_path in mscx_files:
-            #TODO[]: Convert all prints to Logs
-            print(f"Processing {mscx_path}...")
+            LOGGER.info(f"Processing {mscx_path}...")
             if "Excerpts" in mscx_path:
                 format_mscx(mscx_path, params, is_part=True)
             else:

@@ -19,6 +19,10 @@ from .utils import (
 )
 from .utils import Style
 
+from logging import getLogger
+
+LOGGER = getLogger("PartFormatter")
+
 
 # UTIL FNS -- Broadway Specific Formatting
 def add_broadway_header(staff: ET.Element, show_number: str, show_title: str) -> None:
@@ -90,13 +94,13 @@ def add_rehearsal_mark_line_breaks(staff: ET.Element) -> ET.Element:
         if voice.find("RehearsalMark") is not None:
             assert i > 0
             prev_elem = staff[i - 1]
-            print(f"Adding Line Break to rehearsal mark at bar {i - 1}")
+            (f"Adding Line Break to rehearsal mark at bar {i - 1}")
             _add_line_break_to_measure_opt(prev_elem)
 
             if prev_elem.attrib.get("_mm") is not None:
                 for j in range(i - 1, -1, -1):
                     if staff[j].attrib.get("len") is not None:
-                        print(
+                        LOGGER.debug(
                             f"Adding Line Break to start of multimeasure rest at bar {j}"
                         )
                         _add_line_break_to_measure_opt(staff[j])
@@ -127,7 +131,7 @@ def add_double_bar_line_breaks(staff: ET.Element) -> ET.Element:
         if voice.find("BarLine") is not None:
             assert i > 0
             prev_elem = staff[i]
-            print(f"Adding Line Break to double Bar line at bar {i}")
+            LOGGER.debug(f"Adding Line Break to double Bar line at bar {i}")
             _add_line_break_to_measure_opt(prev_elem)
 
     return staff
@@ -161,7 +165,7 @@ def balance_mm_rest_line_breaks(staff: ET.Element) -> ET.Element:
 def add_regular_line_breaks(staff: ET.Element, measures_per_line: int) -> ET.Element:
     """
     Go through entire score and add a line break every `measures_per_line` measures.
-    Count starts at first measure and continues until an existing line break is hit, or until we reach `measures_per_line` measures, 
+    Count starts at first measure and continues until an existing line break is hit, or until we reach `measures_per_line` measures,
         at which point a line break is added and the count is reset
     if a MM rest is encountered, treat the whole MM rest as a single measure
 
@@ -175,7 +179,7 @@ def add_regular_line_breaks(staff: ET.Element, measures_per_line: int) -> ET.Ele
         if _measure_has_line_break(measure):
             mpl_count = 0
             continue
-        
+
         if mpl_count == measures_per_line:
             mpl_count = 0
             _add_line_break_to_measure_opt(measure)
@@ -188,9 +192,8 @@ def add_regular_line_breaks(staff: ET.Element, measures_per_line: int) -> ET.Ele
     return staff
 
 
-
 def add_page_breaks(staff: ET.Element) -> ET.Element:
-    #TODO: Re-write this code since it doesnt seem to be working
+    # TODO: Re-write this code since it doesnt seem to be working
 
     """
     Add page breaks to staff to improve vertical readability.
@@ -215,34 +218,34 @@ def add_page_breaks(staff: ET.Element) -> ET.Element:
     def choose_best_break(
         first_elem, second_elem, first_index, second_index, lines_on_page
     ):
-        print(f"Page had {lines_on_page} lines before break.")
+        LOGGER.debug(f"Page had {lines_on_page} lines before break.")
         next_first = staff[first_index + 1] if first_index + 1 < len(staff) else None
         next_second = staff[second_index + 1] if second_index + 1 < len(staff) else None
 
         # Prefer break before a rehearsal mark
         if next_second is not None and has_rehearsal_mark(next_second):
             _add_page_break_to_measure(second_elem)
-            print("1")
+            LOGGER.debug("1")
             return 0
         elif next_first is not None and has_rehearsal_mark(next_first):
             _add_page_break_to_measure(second_elem)
-            print("2")
+            LOGGER.debug("2")
             return 0
         # Prefer multimeasure rest (BarLine is a proxy for that)
         elif first_elem.find("BarLine") is not None:
             _add_page_break_to_measure(first_elem)
-            print("3")
+            LOGGER.debug("3")
             return 1
         elif second_elem.find("BarLine") is not None:
             _add_page_break_to_measure(second_elem)
-            print("4")
+            LOGGER.debug("4")
             return 0
         else:
             _add_page_break_to_measure(first_elem)
-            print("3")
+            LOGGER.debug("3")
             return 1
 
-        print("added page break")
+        LOGGER.debug("added page break")
 
     num_line_breaks_per_page = 0
     first_page = True
@@ -251,7 +254,7 @@ def add_page_breaks(staff: ET.Element) -> ET.Element:
 
     for i, elem in enumerate(staff):
         if elem.tag != "Measure":
-            print("non-measure tag")
+            LOGGER.debug("non-measure tag")
             continue
 
         cutoff = 7 if first_page else 8
@@ -359,4 +362,6 @@ def add_styles_to_score_and_parts(style: Style, work_dir: str) -> None:
             source_style = part_style_path if is_excerpt else score_style_path
             shutil.copyfile(source_style, full_path)
 
-            print(f"Replaced {'part' if is_excerpt else 'score'} style: {full_path}")
+            LOGGER.info(
+                f"Replaced {'part' if is_excerpt else 'score'} style: {full_path}"
+            )
