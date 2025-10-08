@@ -89,6 +89,7 @@ def format_mscx(
             ET.indent(tree, space="  ", level=0)
             tree.write(f, encoding="utf-8", xml_declaration=True)
         LOGGER.info(f"Output written to {mscx_path}")
+        return True
 
     except FileNotFoundError:
         LOGGER.warning(f"Error: File '{mscx_path}' not found.")
@@ -98,9 +99,6 @@ def format_mscx(
 def format_mscz(input_path: str, output_path: str, params: FormattingParams) -> bool:
     """
     Takes in a (compressed) musescore file, processes it, and outputs it to the path specified by `output_path`
-
-    Kwargs are for customizable options
-    TODO: Maybe take them in directly
 
     Returns:
     - True if processing completed successfully

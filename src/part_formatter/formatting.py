@@ -192,6 +192,27 @@ def add_regular_line_breaks(staff: ET.Element, measures_per_line: int) -> ET.Ele
     return staff
 
 
+def new_add_page_breaks(staff: ET.Element) -> ET.Element:
+    """
+    Add page breaks to staff to improve vertical readability.
+    - Aim for NUM_LINES_PER_PAGE +/- 1 line(s) per page: NUM -1 / NUM for the first page, NUM / NUM +1 for all others
+    - Favor breaks before multimeasure rests or rehearsal marks.
+
+    Full Decision Tree: (upon encountering a line break / the end of the line)
+    Are we in a multimeasure rest? (alt: Are we at the END of a multimasure rest, dont want to add a line break in the middle)
+    Yes:
+        Is it another MM rest after this?
+        Yes:
+            Don't add line break here, add to the one after
+        TODO: Finish this table
+
+
+    Note about MM Rests:
+    - Eyeball scenario: like 5/6 lines of notes, then 2+ lines of MM rests
+        - The MM rests should go on a new page, even though
+    """
+
+
 def add_page_breaks(staff: ET.Element) -> ET.Element:
     # TODO: Re-write this code since it doesnt seem to be working
 
@@ -330,6 +351,8 @@ def final_pass_through(staff: ET.Element) -> ET.Element:
 
 
 # TODO[SC-43]: Modify it so that the score style is selected based on the # of instruments
+# UPDATE TO ABOVE: Instead of hardcoding values, load in the styles file, and using the # of instruments
+#   Determine a staff spacing value wrt the page size (letter), orientation (vertical or horizontal), # of instruments, and 
 def add_styles_to_score_and_parts(style: Style, work_dir: str) -> None:
     """
     Depending on what style enum is selected, load either the jazz or broadway style file.

@@ -8,9 +8,8 @@ from logging import getLogger
 
 # ENUMS and CONSTANTS
 
-NUM_MEASURES_PER_LINE = (
-    6  # TODO[SC-42]: Make this a function of the time signature somehow?
-)
+# TODO[SC-42]: Make this a function of the time signature somehow?
+NUM_MEASURES_PER_LINE = 6
 
 CONDUCTOR_SCORE_PART_NAME = "CONDUCTOR SCORE"
 

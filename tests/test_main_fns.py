@@ -18,12 +18,13 @@ OUTPUT_DIRECTORY = "tests/processing"
 
 @pytest.fixture(scope="module", autouse=True)
 def cleanup_processed_scores():
+    #Before all tests run
     os.makedirs(OUTPUT_DIRECTORY, exist_ok=True)
 
     yield
 
-    # TODO[]: Clean up everything generated that does *not* need manual inspection
-    # ie. clean up temp-processed directory
+    #After all tests run
+    # clean up temp-processed directory
     shutil.rmtree(OUTPUT_DIRECTORY)
 
 
@@ -126,7 +127,6 @@ def test_regular_line_breaks(barlines, nmpl):
 def test_part_and_score_line_breaks():
     # process mscz
     FILE_NAME = "tests/test-data/Test-Parts-NMPL.mscz"
-    # TODO[]: Have all processed files be put into a "processed" directory
     PROCESSED_FILE_NAME = f"{OUTPUT_DIRECTORY}/Test-Parts-NMPL-processed.mscz"
     params: FormattingParams = {
         "num_measures_per_line_part": 6,
