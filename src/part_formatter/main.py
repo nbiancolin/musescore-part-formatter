@@ -31,6 +31,11 @@ class FormattingParams(TypedDict):
     show_number: str | None
     num_measures_per_line_score: int | None
     num_measures_per_line_part: int | None
+    num_lines_per_page: int | None
+
+    # Whether or not to apply the hotfix with MM rests from Musescore v4.6 
+    #   (maybe I just overlooked it when I initially made it, I think my laptop still runs 4.5, so maybe I just missed it initially?) 
+    msv4_6_line_break_fix: bool
 
 
 def format_mscx(
@@ -69,7 +74,7 @@ def format_mscx(
         staves = score.findall("Staff")
 
         staff = staves[0]  # noqa  -- only add layout breaks to the first staff
-        prep_mm_rests(staff)
+        prep_mm_rests(staff, )
         add_rehearsal_mark_line_breaks(staff)
         add_double_bar_line_breaks(staff)
         if is_part:

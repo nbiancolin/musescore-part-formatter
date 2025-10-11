@@ -124,6 +124,56 @@ def test_regular_line_breaks(barlines, nmpl):
             assert False
 
 
+def test_regular_line_breaks_with_mm_rest():
+
+    filename = "Test_Regular_Line_Breaks_with_mm_rests.mscx"
+    params: FormattingParams = {
+        "num_measures_per_line_part": 4,
+        "num_measures_per_line_score": 4,
+        "selected_style": "broadway",
+        "show_title": "TEST Show",
+        "show_number": "1",
+    }
+
+    original_mscx_path = f"tests/test-data/sample-mscx/{filename}"
+
+    bars_with_line_breaks = [4, 8, 12, 16, 20, 24, 28]
+
+
+    with tempfile.TemporaryDirectory() as workdir:
+        # process mscx
+        shutil.copy(original_mscx_path, workdir)
+        temp_mscx = os.path.join(workdir, filename)
+        format_mscx(temp_mscx, params)
+
+        try:
+            parser = ET.XMLParser()
+            tree = ET.parse(temp_mscx, parser)
+            root = tree.getroot()
+            score = root.find("Score")
+            if score is None:
+                raise ValueError("No <Score> tag found in the XML.")
+
+            staff = score.find("Staff")
+            assert staff is not None, "I made a mistake in this test ... :/"
+            measures = staff.findall("Measure")
+            assert len(measures) == 32, "Something is wrong ith sample score"
+            measures_with_line_breaks = [
+                (i + 1)
+                for i in range(len(measures))
+                if _measure_has_line_break(measures[i])
+            ]
+
+            for i in bars_with_line_breaks:
+                assert _measure_has_line_break(measures[i - 1]), (
+                    f"Measure {i} should have had a line break, but it did not :(\n Measures with line breaks: {measures_with_line_breaks}"
+                )
+
+        except FileNotFoundError:
+            print(f"Error: File '{filename}' not found.")
+            assert False
+
+
 def test_part_and_score_line_breaks():
     # process mscz
     FILE_NAME = "tests/test-data/Test-Parts-NMPL.mscz"
@@ -184,3 +234,7 @@ def test_part_and_score_line_breaks():
             except FileNotFoundError:
                 print(f"Error: File '{mscx_path}' not found.")
                 assert False, "File Somehow not found ..."
+
+
+def test_page_breaks_added_correctly():
+    pass

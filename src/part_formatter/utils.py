@@ -10,6 +10,7 @@ from logging import getLogger
 
 # TODO[SC-42]: Make this a function of the time signature somehow?
 NUM_MEASURES_PER_LINE = 6
+NUM_LINES_PER_PAGE = 8
 
 CONDUCTOR_SCORE_PART_NAME = "CONDUCTOR SCORE"
 
@@ -117,3 +118,10 @@ def _add_page_break_to_measure(measure: ET.Element) -> None:
 def _add_double_bar_to_measure(measure: ET.Element) -> None:
     # Add the double bar as the very last tag in the measure
     measure.append(_make_double_bar())
+
+def _measure_has_double_bar(measure: ET.Element) -> bool:
+    return measure.find("BarLine") is not None
+
+def _measure_has_rehearsal_mark(measure: ET.Element) -> bool:
+    #TODO: Check if find also checks in sub-elements (eg. Voice tag)
+    return measure.find("RehearsalMark") is not None

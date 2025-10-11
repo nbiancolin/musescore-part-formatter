@@ -8,6 +8,8 @@ from .utils import (
     _add_line_break_to_measure_opt,
     _add_page_break_to_measure,
     _measure_has_line_break,
+    _measure_has_double_bar,
+    _measure_has_rehearsal_mark
 )
 
 from .utils import (
@@ -48,12 +50,15 @@ def add_part_name(
 
 
 # -- LayoutBreak formatting --
-def prep_mm_rests(staff: ET.Element) -> ET.Element:
+def prep_mm_rests(staff: ET.Element, ms46_fix: bool = False) -> ET.Element:
     """
     Go through each measure in score.
     if measure n has a "len" attribute: then mark that measure and the next m (m = measure->multiMeasureRest -1) measures with the "_mm" attribute
     """
     measure_to_mark = 0
+    processed_measures = []
+    # if tag is set, remove the prepending measures
+    #TODO have that be set based on the musescore version in the file!
     for elem in staff:
         if elem.tag == "Measure":
             if measure_to_mark > 0:
@@ -191,7 +196,7 @@ def add_regular_line_breaks(staff: ET.Element, measures_per_line: int) -> ET.Ele
 
     return staff
 
-
+#TODO[SC-84]: Fix this
 def new_add_page_breaks(staff: ET.Element) -> ET.Element:
     """
     Add page breaks to staff to improve vertical readability.
@@ -199,22 +204,103 @@ def new_add_page_breaks(staff: ET.Element) -> ET.Element:
     - Favor breaks before multimeasure rests or rehearsal marks.
 
     Full Decision Tree: (upon encountering a line break / the end of the line)
+
     Are we in a multimeasure rest? (alt: Are we at the END of a multimasure rest, dont want to add a line break in the middle)
     Yes:
         Is it another MM rest after this?
         Yes:
-            Don't add line break here, add to the one after
-        TODO: Finish this table
+            Iterate backwards until the start of the MM rest is reached (initial, could be well before) -- and make that one a page breal
+        No:
+            Add Line Break here
+    
+    No: (Not in a MM Rest)
+        Is there a MM Rest after this?
+        Yes:
+            Add Line break here (TODO: Add V.S Text here (fast or time depending on length of MM rest))
+        No:
+            Is there a double bar / Rehearsal Mark here?
+            Yes:
+                Add Page Break here
+            No:
+                Do next or prev have a double bar/Rehearsal Mark?
+                Yes:
+                    Add page break to next/prev (whichever has the barline)
+                No: 
+                    Add page break to prev (some default, can be changed later)
 
 
     Note about MM Rests:
     - Eyeball scenario: like 5/6 lines of notes, then 2+ lines of MM rests
         - The MM rests should go on a new page, even though
     """
+    
+
+    lines: list[list[ET.Element]] = [[]]
+
+    # Build list of lines
+
+    for measure in staff.findall("Measure"):
+        lines[-1].append(measure)
+        if _measure_has_line_break(measure):
+            lines.append([])
+
+    
+    lines_on_this_page = 1
+    for i in range(len(lines)):
+        if lines_on_this_page != NUM_LINES_PER_PAGE:
+            lines_on_this_page += 1
+            continue
+        
+        if i >= (len(lines) - 2):
+            #Don't add a page break for the last line of the score, breaks all the "looking into the future stuff"
+            break
+
+        lines_on_this_page = 0
+        #Begin Decision Tree
+
+        measure = lines[i][-1]
+
+        if measure.attrib.get("_mm") is not None:
+            if lines[i +1][0].attrib.get("mm") is not None:
+                
+                for j in range(i):
+                    line = lines[j]
+                    for m in line:
+                        if m.attrib.get("_mm") is None:
+                            #Finally found a line that doesnt h
+                            #add page break to last bar in eseries
+                            _add_page_break_to_measure(line[-1])
+            
+            else:
+                _add_page_break_to_measure(measure)
+        
+        else:
+            next_line = lines[i +1]
+            if next_line[0].attrib.get("_mm") is not None:
+                _add_page_break_to_measure(measure)
+                #TODO[SC-XXX]: Add "V.S." Text to this measure
+
+            else:
+                if _measure_has_double_bar(measure) or _measure_has_rehearsal_mark(lines[i +1][0]):
+                    _add_page_break_to_measure(measure)
+                
+                else:
+                    if _measure_has_double_bar(lines[i +1][-1]) or _measure_has_rehearsal_mark(lines[i +2][0]):
+                        _add_page_break_to_measure(lines[i +1][-1])
+                    elif _measure_has_double_bar(lines[i -1][-1]) or _measure_has_rehearsal_mark(lines[i][0]):
+                        _add_page_break_to_measure(lines[i][-1])
+                    else:
+                        LOGGER.info("[add_page_breaks] Reached default case for adding page breaks")
+                        #TODO: Define default case somewhere?
+                        _add_page_break_to_measure(measure)
+            
+
+
+
+    
 
 
 def add_page_breaks(staff: ET.Element) -> ET.Element:
-    # TODO: Re-write this code since it doesnt seem to be working
 
     """
     Add page breaks to staff to improve vertical readability.
