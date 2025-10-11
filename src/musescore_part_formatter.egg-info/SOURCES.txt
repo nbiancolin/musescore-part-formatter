@@ -1,0 +1,13 @@
+LICENSE
+README.md
+pyproject.toml
+src/musescore_part_formatter.egg-info/PKG-INFO
+src/musescore_part_formatter.egg-info/SOURCES.txt
+src/musescore_part_formatter.egg-info/dependency_links.txt
+src/musescore_part_formatter.egg-info/top_level.txt
+src/part_formatter/__init__.py
+src/part_formatter/file_processing.py
+src/part_formatter/formatting.py
+src/part_formatter/main.py
+src/part_formatter/utils.py
+tests/test_main_fns.py
