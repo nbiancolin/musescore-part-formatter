@@ -698,6 +698,12 @@ pip install -e .
 ```
 
 
+Notes about the Musescore Uncompressed (XML Based) File Format:
+- MM Rests appear to have changed?
+  - It seems that now, for a MM rest of length 4, there are 5 measures ??
+  - one rest measure BEFORE the MM rest, plus x many after
+
+
 
 === OLD OLD =====
 

@@ -11,3 +11,4 @@ src/part_formatter/formatting.py
 src/part_formatter/main.py
 src/part_formatter/utils.py
 tests/test_main_fns.py
+tests/test_utils.py

@@ -14,7 +14,7 @@ from .formatting import (
     add_double_bar_line_breaks,
     add_regular_line_breaks,
     final_pass_through,
-    add_page_breaks,
+    new_add_page_breaks,
     cleanup_mm_rests,
     add_broadway_header,
     add_part_name,
@@ -32,10 +32,6 @@ class FormattingParams(TypedDict):
     num_measures_per_line_score: int | None
     num_measures_per_line_part: int | None
     num_lines_per_page: int | None
-
-    # Whether or not to apply the hotfix with MM rests from Musescore v4.6 
-    #   (maybe I just overlooked it when I initially made it, I think my laptop still runs 4.5, so maybe I just missed it initially?) 
-    msv4_6_line_break_fix: bool
 
 
 def format_mscx(
@@ -78,11 +74,12 @@ def format_mscx(
         add_rehearsal_mark_line_breaks(staff)
         add_double_bar_line_breaks(staff)
         if is_part:
+            #TODO[SC-181]: move defaults to utils.py
             add_regular_line_breaks(staff, params.get("num_measures_per_line_part", 6))
         else:
             add_regular_line_breaks(staff, params.get("num_measures_per_line_score", 4))
         final_pass_through(staff)
-        # add_page_breaks(staff)
+        new_add_page_breaks(staff, params.get("num_lines_per_page", 7))
         cleanup_mm_rests(staff)
         if params.get("selected_style") == Style.BROADWAY:
             add_broadway_header(

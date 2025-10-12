@@ -50,15 +50,12 @@ def add_part_name(
 
 
 # -- LayoutBreak formatting --
-def prep_mm_rests(staff: ET.Element, ms46_fix: bool = False) -> ET.Element:
+def prep_mm_rests(staff: ET.Element) -> ET.Element:
     """
     Go through each measure in score.
     if measure n has a "len" attribute: then mark that measure and the next m (m = measure->multiMeasureRest -1) measures with the "_mm" attribute
     """
     measure_to_mark = 0
-    processed_measures = []
-    # if tag is set, remove the prepending measures
-    #TODO have that be set based on the musescore version in the file!
     for elem in staff:
         if elem.tag == "Measure":
             if measure_to_mark > 0:
@@ -197,7 +194,7 @@ def add_regular_line_breaks(staff: ET.Element, measures_per_line: int) -> ET.Ele
     return staff
 
 #TODO[SC-84]: Fix this
-def new_add_page_breaks(staff: ET.Element) -> ET.Element:
+def new_add_page_breaks(staff: ET.Element, num_lines_per_page: int) -> ET.Element:
     """
     Add page breaks to staff to improve vertical readability.
     - Aim for NUM_LINES_PER_PAGE +/- 1 line(s) per page: NUM -1 / NUM for the first page, NUM / NUM +1 for all others
@@ -245,15 +242,18 @@ def new_add_page_breaks(staff: ET.Element) -> ET.Element:
             lines.append([])
 
     
+    #start at 1, since first page should have 1 less line on it
     lines_on_this_page = 1
     for i in range(len(lines)):
-        if lines_on_this_page != NUM_LINES_PER_PAGE:
+
+        if i >= (len(lines) - 3):
+            #Don't add a page break for the last couple lines of the score, breaks all the "looking into the future stuff"
+            break
+
+        if lines_on_this_page != num_lines_per_page:
             lines_on_this_page += 1
             continue
-        
-        if i >= (len(lines) - 2):
-            #Don't add a page break for the last line of the score, breaks all the "looking into the future stuff"
-            break
+ 
 
         lines_on_this_page = 0
         #Begin Decision Tree
@@ -295,7 +295,7 @@ def new_add_page_breaks(staff: ET.Element) -> ET.Element:
                         _add_page_break_to_measure(measure)
             
 
-
+    return staff
 
     
 
