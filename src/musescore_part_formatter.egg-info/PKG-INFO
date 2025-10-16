@@ -1,5 +1,5 @@
 Metadata-Version: 2.4
-Name: musescore_part_formatter
+Name: musescore-part-formatter
 Version: 1.0.0
 Summary: A Python utility to process Musescore files and format the scores
 Author-email: Nicholas Biancolin <nicholasbiancolin@gmail.com>

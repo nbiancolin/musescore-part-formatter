@@ -6,8 +6,8 @@ import zipfile
 import xml.etree.ElementTree as ET
 import os
 
-from part_formatter import format_mscz, format_mscx, FormattingParams
-from part_formatter.utils import _measure_has_line_break
+from musescore_part_formatter import format_mscz, format_mscx, FormattingParams
+from musescore_part_formatter.utils import _measure_has_line_break
 
 # =======================
 # Test Constants

@@ -1,1 +1,1 @@
-part_formatter
+musescore_part_formatter
