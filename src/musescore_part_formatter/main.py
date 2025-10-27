@@ -22,6 +22,10 @@ from .formatting import (
 
 from logging import getLogger
 
+import argparse
+import sys
+
+
 LOGGER = getLogger("PartFormatter")
 
 
@@ -70,11 +74,13 @@ def format_mscx(
         staves = score.findall("Staff")
 
         staff = staves[0]  # noqa  -- only add layout breaks to the first staff
-        prep_mm_rests(staff, )
+        prep_mm_rests(
+            staff,
+        )
         add_rehearsal_mark_line_breaks(staff)
         add_double_bar_line_breaks(staff)
         if is_part:
-            #TODO[SC-181]: move defaults to utils.py
+            # TODO[SC-181]: move defaults to utils.py
             add_regular_line_breaks(staff, params.get("num_measures_per_line_part", 6))
         else:
             add_regular_line_breaks(staff, params.get("num_measures_per_line_score", 4))
@@ -146,3 +152,77 @@ def format_mscz(input_path: str, output_path: str, params: FormattingParams) -> 
                     zip_out.write(file_path, os.path.relpath(file_path, work_dir))
 
     return True
+
+
+def main():
+    """
+    Command-line interface for formatting MuseScore files (.mscz).
+    Example:
+        python -m musescore_part_formatter.main input.mscz output.mscz \
+            --style broadway \
+            --show-title "My Song" \
+            --show-number "01" \
+            --num-measures-per-line-score 4 \
+            --num-measures-per-line-part 6 \
+            --num-lines-per-page 7
+    """
+    parser = argparse.ArgumentParser(description="Format a MuseScore file (.mscz).")
+
+    parser.add_argument("input", help="Path to input .mscz file")
+    parser.add_argument("output", help="Path to output .mscz file")
+    parser.add_argument(
+        "--style",
+        dest="selected_style",
+        default="broadway",
+        help="Style to apply (default: broadway)",
+    )
+    parser.add_argument(
+        "--show-title", dest="show_title", default=None, help="Title to display"
+    )
+    parser.add_argument(
+        "--show-number", dest="show_number", default=None, help="Number to display"
+    )
+    parser.add_argument(
+        "--num-measures-per-line-score",
+        type=int,
+        default=4,
+        help="Number of measures per line in the full score (default: 4)",
+    )
+    parser.add_argument(
+        "--num-measures-per-line-part",
+        type=int,
+        default=6,
+        help="Number of measures per line in parts (default: 6)",
+    )
+    parser.add_argument(
+        "--num-lines-per-page",
+        type=int,
+        default=7,
+        help="Number of lines per page (default: 7)",
+    )
+
+    args = parser.parse_args()
+
+    params: FormattingParams = {
+        "selected_style": args.selected_style,
+        "show_title": args.show_title,
+        "show_number": args.show_number,
+        "num_measures_per_line_score": args.num_measures_per_line_score,
+        "num_measures_per_line_part": args.num_measures_per_line_part,
+        "num_lines_per_page": args.num_lines_per_page,
+    }
+
+    try:
+        success = format_mscz(args.input, args.output, params)
+        if success:
+            print(f"✅ Successfully formatted score: {args.output}")
+        else:
+            print("⚠️ Formatting failed. See logs for details.")
+            sys.exit(1)
+    except Exception as e:
+        print(f"❌ Error: {e}")
+        sys.exit(1)
+
+
+if __name__ == "__main__":
+    main()

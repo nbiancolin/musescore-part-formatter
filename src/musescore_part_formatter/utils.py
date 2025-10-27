@@ -4,6 +4,9 @@
 from enum import Enum
 import xml.etree.ElementTree as ET
 
+import importlib.resources as resources
+from pathlib import Path
+
 from logging import getLogger
 
 # ENUMS and CONSTANTS
@@ -14,11 +17,20 @@ NUM_LINES_PER_PAGE = 8
 
 CONDUCTOR_SCORE_PART_NAME = "CONDUCTOR SCORE"
 
-BROADWAY_SCORE_STYLE_PATH = "src/part_formatter/resources/broadway_score.mss"
-BROADWAY_PART_STYLE_PATH = "src/part_formatter/resources/broadway_part.mss"
 
-JAZZ_SCORE_STYLE_PATH = "src/part_formatter/resources/jazz_score.mss"
-JAZZ_PART_STYLE_PATH = "src/part_formatter/resources/jazz_part.mss"
+def get_resource_path(filename: str) -> Path:
+    """
+    Returns a filesystem path to a resource inside musescore_part_formatter/resources.
+    Works both when installed and in editable/development mode.
+    """
+    return resources.files("musescore_part_formatter.resources").joinpath(filename)
+
+
+# Define constants as resource paths
+BROADWAY_SCORE_STYLE_PATH = get_resource_path("broadway_score.mss")
+BROADWAY_PART_STYLE_PATH = get_resource_path("broadway_part.mss")
+JAZZ_SCORE_STYLE_PATH = get_resource_path("jazz_score.mss")
+JAZZ_PART_STYLE_PATH = get_resource_path("jazz_part.mss")
 
 
 class Style(Enum):
@@ -119,9 +131,11 @@ def _add_double_bar_to_measure(measure: ET.Element) -> None:
     # Add the double bar as the very last tag in the measure
     measure.append(_make_double_bar())
 
+
 def _measure_has_double_bar(measure: ET.Element) -> bool:
     return measure.find("BarLine") is not None
 
+
 def _measure_has_rehearsal_mark(measure: ET.Element) -> bool:
-    #TODO: Check if find also checks in sub-elements (eg. Voice tag)
+    # TODO: Check if find also checks in sub-elements (eg. Voice tag)
     return measure.find("RehearsalMark") is not None

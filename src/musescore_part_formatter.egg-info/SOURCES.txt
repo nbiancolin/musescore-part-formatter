@@ -1,4 +1,5 @@
 LICENSE
+MANIFEST.in
 README.md
 pyproject.toml
 src/musescore_part_formatter/__init__.py
@@ -10,5 +11,9 @@ src/musescore_part_formatter.egg-info/PKG-INFO
 src/musescore_part_formatter.egg-info/SOURCES.txt
 src/musescore_part_formatter.egg-info/dependency_links.txt
 src/musescore_part_formatter.egg-info/top_level.txt
+src/musescore_part_formatter/resources/broadway_part.mss
+src/musescore_part_formatter/resources/broadway_score.mss
+src/musescore_part_formatter/resources/jazz_part.mss
+src/musescore_part_formatter/resources/jazz_score.mss
 tests/test_main_fns.py
 tests/test_utils.py
