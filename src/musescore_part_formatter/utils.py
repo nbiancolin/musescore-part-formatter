@@ -139,3 +139,25 @@ def _measure_has_double_bar(measure: ET.Element) -> bool:
 def _measure_has_rehearsal_mark(measure: ET.Element) -> bool:
     # TODO: Check if find also checks in sub-elements (eg. Voice tag)
     return measure.find("RehearsalMark") is not None
+
+
+
+def set_score_properties(score, properties):
+    existing_meta = score.findall("metaTag")
+
+    if existing_meta:
+        insert_index = list(score).index(existing_meta[-1]) + 1
+    else:
+        insert_index = 0
+
+    for k, v in properties.items():
+        tag = score.find(f"metaTag[@name='{k}']")
+
+        if tag is not None:
+            tag.text = v
+        else:
+            new_tag = ET.Element("metaTag")
+            new_tag.set("name", k)
+            new_tag.text = v
+            score.insert(insert_index, new_tag)
+            insert_index += 1   # keep new metaTags grouped together

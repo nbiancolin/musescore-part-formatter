@@ -7,6 +7,7 @@ import os
 import xml.etree.ElementTree as ET
 
 from .utils import Style
+from .utils import set_score_properties
 from .formatting import add_styles_to_score_and_parts
 from .formatting import (
     prep_mm_rests,
@@ -67,11 +68,7 @@ def format_mscx(
             "versionNum": params.get("version_num", "v1.0.0")
         }
 
-        # set score properties
-        for metaTag in score.findall("metaTag"):
-            for k in score_properties.keys():
-                if metaTag.attrib.get(k):
-                    metaTag.attrib[k] = score_properties[k]
+        set_score_properties(score, score_properties)
 
         staves = score.findall("Staff")
 
