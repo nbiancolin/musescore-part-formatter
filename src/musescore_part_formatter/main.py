@@ -32,7 +32,7 @@ LOGGER = getLogger("PartFormatter")
 
 class FormattingParams(TypedDict):
     selected_style: str | None
-    show_title: str | None
+    show_title: str | Style | None
     show_number: str | None
     version_num: str | None
     num_measures_per_line_score: int | None
@@ -126,6 +126,7 @@ def format_mscz(input_path: str, output_path: str, params: FormattingParams) -> 
             zip_ref.extractall(work_dir)
 
         selected_style = Style(style_name)
+        params["selected_style"] = selected_style
 
         add_styles_to_score_and_parts(selected_style, work_dir)
 
