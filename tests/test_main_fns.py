@@ -37,6 +37,7 @@ def test_mscz_formatter_works(style):
         "selected_style": style,
         "show_number": "1",
         "show_title": "TEST Show",
+        "version_num": "1.0.0",
         "num_measures_per_line_part": 6,
         "num_measures_per_line_score": 4,
         "num_lines_per_page": 7,
@@ -77,6 +78,7 @@ def test_regular_line_breaks(barlines, nmpl: int):
         "selected_style": "broadway",
         "show_title": "TEST Show",
         "show_number": "1",
+        "version_num": "1.0.0"
     }
 
     if barlines:
@@ -138,6 +140,7 @@ def test_part_and_score_line_breaks():
         "show_title": "TEST Show",
         "show_number": "1",
         "num_lines_per_page": 7,
+        "version_num": "1.0.0",
     }
 
     format_mscz(FILE_NAME, PROCESSED_FILE_NAME, params)

@@ -485,9 +485,11 @@
     <evenFooterL></evenFooterL>
     <evenFooterC>$:copyright:</evenFooterC>
     <evenFooterR></evenFooterR>
-    <oddFooterL>$:workTitle: - $:arranger:</oddFooterL>
+    <oddFooterL>Made with: Divisi App
+http://divisi.nbiancolin.ca</oddFooterL>
     <oddFooterC> $C</oddFooterC>
-    <oddFooterR>Rev. $M</oddFooterR>
+    <oddFooterR>$:workTitle: - $:arranger:
+$:versionNum:</oddFooterR>
     <voltaPosAbove x="0" y="-3"/>
     <voltaHook>2.2</voltaHook>
     <voltaLineWidth>0.16</voltaLineWidth>

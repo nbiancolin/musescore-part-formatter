@@ -470,15 +470,13 @@
     <sectionPause>3</sectionPause>
     <musicalSymbolFont>Leland</musicalSymbolFont>
     <musicalTextFont>Leland Text</musicalTextFont>
-    <showHeader>1</showHeader>
     <headerFirstPage>0</headerFirstPage>
     <headerOddEven>0</headerOddEven>
     <evenHeaderL>$p</evenHeaderL>
     <evenHeaderC></evenHeaderC>
     <evenHeaderR></evenHeaderR>
     <oddHeaderL>$:trackNum:. $:workTitle:
-[r. $M] 
-
+[$:versionNum:] 
 </oddHeaderL>
     <oddHeaderC>- $p -</oddHeaderC>
     <oddHeaderR>$:partName:</oddHeaderR>
@@ -488,15 +486,14 @@
     <evenFooterL></evenFooterL>
     <evenFooterC>$:copyright:</evenFooterC>
     <evenFooterR></evenFooterR>
-    <oddFooterL>NBMS Music Services
-Nicholas Biancolin
-https://bit.ly/nbms</oddFooterL>
+    <oddFooterL>Made with: Divisi App
+http://divisi.nbiancolin.ca</oddFooterL>
     <oddFooterC> 
 $C
  
 </oddFooterC>
     <oddFooterR>$:albumTitle:
-v$:versionNum:</oddFooterR>
+$:versionNum:</oddFooterR>
     <voltaPosAbove x="0" y="-3"/>
     <voltaHook>2.2</voltaHook>
     <voltaLineWidth>0.11</voltaLineWidth>

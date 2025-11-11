@@ -33,6 +33,7 @@ class FormattingParams(TypedDict):
     selected_style: str | None
     show_title: str | None
     show_number: str | None
+    version_num: str | None
     num_measures_per_line_score: int | None
     num_measures_per_line_part: int | None
     num_lines_per_page: int | None
@@ -63,6 +64,7 @@ def format_mscx(
         score_properties = {
             "albumTitle": params.get("show_title", ""),
             "trackNum": params.get("show_number", ""),
+            "versionNum": params.get("version_num", "v1.0.0")
         }
 
         # set score properties
@@ -183,6 +185,9 @@ def main():
         "--show-number", dest="show_number", default=None, help="Number to display"
     )
     parser.add_argument(
+        "--version-num", dest="version_num", default=None, help="Version Num to display"
+    )
+    parser.add_argument(
         "--num-measures-per-line-score",
         type=int,
         default=4,
@@ -207,6 +212,7 @@ def main():
         "selected_style": args.selected_style,
         "show_title": args.show_title,
         "show_number": args.show_number,
+        "version_num": args.version_num,
         "num_measures_per_line_score": args.num_measures_per_line_score,
         "num_measures_per_line_part": args.num_measures_per_line_part,
         "num_lines_per_page": args.num_lines_per_page,
