@@ -38,13 +38,13 @@ LOGGER = getLogger("PartFormatter")
 
 
 class FormattingParams(TypedDict):
-    selected_style: str | None
-    show_title: str | Style | None
-    show_number: str | None
-    version_num: str | None
-    num_measures_per_line_score: int | None
-    num_measures_per_line_part: int | None
-    num_lines_per_page: int | None
+    selected_style: str | Style
+    show_title: str
+    show_number: str 
+    version_num: str 
+    num_measures_per_line_score: int
+    num_measures_per_line_part: int
+    num_lines_per_page: int
 
 
 def format_mscx(
@@ -70,9 +70,9 @@ def format_mscx(
             raise ValueError("No <Score> tag found in the XML.")
 
         score_properties = {
-            "albumTitle": params.get("show_title", ""),
-            "trackNum": params.get("show_number", ""),
-            "versionNum": params.get("version_num", "v1.0.0"),
+            "albumTitle": params["show_title"],
+            "trackNum": params["show_number"],
+            "versionNum": params["version_num"],
         }
 
         set_score_properties(score, score_properties)
@@ -86,16 +86,15 @@ def format_mscx(
         add_rehearsal_mark_line_breaks(staff)
         add_double_bar_line_breaks(staff)
         if is_part:
-            # TODO[SC-181]: move defaults to utils.py
-            add_regular_line_breaks(staff, params.get("num_measures_per_line_part", 6))
+            add_regular_line_breaks(staff, params["num_measures_per_line_part"])
         else:
-            add_regular_line_breaks(staff, params.get("num_measures_per_line_score", 4))
+            add_regular_line_breaks(staff, params["num_measures_per_line_score"])
         final_pass_through(staff)
-        new_add_page_breaks(staff, params.get("num_lines_per_page", 7))
+        new_add_page_breaks(staff, params["num_lines_per_page"])
         cleanup_mm_rests(staff)
-        if params.get("selected_style") == Style.BROADWAY:
+        if params["selected_style"] == Style.BROADWAY:
             add_broadway_header(
-                staff, params.get("show_number"), params.get("show_title")
+                staff, params["show_number"], params["show_title"]
             )
         add_part_name(staff)
 
@@ -110,7 +109,7 @@ def format_mscx(
         return False
 
 
-def format_mscz(input_path: str, output_path: str, params: FormattingParams) -> bool:
+def format_mscz(input_path: str, output_path: str, params: dict[str, any]) -> bool:
     """
     Takes in a (compressed) musescore file, processes it, and outputs it to the path specified by `output_path`
 
@@ -127,13 +126,21 @@ def format_mscz(input_path: str, output_path: str, params: FormattingParams) -> 
         params["selected_style"] if params.get("selected_style") else "broadway"
     )
 
+    prepped_params: FormattingParams = {
+        "selected_style": Style(style_name),
+        "show_title": params.get("show_title", ""),
+        "show_number": params.get("show_number", ""),
+        "version_num": params.get("version_num", ""),
+        "num_measures_per_line_part": params.get("num_measures_per_line_part", 6),
+        "num_measures_per_line_score": params.get("num_measures_per_line_score", 4),
+        "num_lines_per_page": params.get("num_lines_per_page", 8)
+    }
+
     # use the new helper
     try:
         with unpack_mscz_to_tempdir(input_path) as (work_dir, mscx_files):
-            selected_style = Style(style_name)
-            params["selected_style"] = selected_style
 
-            add_styles_to_score_and_parts(selected_style, work_dir)
+            add_styles_to_score_and_parts(params["selected_style"], work_dir)
 
             if not mscx_files:
                 LOGGER.warning("No .mscx files found in the provided mscz file.")
@@ -142,9 +149,9 @@ def format_mscz(input_path: str, output_path: str, params: FormattingParams) -> 
             for mscx_path in mscx_files:
                 LOGGER.info(f"Processing {mscx_path}...")
                 if "Excerpts" in mscx_path:
-                    format_mscx(mscx_path, params, is_part=True)
+                    format_mscx(mscx_path, prepped_params, is_part=True)
                 else:
-                    format_mscx(mscx_path, params, is_part=False)
+                    format_mscx(mscx_path, prepped_params, is_part=False)
 
             with zipfile.ZipFile(output_path, "w") as zip_out:
                 for root, _, files in os.walk(work_dir):
