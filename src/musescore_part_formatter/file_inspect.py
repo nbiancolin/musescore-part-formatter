@@ -71,6 +71,18 @@ def get_num_instruments(score: ET.Element) -> int:
     return len(score.findall("Part"))
 
 
+def get_time_signatures(score: ET.Element) -> list[str]:
+    staff = score.find("Staff")
+    assert staff is not None, "Couldnt find staff -- malformed mscx file"
+    measures = staff.findall("Measure")
+    res = []
+    for measure in measures:
+        if time_sig := measure.find("voice").find("TimeSig"):
+            res.append(f'{time_sig.find("sigN").text}/{time_sig.find("sigD").text}')
+    return res
+
+
+
 def get_all_properties(score: ET.Element) -> ScoreInfo:
     res = get_properties_from_title_box(score) | get_score_properties_from_meta(score)
     return res

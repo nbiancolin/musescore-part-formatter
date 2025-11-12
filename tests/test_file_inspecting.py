@@ -54,3 +54,16 @@ def test_num_instruments_retrieved_correctly():
 
     for prop, value in EXPECTED_VALUES.items():
         assert res[prop] == value
+
+
+def test_time_signatures_retrieved_correctly():
+    input_path = MUSESCORE_PATH
+
+    res = get_score_attributes(input_path)
+
+    EXPECTED_VALUES = {
+        "time_signatures": ["4/4"]
+    }
+
+    for prop, value in EXPECTED_VALUES.items():
+        assert res[prop] == value
