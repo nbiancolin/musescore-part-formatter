@@ -19,6 +19,11 @@ from .formatting import (
     add_part_name,
 )
 from .file_processing import unpack_mscz_to_tempdir
+from .file_inspect import (
+    ScoreInfo,
+    get_properties_from_title_box,
+    get_score_properties_from_meta,
+)
 
 from logging import getLogger
 
@@ -64,7 +69,7 @@ def format_mscx(
         score_properties = {
             "albumTitle": params.get("show_title", ""),
             "trackNum": params.get("show_number", ""),
-            "versionNum": params.get("version_num", "v1.0.0")
+            "versionNum": params.get("version_num", "v1.0.0"),
         }
 
         set_score_properties(score, score_properties)
@@ -150,6 +155,36 @@ def format_mscz(input_path: str, output_path: str, params: FormattingParams) -> 
 
     return True
 
+
+def get_score_attributes(input_path: str) -> ScoreInfo:
+    """
+    Takes in a mscz file, and parses the score
+    """
+
+    res = {}
+
+    with unpack_mscz_to_tempdir(input_path) as (work_dir, mscx_files):
+        try:
+            parser = ET.XMLParser()
+            target = ""
+            for mscx_path in mscx_files:
+                if "Excerpts" not in mscx_path:
+                    target = mscx_path
+                    break
+            tree = ET.parse(target, parser)
+            root = tree.getroot()
+            score = root.find("Score")
+            if score is None:
+                raise ValueError("No <Score> tag found in the XML.")
+
+            res = get_properties_from_title_box(score) | get_score_properties_from_meta(
+                score
+            )
+
+        except Exception:
+            raise
+
+    return res  # noqa
 
 
 def main():
