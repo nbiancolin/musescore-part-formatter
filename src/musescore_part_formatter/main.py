@@ -1,6 +1,4 @@
 from typing import TypedDict
-import shutil
-import tempfile
 import zipfile
 import os
 
@@ -20,6 +18,7 @@ from .formatting import (
     add_broadway_header,
     add_part_name,
 )
+from .file_processing import unpack_mscz_to_tempdir
 
 from logging import getLogger
 
@@ -120,38 +119,37 @@ def format_mscz(input_path: str, output_path: str, params: FormattingParams) -> 
         params["selected_style"] if params.get("selected_style") else "broadway"
     )
 
-    with tempfile.TemporaryDirectory() as work_dir:
-        with zipfile.ZipFile(input_path, "r") as zip_ref:
-            # Extract all files to "temp" and collect all .mscx files from the zip structure
-            zip_ref.extractall(work_dir)
+    # use the new helper
+    try:
+        with unpack_mscz_to_tempdir(input_path) as (work_dir, mscx_files):
+            selected_style = Style(style_name)
+            params["selected_style"] = selected_style
 
-        selected_style = Style(style_name)
-        params["selected_style"] = selected_style
+            add_styles_to_score_and_parts(selected_style, work_dir)
 
-        add_styles_to_score_and_parts(selected_style, work_dir)
+            if not mscx_files:
+                LOGGER.warning("No .mscx files found in the provided mscz file.")
+                return False
 
-        mscx_files = [
-            os.path.join(work_dir, f) for f in zip_ref.namelist() if f.endswith(".mscx")
-        ]
-        if not mscx_files:
-            LOGGER.warning("No .mscx files found in the provided mscz file.")
-            shutil.rmtree(work_dir)
-            return False
+            for mscx_path in mscx_files:
+                LOGGER.info(f"Processing {mscx_path}...")
+                if "Excerpts" in mscx_path:
+                    format_mscx(mscx_path, params, is_part=True)
+                else:
+                    format_mscx(mscx_path, params, is_part=False)
 
-        for mscx_path in mscx_files:
-            LOGGER.info(f"Processing {mscx_path}...")
-            if "Excerpts" in mscx_path:
-                format_mscx(mscx_path, params, is_part=True)
-            else:
-                format_mscx(mscx_path, params, is_part=False)
+            with zipfile.ZipFile(output_path, "w") as zip_out:
+                for root, _, files in os.walk(work_dir):
+                    for file in files:
+                        file_path = os.path.join(root, file)
+                        zip_out.write(file_path, os.path.relpath(file_path, work_dir))
 
-        with zipfile.ZipFile(output_path, "w") as zip_out:
-            for root, _, files in os.walk(work_dir):
-                for file in files:
-                    file_path = os.path.join(root, file)
-                    zip_out.write(file_path, os.path.relpath(file_path, work_dir))
+    except Exception:
+        LOGGER.exception("Failed to process %s", input_path)
+        return False
 
     return True
+
 
 
 def main():

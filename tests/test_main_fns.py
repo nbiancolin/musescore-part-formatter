@@ -9,24 +9,7 @@ import os
 from musescore_part_formatter import format_mscz, format_mscx, FormattingParams
 from musescore_part_formatter.utils import _measure_has_line_break
 
-# =======================
-# Test Constants
-# =======================
-
 OUTPUT_DIRECTORY = "tests/processing"
-
-
-@pytest.fixture(scope="module", autouse=True)
-def cleanup_processed_scores():
-    #Before all tests run
-    os.makedirs(OUTPUT_DIRECTORY, exist_ok=True)
-
-    yield
-
-    #After all tests run
-    # clean up temp-processed directory
-    shutil.rmtree(OUTPUT_DIRECTORY)
-
 
 @pytest.mark.parametrize("style", ("jazz", "broadway"))
 def test_mscz_formatter_works(style):
