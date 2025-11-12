@@ -23,6 +23,8 @@ from .file_inspect import (
     ScoreInfo,
     get_properties_from_title_box,
     get_score_properties_from_meta,
+    get_num_staves,
+    get_num_instruments
 )
 
 from logging import getLogger
@@ -180,6 +182,8 @@ def get_score_attributes(input_path: str) -> ScoreInfo:
             res = get_properties_from_title_box(score) | get_score_properties_from_meta(
                 score
             )
+            res["num_instruments"] = get_num_instruments(score)
+            res["num_staves"] = get_num_staves(score)
 
         except Exception:
             raise

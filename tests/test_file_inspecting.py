@@ -40,3 +40,17 @@ def test_meta_properties_retrieved_correctly():
 
     for prop, value in EXPECTED_VALUES.items():
         assert res[f"meta_{prop}"] == value
+
+
+def test_num_instruments_retrieved_correctly():
+    input_path = MUSESCORE_PATH
+
+    res = get_score_attributes(input_path)
+
+    EXPECTED_VALUES = {
+        "num_instruments": 5,
+        "num_staves": 6,
+    }
+
+    for prop, value in EXPECTED_VALUES.items():
+        assert res[prop] == value

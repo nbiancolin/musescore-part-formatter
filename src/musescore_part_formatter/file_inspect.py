@@ -23,14 +23,16 @@ class ScoreInfo(TypedDict):
     meta_lyricist: str
     part_name: str
 
+    num_instruments: int
+    num_staves: int
+
 
 TITLE_BOX_PROPERTIES = [
     "title",
     "subtitle",
     "composer",
     "lyricist",
-    "part_name",
-]  # TODO I dont think part_name is correct
+]
 META_PROPERTIES = ["arranger", "composer", "workTitle", "subtitle"]
 
 
@@ -59,6 +61,14 @@ def get_score_properties_from_meta(score: ET.Element) -> dict["str", "str"]:
             res[f"meta_{tag.attrib.get('name')}"] = tag.text
 
     return res
+
+
+def get_num_staves(score: ET.Element) -> int:
+    return len(score.findall("Staff"))
+
+
+def get_num_instruments(score: ET.Element) -> int:
+    return len(score.findall("Part"))
 
 
 def get_all_properties(score: ET.Element) -> ScoreInfo:
