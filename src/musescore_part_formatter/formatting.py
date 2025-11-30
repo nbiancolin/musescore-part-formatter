@@ -9,7 +9,7 @@ from .utils import (
     _add_page_break_to_measure,
     _measure_has_line_break,
     _measure_has_double_bar,
-    _measure_has_rehearsal_mark
+    _measure_has_rehearsal_mark,
 )
 
 from .utils import (
@@ -20,6 +20,9 @@ from .utils import (
     JAZZ_SCORE_STYLE_PATH,
 )
 from .utils import Style
+
+from .file_inspect import set_style_params
+from .estimating_formatting_params import predict_params_based_on_score_info
 
 from logging import getLogger
 
@@ -193,7 +196,8 @@ def add_regular_line_breaks(staff: ET.Element, measures_per_line: int) -> ET.Ele
 
     return staff
 
-#TODO[SC-84]: Fix this
+
+# TODO[SC-84]: Fix this
 def new_add_page_breaks(staff: ET.Element, num_lines_per_page: int) -> ET.Element:
     """
     Add page breaks to staff to improve vertical readability.
@@ -209,7 +213,7 @@ def new_add_page_breaks(staff: ET.Element, num_lines_per_page: int) -> ET.Elemen
             Iterate backwards until the start of the MM rest is reached (initial, could be well before) -- and make that one a page breal
         No:
             Add Line Break here
-    
+
     No: (Not in a MM Rest)
         Is there a MM Rest after this?
         Yes:
@@ -222,7 +226,7 @@ def new_add_page_breaks(staff: ET.Element, num_lines_per_page: int) -> ET.Elemen
                 Do next or prev have a double bar/Rehearsal Mark?
                 Yes:
                     Add page break to next/prev (whichever has the barline)
-                No: 
+                No:
                     Add page break to prev (some default, can be changed later)
 
 
@@ -230,7 +234,6 @@ def new_add_page_breaks(staff: ET.Element, num_lines_per_page: int) -> ET.Elemen
     - Eyeball scenario: like 5/6 lines of notes, then 2+ lines of MM rests
         - The MM rests should go on a new page, even though
     """
-    
 
     lines: list[list[ET.Element]] = [[]]
 
@@ -241,67 +244,67 @@ def new_add_page_breaks(staff: ET.Element, num_lines_per_page: int) -> ET.Elemen
         if _measure_has_line_break(measure):
             lines.append([])
 
-    
-    #start at 1, since first page should have 1 less line on it
+    # start at 1, since first page should have 1 less line on it
     lines_on_this_page = 1
     for i in range(len(lines)):
-
         if i >= (len(lines) - 3):
-            #Don't add a page break for the last couple lines of the score, breaks all the "looking into the future stuff"
+            # Don't add a page break for the last couple lines of the score, breaks all the "looking into the future stuff"
             break
 
         if lines_on_this_page != num_lines_per_page:
             lines_on_this_page += 1
             continue
- 
 
         lines_on_this_page = 0
-        #Begin Decision Tree
+        # Begin Decision Tree
 
         measure = lines[i][-1]
 
         if measure.attrib.get("_mm") is not None:
-            if lines[i +1][0].attrib.get("mm") is not None:
-                
+            if lines[i + 1][0].attrib.get("mm") is not None:
                 for j in range(i):
                     line = lines[j]
                     for m in line:
                         if m.attrib.get("_mm") is None:
-                            #Finally found a line that doesnt h
-                            #add page break to last bar in eseries
+                            # Finally found a line that doesnt h
+                            # add page break to last bar in eseries
                             _add_page_break_to_measure(line[-1])
-            
-            else:
-                _add_page_break_to_measure(measure)
-        
-        else:
-            next_line = lines[i +1]
-            if next_line[0].attrib.get("_mm") is not None:
-                _add_page_break_to_measure(measure)
-                #TODO[SC-XXX]: Add "V.S." Text to this measure
 
             else:
-                if _measure_has_double_bar(measure) or _measure_has_rehearsal_mark(lines[i +1][0]):
+                _add_page_break_to_measure(measure)
+
+        else:
+            next_line = lines[i + 1]
+            if next_line[0].attrib.get("_mm") is not None:
+                _add_page_break_to_measure(measure)
+                # TODO[SC-XXX]: Add "V.S." Text to this measure
+
+            else:
+                if _measure_has_double_bar(measure) or _measure_has_rehearsal_mark(
+                    lines[i + 1][0]
+                ):
                     _add_page_break_to_measure(measure)
-                
+
                 else:
-                    if _measure_has_double_bar(lines[i +1][-1]) or _measure_has_rehearsal_mark(lines[i +2][0]):
-                        _add_page_break_to_measure(lines[i +1][-1])
-                    elif _measure_has_double_bar(lines[i -1][-1]) or _measure_has_rehearsal_mark(lines[i][0]):
+                    if _measure_has_double_bar(
+                        lines[i + 1][-1]
+                    ) or _measure_has_rehearsal_mark(lines[i + 2][0]):
+                        _add_page_break_to_measure(lines[i + 1][-1])
+                    elif _measure_has_double_bar(
+                        lines[i - 1][-1]
+                    ) or _measure_has_rehearsal_mark(lines[i][0]):
                         _add_page_break_to_measure(lines[i][-1])
                     else:
-                        LOGGER.info("[add_page_breaks] Reached default case for adding page breaks")
-                        #TODO: Define default case somewhere?
+                        LOGGER.info(
+                            "[add_page_breaks] Reached default case for adding page breaks"
+                        )
+                        # TODO: Define default case somewhere?
                         _add_page_break_to_measure(measure)
-            
 
     return staff
 
-    
-
 
 def add_page_breaks(staff: ET.Element) -> ET.Element:
-
     """
     Add page breaks to staff to improve vertical readability.
     - Aim for 7–9 lines per page: 7–8 for first page, 8–9 for others.
@@ -438,8 +441,8 @@ def final_pass_through(staff: ET.Element) -> ET.Element:
 
 # TODO[SC-43]: Modify it so that the score style is selected based on the # of instruments
 # UPDATE TO ABOVE: Instead of hardcoding values, load in the styles file, and using the # of instruments
-#   Determine a staff spacing value wrt the page size (letter), orientation (vertical or horizontal), # of instruments, and 
-def add_styles_to_score_and_parts(style: Style, work_dir: str) -> None:
+#   Determine a staff spacing value wrt the page size (letter), orientation (vertical or horizontal), # of instruments, and
+def add_styles_to_score_and_parts(style: Style, work_dir: str, score_info={}) -> None:
     """
     Depending on what style enum is selected, load either the jazz or broadway style file.
 
@@ -469,6 +472,13 @@ def add_styles_to_score_and_parts(style: Style, work_dir: str) -> None:
             is_excerpt = "Excerpts" in rel_path
 
             source_style = part_style_path if is_excerpt else score_style_path
+            # TODO: Re-work this to instead read in the file to memory, and process  with set_style_params fn
+            style_params = predict_params_based_on_score_info(score_info)
+            with open(source_style, "r") as f:
+                style_text = f.read()
+                style_text = set_style_params(
+                    style_text, **score_info
+                )  # TODO: add staff_spacing_param
             shutil.copyfile(source_style, full_path)
 
             LOGGER.info(

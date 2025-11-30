@@ -10,7 +10,6 @@ import os
 
 import xml.etree.ElementTree as ET
 
-
 class ScoreInfo(TypedDict):
     title: str
     meta_title: str
@@ -78,11 +77,25 @@ def get_time_signatures(score: ET.Element) -> list[str]:
     res = []
     for measure in measures:
         if time_sig := measure.find("voice").find("TimeSig"):
-            res.append(f'{time_sig.find("sigN").text}/{time_sig.find("sigD").text}')
+            res.append(f"{time_sig.find('sigN').text}/{time_sig.find('sigD').text}")
     return res
 
+
+def _set_staff_spacing(style_file_txt: str, value: str):
+    "internal -- set style param by matching for string and then replacing it"
+    style_file_txt.replace("DIVISI:staff_spacing", value, )
+
+
+def set_style_params(style_file_txt: str, predict=False, **kwargs) -> str:
+    if "staff_spacing" in kwargs.keys():
+        _set_staff_spacing(style_file_txt, str(kwargs["staff_spacing"]))
+    else:
+        _set_staff_spacing(style_file_txt, "1.74978")
+
+    # TODO: Implement other params
+    return style_file_txt
 
 
 def get_all_properties(score: ET.Element) -> ScoreInfo:
     res = get_properties_from_title_box(score) | get_score_properties_from_meta(score)
-    return res
+    return res  #type-ignore

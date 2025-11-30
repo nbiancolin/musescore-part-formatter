@@ -1,10 +1,9 @@
-from typing import TypedDict
 import zipfile
 import os
 
 import xml.etree.ElementTree as ET
 
-from .utils import Style
+from .utils import Style, FormattingParams
 from .utils import set_score_properties
 from .formatting import add_styles_to_score_and_parts
 from .formatting import (
@@ -35,16 +34,6 @@ import sys
 
 
 LOGGER = getLogger("PartFormatter")
-
-
-class FormattingParams(TypedDict):
-    selected_style: str | Style
-    show_title: str
-    show_number: str 
-    version_num: str 
-    num_measures_per_line_score: int
-    num_measures_per_line_part: int
-    num_lines_per_page: int
 
 
 def format_mscx(
@@ -93,9 +82,7 @@ def format_mscx(
         new_add_page_breaks(staff, params["num_lines_per_page"])
         cleanup_mm_rests(staff)
         if params["selected_style"] == Style.BROADWAY:
-            add_broadway_header(
-                staff, params["show_number"], params["show_title"]
-            )
+            add_broadway_header(staff, params["show_number"], params["show_title"])
         add_part_name(staff)
 
         with open(mscx_path, "wb") as f:
@@ -133,14 +120,18 @@ def format_mscz(input_path: str, output_path: str, params: dict[str, any]) -> bo
         "version_num": params.get("version_num", ""),
         "num_measures_per_line_part": params.get("num_measures_per_line_part", 6),
         "num_measures_per_line_score": params.get("num_measures_per_line_score", 4),
-        "num_lines_per_page": params.get("num_lines_per_page", 8)
+        "num_lines_per_page": params.get("num_lines_per_page", 8),
     }
 
-    # use the new helper
+    # do prediction logic
+
+    score_info = get_score_attributes(input_path)
+
     try:
         with unpack_mscz_to_tempdir(input_path) as (work_dir, mscx_files):
-
-            add_styles_to_score_and_parts(params["selected_style"], work_dir)
+            add_styles_to_score_and_parts(
+                params["selected_style"], work_dir, score_info=score_info
+            )
 
             if not mscx_files:
                 LOGGER.warning("No .mscx files found in the provided mscz file.")
