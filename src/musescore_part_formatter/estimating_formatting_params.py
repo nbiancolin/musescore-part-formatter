@@ -1,5 +1,7 @@
 """
 Code to dynamically predict the optimal formatting params for a score
+
+WIP still but Im working on it
 """
 
 from .utils import FormattingParams
@@ -36,7 +38,7 @@ NUM_INSTS_STAFF_SPACING_MAP = {
 
 
 def _convert_in_to_sp(val: float) -> float:
-    return round(val * (1 / 0.069))
+    return round(val * (1 / 0.069), 4)
 
 
 def _predict_staff_spacing(num_staves, page_dimensions=(8.5, 11)) -> float:

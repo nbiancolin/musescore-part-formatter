@@ -130,7 +130,8 @@ def format_mscz(input_path: str, output_path: str, params: dict[str, any]) -> bo
     try:
         with unpack_mscz_to_tempdir(input_path) as (work_dir, mscx_files):
             add_styles_to_score_and_parts(
-                params["selected_style"], work_dir, score_info=score_info
+                prepped_params["selected_style"], #type-ignore
+                work_dir, score_info=score_info
             )
 
             if not mscx_files:
