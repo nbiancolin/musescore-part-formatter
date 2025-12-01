@@ -31,7 +31,21 @@ def test_mscz_formatter_works(style):
     warnings.warn("Inspect processed files and confirm they look good! :sunglasses: ")
 
     #check that the style mss file has a value set (not the placeholder) 
-    #TODO
+    #unzio output file, find mss file,
+    with tempfile.TemporaryDirectory() as tempdir:
+        with zipfile.ZipFile(output_path, 'r') as zf:
+            zf.extractall(tempdir)
+
+            for root, _, files in os.walk(tempdir):
+                for filename in files:
+                    if not filename.lower().endswith(".mss"):
+                        continue
+
+                    full_path = os.path.join(root, filename)
+
+                    with open(full_path, "r") as f:
+                        f_contents = f.read()
+                        assert "DIVISI:staff_spacing" not in f_contents, "Staff Spacing not properly set"
 
 
 def test_params_incorrect():

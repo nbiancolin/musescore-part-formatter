@@ -442,7 +442,7 @@ def final_pass_through(staff: ET.Element) -> ET.Element:
 # TODO[SC-43]: Modify it so that the score style is selected based on the # of instruments
 # UPDATE TO ABOVE: Instead of hardcoding values, load in the styles file, and using the # of instruments
 #   Determine a staff spacing value wrt the page size (letter), orientation (vertical or horizontal), # of instruments, and
-def add_styles_to_score_and_parts(style: Style, work_dir: str, score_info={}) -> None:
+def add_styles_to_score_and_parts(style: Style, work_dir: str, score_info=None) -> None:
     """
     Depending on what style enum is selected, load either the jazz or broadway style file.
 
