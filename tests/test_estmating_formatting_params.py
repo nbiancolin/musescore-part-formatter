@@ -6,6 +6,7 @@ from musescore_part_formatter.estimating_formatting_params import predict_params
 @pytest.mark.parametrize(
     "input_param, input_param_value, res_param, res_param_value", [
         ("num_staves", 6, "staff_spacing", '0.7246'),
+        ("num_staves", 6, "staff_spacing", '1.4732'),
         #TODO: Add more of these once more params are confuigured to be auto detected
     ]
 )

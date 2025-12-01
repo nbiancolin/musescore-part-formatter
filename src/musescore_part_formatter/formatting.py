@@ -473,13 +473,19 @@ def add_styles_to_score_and_parts(style: Style, work_dir: str, score_info={}) ->
 
             source_style = part_style_path if is_excerpt else score_style_path
             # TODO: Re-work this to instead read in the file to memory, and process  with set_style_params fn
+            #TODO: Check this it doesnt seem to work / copy the file correctly
+            # should 
             style_params = predict_params_based_on_score_info(score_info)
             with open(source_style, "r") as f:
                 style_text = f.read()
                 style_text = set_style_params(
-                    style_text, **score_info
-                )  # TODO: add staff_spacing_param
-            shutil.copyfile(source_style, full_path)
+                    style_text, 
+                    predict=False,  #TODO: When predictive analysis thing is done, set this to true
+                    **style_params
+                )  
+
+                with open(full_path, "w") as out_f:
+                    out_f.write(style_text)
 
             LOGGER.info(
                 f"Replaced {'part' if is_excerpt else 'score'} style: {full_path}"

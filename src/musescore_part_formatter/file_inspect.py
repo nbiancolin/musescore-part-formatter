@@ -83,7 +83,7 @@ def get_time_signatures(score: ET.Element) -> list[str]:
 
 def _set_staff_spacing(style_file_txt: str, value: str):
     "internal -- set style param by matching for string and then replacing it"
-    style_file_txt.replace("DIVISI:staff_spacing", value, )
+    style_file_txt.replace("DIVISI:staff_spacing", value)
 
 
 def set_style_params(style_file_txt: str, predict=False, **kwargs) -> str:

@@ -30,6 +30,9 @@ def test_mscz_formatter_works(style):
     assert res
     warnings.warn("Inspect processed files and confirm they look good! :sunglasses: ")
 
+    #check that the style mss file has a value set (not the placeholder) 
+    #TODO
+
 
 def test_params_incorrect():
     pass
