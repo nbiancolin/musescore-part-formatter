@@ -1235,7 +1235,7 @@ $:versionNum:</oddFooterR>
     <footerFrameRound>0</footerFrameRound>
     <footerFrameFgColor r="0" g="0" b="0" a="255"/>
     <footerFrameBgColor r="255" g="255" b="255" a="0"/>
-    <copyrightFontFace>Edwin</copyrightFontFace>
+    <copyrightFontFace>Palatino Linotype</copyrightFontFace>
     <copyrightFontSize>9</copyrightFontSize>
     <copyrightLineSpacing>1</copyrightLineSpacing>
     <copyrightFontSpatiumDependent>0</copyrightFontSpatiumDependent>
@@ -1249,7 +1249,7 @@ $:versionNum:</oddFooterR>
     <copyrightFrameRound>0</copyrightFrameRound>
     <copyrightFrameFgColor r="0" g="0" b="0" a="255"/>
     <copyrightFrameBgColor r="255" g="255" b="255" a="0"/>
-    <pageNumberFontFace>Edwin</pageNumberFontFace>
+    <pageNumberFontFace>Palatino Linotype</pageNumberFontFace>
     <pageNumberFontSize>11</pageNumberFontSize>
     <pageNumberLineSpacing>1</pageNumberLineSpacing>
     <pageNumberFontSpatiumDependent>0</pageNumberFontSpatiumDependent>

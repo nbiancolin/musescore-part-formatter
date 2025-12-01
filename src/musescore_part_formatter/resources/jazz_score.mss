@@ -588,7 +588,7 @@ $:versionNum:</oddFooterR>
     <tupletDirection>0</tupletDirection>
     <tupletNumberType>0</tupletNumberType>
     <tupletBracketType>0</tupletBracketType>
-    <tupletFontFace>Edwin</tupletFontFace>
+    <tupletFontFace>Palatino Linotype</tupletFontFace>
     <tupletFontSize>9</tupletFontSize>
     <tupletLineSpacing>1</tupletLineSpacing>
     <tupletFontSpatiumDependent>1</tupletFontSpatiumDependent>
@@ -646,7 +646,7 @@ $:versionNum:</oddFooterR>
     <tremoloBarLineWidth>0.12</tremoloBarLineWidth>
     <jumpPosAbove x="0" y="-2"/>
     <markerPosAbove x="0" y="-2"/>
-    <defaultFontFace>Edwin</defaultFontFace>
+    <defaultFontFace>Palatino Linotype</defaultFontFace>
     <defaultFontSize>10</defaultFontSize>
     <defaultLineSpacing>1</defaultLineSpacing>
     <defaultFontSpatiumDependent>1</defaultFontSpatiumDependent>
@@ -1607,6 +1607,6 @@ $:versionNum:</oddFooterR>
     <showCourtesiesAfterCancellingOtherJumps>0</showCourtesiesAfterCancellingOtherJumps>
     <useParensOtherJumpCourtesiesAfterCancelling>1</useParensOtherJumpCourtesiesAfterCancelling>
     <smallParens>1</smallParens>
-    <spatium>1.2446</spatium>
+    <spatium>DIVISI:staff_spacing</spatium>
     </Style>
   </museScore>
