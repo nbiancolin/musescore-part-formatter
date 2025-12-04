@@ -85,10 +85,10 @@ def _set_staff_spacing(style_file_txt: str, value: str) -> str:
     return style_file_txt.replace("DIVISI:staff_spacing", value)
 
 
-def set_style_params(style_file_txt: str, predict=False, **kwargs) -> str:
+def set_style_params(style_file_txt: str, **kwargs) -> str:
     print("STYLE PARAMS FUNCTION CALLED!")
 
-    if "staff_spacing" in kwargs and predict is True:
+    if "staff_spacing" in kwargs:   
         style_file_txt = _set_staff_spacing(style_file_txt, str(kwargs["staff_spacing"]))
     else:
         style_file_txt = _set_staff_spacing(style_file_txt, "1.74978")

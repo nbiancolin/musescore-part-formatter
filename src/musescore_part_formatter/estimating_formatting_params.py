@@ -21,36 +21,48 @@ def predict_best_num_measures_per_line(time_sig) -> int:
             return 8
 
 
-# NOTE: if landscape, can subtract 0.005 from these (at least)
-NUM_INSTS_STAFF_SPACING_MAP = {
-    1: 0.069,
-    2: 0.069,
-    3: 0.069,
-    4: 0.06,
-    5: 0.055,
-    6: 0.05,
-    7: 0.0425,
-    # TODO: Add more
+#NEW ONE use this!!
+NUM_INSTS_TO_SPATIUM_MAP = {
+    1: 1.75,
+    2: 1.75,
+    3: 1.75,
+    4: 1.70,
+    5: 1.65,
+    6: 1.60,
+    7: 1.55,
 }
+
+
+# NOTE: if landscape, can subtract 0.005 from these (at least)
+# NUM_INSTS_STAFF_SPACING_MAP = {
+#     1: 0.069,
+#     2: 0.069,
+#     3: 0.069,
+#     4: 0.06,
+#     5: 0.055,
+#     6: 0.05,
+#     7: 0.0425,
+#     # TODO: Add more
+# }
 
 # NOTE: Musescore stores these values as "spatium"
 # where 1sp == 0.069 in
 
 
-def _convert_in_to_sp(val: float) -> float:
-    return round(val * (1 / 0.069), 4)
+# def _convert_in_to_sp(val: float) -> float:
+#     return round(val * (1 / 0.069), 4)
 
 
 def _predict_staff_spacing(num_staves, page_dimensions=(8.5, 11)) -> float:
     """get value from dict, or approximate it"""
-    if num_staves in NUM_INSTS_STAFF_SPACING_MAP.keys():
-        return _convert_in_to_sp(NUM_INSTS_STAFF_SPACING_MAP[num_staves])
+    if num_staves in NUM_INSTS_TO_SPATIUM_MAP.keys():
+        return NUM_INSTS_TO_SPATIUM_MAP[num_staves]
     # linearly estimate best guess
-    return _convert_in_to_sp(
-        (NUM_INSTS_STAFF_SPACING_MAP[7] - NUM_INSTS_STAFF_SPACING_MAP[5])
+    return (
+        (NUM_INSTS_TO_SPATIUM_MAP[7] - NUM_INSTS_TO_SPATIUM_MAP[5])
         / (7 - 5)
         * (num_staves - 5)
-        + NUM_INSTS_STAFF_SPACING_MAP[5]
+        + NUM_INSTS_TO_SPATIUM_MAP[5]
     )
 
 

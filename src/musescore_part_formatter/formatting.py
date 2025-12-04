@@ -471,16 +471,20 @@ def add_styles_to_score_and_parts(style: Style, work_dir: str, score_info=None) 
             rel_path = os.path.relpath(full_path, work_dir)
             is_excerpt = "Excerpts" in rel_path
 
-            source_style = part_style_path if is_excerpt else score_style_path
-            # TODO: Re-work this to instead read in the file to memory, and process  with set_style_params fn
-            #TODO: Check this it doesnt seem to work / copy the file correctly
-            # should 
-            style_params = predict_params_based_on_score_info(score_info)
+            if is_excerpt:
+                #For now, assuming all parts contain 1 instrument
+                source_style = part_style_path
+                style_params = predict_params_based_on_score_info({
+                    "num_staves": 1,
+                })
+            else:
+                source_style = score_style_path
+                style_params = predict_params_based_on_score_info(score_info)
+            
             with open(source_style, "r") as f:
                 style_text = f.read()
                 style_text = set_style_params(
                     style_text, 
-                    predict=False,  #TODO: When predictive analysis thing is done, set this to true
                     **style_params
                 )  
 
