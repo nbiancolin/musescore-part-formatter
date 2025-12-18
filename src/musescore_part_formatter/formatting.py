@@ -22,7 +22,7 @@ from .utils import (
 from .utils import Style
 
 from .file_inspect import set_style_params
-from .estimating_formatting_params import predict_params_based_on_score_info
+from .estimating_formatting_params import predict_style_params
 
 from logging import getLogger
 
@@ -474,12 +474,12 @@ def add_styles_to_score_and_parts(style: Style, work_dir: str, score_info=None) 
             if is_excerpt:
                 #For now, assuming all parts contain 1 instrument
                 source_style = part_style_path
-                style_params = predict_params_based_on_score_info({
+                style_params = predict_style_params({
                     "num_staves": 1,
                 })
             else:
                 source_style = score_style_path
-                style_params = predict_params_based_on_score_info(score_info)
+                style_params = predict_style_params(score_info)
             
             with open(source_style, "r") as f:
                 style_text = f.read()

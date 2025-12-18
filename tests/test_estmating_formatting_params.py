@@ -1,6 +1,6 @@
 import pytest
 
-from musescore_part_formatter.estimating_formatting_params import predict_params_based_on_score_info
+from musescore_part_formatter.estimating_formatting_params import predict_style_params
 
 
 @pytest.mark.parametrize(
@@ -11,10 +11,10 @@ from musescore_part_formatter.estimating_formatting_params import predict_params
         #TODO: Manually check these values on scores with the right # of instruments
     ]
 )
-def test_predict_params_based_on_score_info(input_param, input_param_value, res_param, res_param_value):
+def test_predict_style_params(input_param, input_param_value, res_param, res_param_value):
     score_info = {input_param: input_param_value}
     
-    res = predict_params_based_on_score_info(score_info)
+    res = predict_style_params(score_info)
     assert res[res_param] == res_param_value
 
 

@@ -47,8 +47,6 @@ def format_mscx(
     - True if processing completed successfully
     - False if an error occurred
 
-    TODO: Remove when complete:
-    May also raise exceptions while we are in this development phase
     """
     try:
         parser = ET.XMLParser()
@@ -96,7 +94,7 @@ def format_mscx(
         return False
 
 
-def format_mscz(input_path: str, output_path: str, params: dict[str, any]) -> bool:
+def format_mscz(input_path: str, output_path: str, params: dict[str, Unknown], predict: bool = False) -> bool:
     """
     Takes in a (compressed) musescore file, processes it, and outputs it to the path specified by `output_path`
 
@@ -104,8 +102,8 @@ def format_mscz(input_path: str, output_path: str, params: dict[str, any]) -> bo
     - True if processing completed successfully
     - False if an error occurred
 
-    TODO: Remove when complete:
-    May also raise exceptions while we are in this development phase
+    If predict is true, if a value is not passed in, the predicted value is used. if values are passed in they are used
+    if predict is false, if a value is not passed in, a default vlue is used
     """
 
     # unpack params
@@ -113,15 +111,26 @@ def format_mscz(input_path: str, output_path: str, params: dict[str, any]) -> bo
         params["selected_style"] if params.get("selected_style") else "broadway"
     )
 
-    prepped_params: FormattingParams = {
+    if predict:
+        prepped_params: FormattingParams = {
         "selected_style": Style(style_name),
-        "show_title": params.get("show_title", ""),
-        "show_number": params.get("show_number", ""),
-        "version_num": params.get("version_num", ""),
-        "num_measures_per_line_part": params.get("num_measures_per_line_part", 6),
-        "num_measures_per_line_score": params.get("num_measures_per_line_score", 4),
-        "num_lines_per_page": params.get("num_lines_per_page", 8),
+        "show_title": params.get("show_title", ""), #title of song from header
+        "show_number": params.get("show_number", ""), #empty
+        "version_num": params.get("version_num", ""), #v1.0?
+        "num_measures_per_line_part": params.get("num_measures_per_line_part", 6), #predict part
+        "num_measures_per_line_score": params.get("num_measures_per_line_score", 4),  #predict score
+        "num_lines_per_page": params.get("num_lines_per_page", 8), #predict? this could pob be fixed tho
     }
+    else:
+        prepped_params: FormattingParams = {
+            "selected_style": Style(style_name),
+            "show_title": params.get("show_title", ""),
+            "show_number": params.get("show_number", ""),
+            "version_num": params.get("version_num", ""),
+            "num_measures_per_line_part": params.get("num_measures_per_line_part", 6),
+            "num_measures_per_line_score": params.get("num_measures_per_line_score", 4),
+            "num_lines_per_page": params.get("num_lines_per_page", 8),
+        }
 
     # do prediction logic
 
