@@ -54,7 +54,7 @@
     <lyricsMelismaMinLength>1</lyricsMelismaMinLength>
     <lyricsDashPosAtStartOfSystem>0</lyricsDashPosAtStartOfSystem>
     <lyricsAvoidBarlines>1</lyricsAvoidBarlines>
-    <lyricsOddFontFace>Edwin</lyricsOddFontFace>
+    <lyricsOddFontFace>Palatino Linotype</lyricsOddFontFace>
     <lyricsOddFontSize>10</lyricsOddFontSize>
     <lyricsOddLineSpacing>1</lyricsOddLineSpacing>
     <lyricsOddFontSpatiumDependent>1</lyricsOddFontSpatiumDependent>
@@ -67,7 +67,7 @@
     <lyricsOddFrameRound>0</lyricsOddFrameRound>
     <lyricsOddFrameFgColor r="0" g="0" b="0" a="255"/>
     <lyricsOddFrameBgColor r="255" g="255" b="255" a="0"/>
-    <lyricsEvenFontFace>Edwin</lyricsEvenFontFace>
+    <lyricsEvenFontFace>Palatino Linotype</lyricsEvenFontFace>
     <lyricsEvenFontSize>10</lyricsEvenFontSize>
     <lyricsEvenLineSpacing>1</lyricsEvenLineSpacing>
     <lyricsEvenFontSpatiumDependent>1</lyricsEvenFontSpatiumDependent>
@@ -593,7 +593,7 @@ $:versionNum:</oddFooterR>
     <tupletDirection>0</tupletDirection>
     <tupletNumberType>0</tupletNumberType>
     <tupletBracketType>0</tupletBracketType>
-    <tupletFontFace>Edwin</tupletFontFace>
+    <tupletFontFace>Palatino Linotype</tupletFontFace>
     <tupletFontSize>9</tupletFontSize>
     <tupletLineSpacing>1</tupletLineSpacing>
     <tupletFontSpatiumDependent>1</tupletFontSpatiumDependent>
@@ -1612,6 +1612,6 @@ $:versionNum:</oddFooterR>
     <showCourtesiesAfterCancellingOtherJumps>0</showCourtesiesAfterCancellingOtherJumps>
     <useParensOtherJumpCourtesiesAfterCancelling>1</useParensOtherJumpCourtesiesAfterCancelling>
     <smallParens>1</smallParens>
-    <spatium>1.4732</spatium>
+    <spatium>DIVISI:staff_spacing</spatium>
     </Style>
   </museScore>

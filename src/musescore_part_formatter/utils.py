@@ -1,6 +1,7 @@
 # Utils file contains barebones definitions
 # Like adding page breaks and adding styles and stuff that is not logic based
 
+from typing import TypedDict
 from enum import Enum
 import xml.etree.ElementTree as ET
 
@@ -36,6 +37,16 @@ JAZZ_PART_STYLE_PATH = get_resource_path("jazz_part.mss")
 class Style(Enum):
     BROADWAY = "broadway"
     JAZZ = "jazz"
+
+
+class FormattingParams(TypedDict):
+    selected_style: str | Style
+    show_title: str
+    show_number: str 
+    version_num: str 
+    num_measures_per_line_score: int
+    num_measures_per_line_part: int
+    num_lines_per_page: int
 
 
 LOGGER = getLogger("PartFormatter")

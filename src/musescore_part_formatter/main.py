@@ -1,10 +1,10 @@
-from typing import TypedDict
-import zipfile
-import os
+import shutil
+import argparse
+import sys
 
 import xml.etree.ElementTree as ET
 
-from .utils import Style
+from .utils import Style, FormattingParams
 from .utils import set_score_properties
 from .formatting import add_styles_to_score_and_parts
 from .formatting import (
@@ -21,30 +21,14 @@ from .formatting import (
 from .file_processing import unpack_mscz_to_tempdir
 from .file_inspect import (
     ScoreInfo,
-    get_properties_from_title_box,
-    get_score_properties_from_meta,
-    get_num_staves,
-    get_num_instruments,
-    get_time_signatures,
+    get_all_properties,
+    set_all_properties,
 )
 
 from logging import getLogger
 
-import argparse
-import sys
-
 
 LOGGER = getLogger("PartFormatter")
-
-
-class FormattingParams(TypedDict):
-    selected_style: str | Style
-    show_title: str
-    show_number: str 
-    version_num: str 
-    num_measures_per_line_score: int
-    num_measures_per_line_part: int
-    num_lines_per_page: int
 
 
 def format_mscx(
@@ -58,8 +42,6 @@ def format_mscx(
     - True if processing completed successfully
     - False if an error occurred
 
-    TODO: Remove when complete:
-    May also raise exceptions while we are in this development phase
     """
     try:
         parser = ET.XMLParser()
@@ -93,9 +75,7 @@ def format_mscx(
         new_add_page_breaks(staff, params["num_lines_per_page"])
         cleanup_mm_rests(staff)
         if params["selected_style"] == Style.BROADWAY:
-            add_broadway_header(
-                staff, params["show_number"], params["show_title"]
-            )
+            add_broadway_header(staff, params["show_number"], params["show_title"])
         add_part_name(staff)
 
         with open(mscx_path, "wb") as f:
@@ -109,7 +89,9 @@ def format_mscx(
         return False
 
 
-def format_mscz(input_path: str, output_path: str, params: dict[str, any]) -> bool:
+def format_mscz(
+    input_path: str, output_path: str, params: dict[str, str], predict: bool = False
+) -> bool:
     """
     Takes in a (compressed) musescore file, processes it, and outputs it to the path specified by `output_path`
 
@@ -117,8 +99,8 @@ def format_mscz(input_path: str, output_path: str, params: dict[str, any]) -> bo
     - True if processing completed successfully
     - False if an error occurred
 
-    TODO: Remove when complete:
-    May also raise exceptions while we are in this development phase
+    If predict is true, if a value is not passed in, the predicted value is used. if values are passed in they are used
+    if predict is false, if a value is not passed in, a default vlue is used
     """
 
     # unpack params
@@ -126,21 +108,46 @@ def format_mscz(input_path: str, output_path: str, params: dict[str, any]) -> bo
         params["selected_style"] if params.get("selected_style") else "broadway"
     )
 
-    prepped_params: FormattingParams = {
-        "selected_style": Style(style_name),
-        "show_title": params.get("show_title", ""),
-        "show_number": params.get("show_number", ""),
-        "version_num": params.get("version_num", ""),
-        "num_measures_per_line_part": params.get("num_measures_per_line_part", 6),
-        "num_measures_per_line_score": params.get("num_measures_per_line_score", 4),
-        "num_lines_per_page": params.get("num_lines_per_page", 8)
-    }
+    if predict:
+        prepped_params: FormattingParams = {
+            "selected_style": Style(style_name),
+            "show_title": params.get("show_title", ""),  # title of song from header
+            "show_number": params.get("show_number", ""),  # empty
+            "version_num": params.get("version_num", ""),  # v1.0?
+            "num_measures_per_line_part": params.get(
+                "num_measures_per_line_part", 6
+            ),  # predict part
+            "num_measures_per_line_score": params.get(
+                "num_measures_per_line_score", 4
+            ),  # predict score
+            "num_lines_per_page": params.get(
+                "num_lines_per_page", 8
+            ),  # predict? this could pob be fixed tho
+        }
+    else:
+        prepped_params: FormattingParams = {
+            "selected_style": Style(style_name),
+            "show_title": params.get("show_title", ""),
+            "show_number": params.get("show_number", ""),
+            "version_num": params.get("version_num", ""),
+            "num_measures_per_line_part": params.get("num_measures_per_line_part", 6),
+            "num_measures_per_line_score": params.get("num_measures_per_line_score", 4),
+            "num_lines_per_page": params.get("num_lines_per_page", 8),
+        }
 
-    # use the new helper
+    # do prediction logic
+
+    shutil.copyfile(input_path, output_path)
+
+    score_info = get_score_attributes(input_path)
+
     try:
-        with unpack_mscz_to_tempdir(input_path) as (work_dir, mscx_files):
-
-            add_styles_to_score_and_parts(params["selected_style"], work_dir)
+        with unpack_mscz_to_tempdir(output_path) as (work_dir, mscx_files):
+            add_styles_to_score_and_parts(
+                prepped_params["selected_style"],  # type-ignore
+                work_dir,
+                score_info=score_info,
+            )
 
             if not mscx_files:
                 LOGGER.warning("No .mscx files found in the provided mscz file.")
@@ -152,12 +159,6 @@ def format_mscz(input_path: str, output_path: str, params: dict[str, any]) -> bo
                     format_mscx(mscx_path, prepped_params, is_part=True)
                 else:
                     format_mscx(mscx_path, prepped_params, is_part=False)
-
-            with zipfile.ZipFile(output_path, "w") as zip_out:
-                for root, _, files in os.walk(work_dir):
-                    for file in files:
-                        file_path = os.path.join(root, file)
-                        zip_out.write(file_path, os.path.relpath(file_path, work_dir))
 
     except Exception:
         LOGGER.exception("Failed to process %s", input_path)
@@ -173,7 +174,7 @@ def get_score_attributes(input_path: str) -> ScoreInfo:
 
     res = {}
 
-    with unpack_mscz_to_tempdir(input_path) as (work_dir, mscx_files):
+    with unpack_mscz_to_tempdir(input_path, repack=False) as (work_dir, mscx_files):
         try:
             parser = ET.XMLParser()
             target = ""
@@ -187,17 +188,39 @@ def get_score_attributes(input_path: str) -> ScoreInfo:
             if score is None:
                 raise ValueError("No <Score> tag found in the XML.")
 
-            res = get_properties_from_title_box(score) | get_score_properties_from_meta(
-                score
-            )
-            res["num_instruments"] = get_num_instruments(score)
-            res["num_staves"] = get_num_staves(score)
-            res["time_signatures"] = get_time_signatures(score)
+            res = get_all_properties(score)
 
         except Exception:
             raise
 
     return res  # noqa
+
+
+def set_score_attributes(input_path: str, score_properties: ScoreInfo) -> None:
+    with unpack_mscz_to_tempdir(input_path) as (work_dir, mscx_files):
+        try:
+            target = ""
+            for mscx_path in mscx_files:
+                if "Excerpts" not in mscx_path:
+                    target = mscx_path
+                    break
+            # TODO: Remove any instances of ET.parse(target, parser), as we do not need our own parser
+            tree = ET.parse(target)
+            root = tree.getroot()
+            score = root.find("Score")
+            if score is None:
+                raise ValueError("No <Score> tag found in the XML.")
+
+            set_all_properties(score, score_properties)
+
+            with open(target, "wb") as f:
+                ET.indent(tree, space="  ", level=0)
+                tree.write(f, encoding="utf-8", xml_declaration=True)
+            LOGGER.info(f"Output written to {mscx_path}")
+            print("Made it here")
+
+        except Exception:
+            raise
 
 
 def main():
