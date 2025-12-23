@@ -1,25 +1,30 @@
-"""
-Collection of code to deal with unpacking and re-packing mscz files
-(so that it can be reused between the part formatter and the introspector)
-"""
-
 from contextlib import contextmanager
-from typing import Iterator, List, Tuple
-import tempfile
+from typing import Iterator, Tuple, List
 import zipfile
+import tempfile
 import os
-from logging import getLogger
 
-LOGGER = getLogger(__name__)
+
+def _rezip_mscz(work_dir: str, output_path: str) -> None:
+    with zipfile.ZipFile(output_path, "w", zipfile.ZIP_DEFLATED) as z:
+        for root, _, files in os.walk(work_dir):
+            for file in files:
+                full_path = os.path.join(root, file)
+                arcname = os.path.relpath(full_path, work_dir)
+                z.write(full_path, arcname)
+
 
 @contextmanager
-def unpack_mscz_to_tempdir(mscz_path: str) -> Iterator[Tuple[str, List[str]]]:
+def unpack_mscz_to_tempdir(
+    mscz_path: str, repack=True
+) -> Iterator[Tuple[str, List[str]]]:
     """
-    Unpack a .mscz (zip) into a temporary directory and yield (work_dir, mscx_files).
-    Cleans up the tempdir automatically when the context exits.
+    Unpack a .mscz (zip) into a temporary directory.
+    On successful exit and if repack=True, rezip contents back into the same .mscz.
     """
     with tempfile.TemporaryDirectory() as work_dir:
         try:
+            # --- unzip ---
             with zipfile.ZipFile(mscz_path, "r") as z:
                 z.extractall(work_dir)
                 mscx_files = [
@@ -27,8 +32,12 @@ def unpack_mscz_to_tempdir(mscz_path: str) -> Iterator[Tuple[str, List[str]]]:
                     for name in z.namelist()
                     if name.endswith(".mscx")
                 ]
+
             yield work_dir, mscx_files
+
+            if repack:
+                _rezip_mscz(work_dir, mscz_path)
+
         except Exception:
-            LOGGER.exception("Failed to unpack %s", mscz_path)
-            # re-raise so callers can handle the failure
+            # don't overwrite original file if something goes wrong
             raise

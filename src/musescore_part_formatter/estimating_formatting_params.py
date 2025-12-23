@@ -64,7 +64,7 @@ def predict_style_params(score_info) -> dict[str, str]:
     return res
 
 
-def predict_formatting_params(score_info) -> dict[str, Unknown]:
+def predict_formatting_params(score_info) -> dict[str, object]:
     res = {}
     if time_sig := score_info.get("time_sig"):
         res["nmpl"] = _predict_nmpl(time_sig)

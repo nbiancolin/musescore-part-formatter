@@ -1,14 +1,21 @@
 import pytest
+import shutil
+import tempfile
 
-from musescore_part_formatter.file_inspect import (
-    get_properties_from_title_box,
-    get_score_properties_from_meta,
-    TITLE_BOX_PROPERTIES,
-)
-
-from musescore_part_formatter.main import get_score_attributes
+from musescore_part_formatter.main import get_score_attributes, set_score_attributes
 
 MUSESCORE_PATH = "tests/test-data/New-Test-Score.mscz"
+
+
+@pytest.fixture(scope="function")
+def musescore_path():
+    """Creates a copy of the file to use for testing,
+    and cleans it up after"""
+
+    with tempfile.TemporaryDirectory() as workdir:
+        res = shutil.copy(MUSESCORE_PATH, workdir)
+        yield res
+        # Should cleanup afterwards I think !
 
 
 def test_title_properties_retrieved_correctly():
@@ -61,9 +68,39 @@ def test_time_signatures_retrieved_correctly():
 
     res = get_score_attributes(input_path)
 
-    EXPECTED_VALUES = {
-        "time_signatures": ["4/4"]
-    }
+    EXPECTED_VALUES = {"time_signatures": ["4/4"]}
 
     for prop, value in EXPECTED_VALUES.items():
         assert res[prop] == value
+
+
+def test_set_score_properties(musescore_path):
+    properties_to_set = {
+        "title": "New Title",
+        "subtitle": "New Subtitle",
+        "composer": "New Composer",
+    }
+
+    set_score_attributes(musescore_path, properties_to_set)
+
+    res = get_score_attributes(musescore_path)
+
+    for k in properties_to_set.keys():
+        assert res[k] == properties_to_set[k]
+
+
+def test_set_score_meta_properties(musescore_path):
+    properties_to_set = {
+        "meta_workTitle": "New Title",
+        "meta_composer": "New Composer",
+        "meta_arranger": "New Arranger",
+    }
+
+    set_score_attributes(musescore_path, properties_to_set)
+
+    res = get_score_attributes(musescore_path)
+
+    print(res)
+
+    for k in properties_to_set.keys():
+        assert res[k] == properties_to_set[k], res

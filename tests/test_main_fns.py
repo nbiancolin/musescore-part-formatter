@@ -11,6 +11,7 @@ from musescore_part_formatter.utils import _measure_has_line_break
 
 OUTPUT_DIRECTORY = "tests/processing"
 
+
 @pytest.mark.parametrize("style", ("jazz", "broadway"))
 def test_mscz_formatter_works(style):
     input_path = "tests/test-data/New-Test-Score.mscz"
@@ -30,10 +31,10 @@ def test_mscz_formatter_works(style):
     assert res
     warnings.warn("Inspect processed files and confirm they look good! :sunglasses: ")
 
-    #check that the style mss file has a value set (not the placeholder) 
-    #unzio output file, find mss file,
+    # check that the style mss file has a value set (not the placeholder)
+    # unzio output file, find mss file,
     with tempfile.TemporaryDirectory() as tempdir:
-        with zipfile.ZipFile(output_path, 'r') as zf:
+        with zipfile.ZipFile(output_path, "r") as zf:
             zf.extractall(tempdir)
 
             for root, _, files in os.walk(tempdir):
@@ -45,7 +46,9 @@ def test_mscz_formatter_works(style):
 
                     with open(full_path, "r") as f:
                         f_contents = f.read()
-                        assert "DIVISI:staff_spacing" not in f_contents, "Staff Spacing not properly set"
+                        assert "DIVISI:staff_spacing" not in f_contents, (
+                            "Staff Spacing not properly set"
+                        )
 
 
 def test_params_incorrect():
@@ -78,7 +81,7 @@ def test_regular_line_breaks(barlines, nmpl: int):
         "selected_style": "broadway",
         "show_title": "TEST Show",
         "show_number": "1",
-        "version_num": "1.0.0"
+        "version_num": "1.0.0",
     }
 
     if barlines:
@@ -128,11 +131,10 @@ def test_regular_line_breaks(barlines, nmpl: int):
             assert False
 
 
-# I really dont want to write this test :sob:
 def test_part_and_score_line_breaks():
-    # process mscz
     FILE_NAME = "tests/test-data/Test-Parts-NMPL.mscz"
     PROCESSED_FILE_NAME = f"{OUTPUT_DIRECTORY}/Test-Parts-NMPL-processed.mscz"
+
     params: FormattingParams = {
         "num_measures_per_line_part": 6,
         "num_measures_per_line_score": 4,
@@ -143,54 +145,42 @@ def test_part_and_score_line_breaks():
         "version_num": "1.0.0",
     }
 
-    format_mscz(FILE_NAME, PROCESSED_FILE_NAME, params)
+    assert format_mscz(FILE_NAME, PROCESSED_FILE_NAME, params)
 
-    # in temp directory, unpack it and inspect the individual parts
     with tempfile.TemporaryDirectory() as work_dir:
         with zipfile.ZipFile(PROCESSED_FILE_NAME, "r") as zip_ref:
-            # Extract all files to "temp" and collect all .mscx files from the zip structure
             zip_ref.extractall(work_dir)
+            names = zip_ref.namelist()
 
-        mscx_files = [
-            os.path.join(work_dir, f) for f in zip_ref.namelist() if f.endswith(".mscx")
-        ]
-        assert mscx_files, "Something really weird happened"
+        mscx_files = [os.path.join(work_dir, f) for f in names if f.endswith(".mscx")]
+
+        assert mscx_files, "No MSCX files found in processed MSCZ"
 
         for mscx_path in mscx_files:
-            # CHECK if part or score MSCX file
             if "Excerpts" in mscx_path:
-                # part score, nmpl = 6
-                bars_with_line_breaks = [6, 12, 16, 22, 28]
+                expected_breaks = [6, 12, 16, 22, 28]
             else:
-                # score score
-                bars_with_line_breaks = [4, 8, 12, 16, 20, 24, 28]
-            # CHECK that part/score has respective amount of measures per line
-            try:
-                parser = ET.XMLParser()
-                tree = ET.parse(mscx_path, parser)
-                root = tree.getroot()
-                score = root.find("Score")
-                if score is None:
-                    raise ValueError("No <Score> tag found in the XML.")
+                expected_breaks = [4, 8, 12, 16, 20, 24, 28, 32]
 
-                staff = score.find("Staff")
-                assert staff is not None, "I made a mistake in this test ... :/"
-                measures = staff.findall("Measure")
-                assert len(measures) == 32, "Something is wrong ith sample score"
-                measures_with_line_breaks = [
-                    (i + 1)
-                    for i in range(len(measures))
-                    if _measure_has_line_break(measures[i])
-                ]
+            tree = ET.parse(mscx_path)
+            score = tree.getroot().find("Score")
+            assert score is not None
 
-                for i in bars_with_line_breaks:
-                    assert _measure_has_line_break(measures[i - 1]), (
-                        f"Measure {i} should have had a line break, but it did not :(\n Measures with line breaks: {measures_with_line_breaks}"
-                    )
+            staff = score.find("Staff")
+            assert staff is not None
 
-            except FileNotFoundError:
-                print(f"Error: File '{mscx_path}' not found.")
-                assert False, "File Somehow not found ..."
+            measures = staff.findall("Measure")
+            assert len(measures) == 32
+
+            actual_breaks = [
+                i + 1 for i, m in enumerate(measures) if _measure_has_line_break(m)
+            ]
+
+            assert actual_breaks == expected_breaks, (
+                f"{os.path.basename(mscx_path)}:\n"
+                f"Expected breaks: {expected_breaks}\n"
+                f"Actual breaks:   {actual_breaks}"
+            )
 
 
 def test_page_breaks_added_correctly():
