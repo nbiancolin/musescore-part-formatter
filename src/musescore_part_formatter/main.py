@@ -72,7 +72,8 @@ def format_mscx(
         else:
             add_regular_line_breaks(staff, params["num_measures_per_line_score"])
         final_pass_through(staff)
-        new_add_page_breaks(staff, params["num_lines_per_page"])
+        #TODO: fix this
+        # new_add_page_breaks(staff, params["num_lines_per_page"])
         cleanup_mm_rests(staff)
         if params["selected_style"] == Style.BROADWAY:
             add_broadway_header(staff, params["show_number"], params["show_title"])
