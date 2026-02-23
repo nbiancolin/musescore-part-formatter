@@ -22,6 +22,13 @@ Notes about the Musescore Uncompressed (XML Based) File Format:
   - one rest measure BEFORE the MM rest, plus x many after
 
 
+Refactor Notes:
+- Phase 1: Musescore File to Canonical Form
+- Phase 2: Processinh
+
+
+
+
 
 === OLD OLD =====
 
