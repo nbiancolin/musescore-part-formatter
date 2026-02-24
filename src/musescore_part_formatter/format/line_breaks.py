@@ -43,7 +43,7 @@ def _add_line_breaks(part: Part, config: FormattingConfig) -> Part:
 
         if measure.is_rehearsal_mark is True:
             prev_measure.add_line_break = True
-            i = 0
+            i = 1
             prev_measure = measure
             continue
 

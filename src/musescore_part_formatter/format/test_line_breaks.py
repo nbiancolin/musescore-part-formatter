@@ -7,7 +7,7 @@ from musescore_part_formatter.format.line_breaks import add_line_breaks
 from musescore_part_formatter.canonical.models import Part
 
 
-@pytest.mark.fixture(scope="function")
+@pytest.fixture(scope="function")
 def sample_config():
     return FormattingConfig(num_measures_per_line=6)
 
