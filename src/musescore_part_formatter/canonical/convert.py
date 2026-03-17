@@ -102,3 +102,14 @@ def convert_staff_to_canonical_part(staff: ET.Element) -> Part:
 
 
     return Part(name="idfk", measures=processed_measures)
+
+
+
+
+def convert_mscz_to_canonical(file_path: str) -> Score:
+
+    # load in score
+    # read title props
+    # read meta props
+    #convert staves to canonical
+    #return finished score object

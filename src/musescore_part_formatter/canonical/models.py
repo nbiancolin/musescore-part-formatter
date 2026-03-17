@@ -1,6 +1,8 @@
 from dataclasses import dataclass
 from typing import Literal
 
+from musescore_part_formatter.canonical.score_properties import TitleBoxProperties
+
 @dataclass
 class Measure:
     """
@@ -42,10 +44,8 @@ class Score:
     Reduced Score Class to represent key information for a score
     """
 
-    title: str
-    subtitle: str | None
-    composer: str | None
-    lyricist: str | None
+    title_box_properties: TitleBoxProperties
+
 
     # Broadway stuff
     show_number: str | None

@@ -1,8 +1,16 @@
-from typing import TypedDict, Any
+from typing import TypedDict, Any, Literal
+
+from dataclasses import dataclass
 
 
-class FormattingConfig(TypedDict):
+@dataclass
+class FormattingConfig:
     num_measures_per_line: int
+
+    balance_mode: Literal["simple", "three-line"]
+
+    #balance flags
+    balance_mm_rest_line_breaks: bool = True
 
 
 class TitleBoxProperties(TypedDict):

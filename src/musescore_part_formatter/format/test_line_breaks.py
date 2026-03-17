@@ -102,3 +102,7 @@ def test_line_break_placement_on_score_with_barlines_and_rehearsal_marks(
     ]
 
     assert expected_line_break_indices == indices_w_line_break
+
+
+def test_line_break_placement_mm_rest_balancing():
+    pass
