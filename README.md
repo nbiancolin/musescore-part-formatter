@@ -1,6 +1,11 @@
 # musescore-part-formatter-poc
 POC for programmatically formatting musescore parts
 
+THIS REPO IS NO LONGER MAINTAINED
+
+see my repo Divisi where I have added this and many others as packages and they will be maintained there as a monorepo
+
+
 To run tests, need to manually build your code for the tests to be able to find it
 > TODO: Is this something I did wrong? or is this just how it works?
 
